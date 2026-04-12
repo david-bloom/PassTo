@@ -1,0 +1,11 @@
+{
+  "name": "passto-signing-service",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@vercel/blob": "^0.19.0",
+    "jsonwebtoken": "^9.0.0",
+    "passkit-generator": "^3.2.0",
+    "uuid": "^9.0.0"
+  }
+}

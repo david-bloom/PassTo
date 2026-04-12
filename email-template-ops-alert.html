@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PassTo Ops Alert</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #F8FAFC;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      -webkit-text-size-adjust: 100%;
+    }
+    .wrapper {
+      width: 100%;
+      background-color: #F8FAFC;
+      padding: 40px 16px;
+      box-sizing: border-box;
+    }
+    .card {
+      max-width: 520px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .header {
+      background-color: #1A1A2E;
+      padding: 28px 32px;
+      text-align: center;
+    }
+    .header-logo {
+      font-size: 22px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+    .header-logo span {
+      color: #4F8EF7;
+    }
+    .alert-banner {
+      background-color: #FEF2F2;
+      border-left: 4px solid #EF4444;
+      padding: 14px 20px;
+      margin: 0;
+    }
+    .alert-banner p {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #991B1B;
+    }
+    .body {
+      padding: 28px 32px;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1A1A2E;
+      margin: 0 0 6px;
+    }
+    .timestamp {
+      font-size: 13px;
+      color: #94A3B8;
+      margin: 0 0 24px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94A3B8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+    .detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 24px;
+    }
+    .detail-table tr td {
+      padding: 10px 12px;
+      font-size: 14px;
+      border-bottom: 1px solid #F1F5F9;
+      vertical-align: top;
+    }
+    .detail-table tr:last-child td {
+      border-bottom: none;
+    }
+    .detail-table .field-label {
+      color: #64748B;
+      font-weight: 600;
+      width: 40%;
+      white-space: nowrap;
+    }
+    .detail-table .field-value {
+      color: #1A1A2E;
+    }
+    .flag-badge {
+      display: inline-block;
+      background-color: #FEE2E2;
+      color: #991B1B;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+    .airtable-links {
+      background-color: #F8FAFC;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    .airtable-links p {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: #64748B;
+      font-weight: 600;
+    }
+    .airtable-links a {
+      display: block;
+      font-size: 14px;
+      color: #4F8EF7;
+      text-decoration: none;
+      margin-bottom: 4px;
+    }
+    .action-note {
+      font-size: 14px;
+      color: #475569;
+      line-height: 1.6;
+      background-color: #FFFBEB;
+      border-left: 3px solid #F59E0B;
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 0;
+    }
+    .footer {
+      background-color: #F1F5F9;
+      padding: 16px 32px;
+      text-align: center;
+    }
+    .footer p {
+      font-size: 12px;
+      color: #94A3B8;
+      margin: 0;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card">
+
+      <!-- Header -->
+      <div class="header">
+        <div class="header-logo">Pass<span>To</span> <span style="font-size:14px;font-weight:400;color:#94A3B8;">Ops Alert</span></div>
+      </div>
+
+      <!-- Alert Banner -->
+      <div class="alert-banner">
+        <p>⚠️ Action Required — License verification flagged. No credential was issued.</p>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <h1>License Flagged</h1>
+        <p class="timestamp">{{timestamp}}</p>
+
+        <!-- Nurse Details -->
+        <div class="section-label">Enrollment Details</div>
+        <table class="detail-table">
+          <tr>
+            <td class="field-label">Name</td>
+            <td class="field-value">{{nurse_name}}</td>
+          </tr>
+          <tr>
+            <td class="field-label">Email</td>
+            <td class="field-value">{{nurse_email}}</td>
+          </tr>
+          <tr>
+            <td class="field-label">License #</td>
+            <td class="field-value">{{license_number}}</td>
+          </tr>
+          <tr>
+            <td class="field-label">NYSED Status</td>
+            <td class="field-value"><span class="flag-badge">{{nysed_status}}</span></td>
+          </tr>
+          <tr>
+            <td class="field-label">Enforcement Actions</td>
+            <td class="field-value">{{enforcement_actions}}</td>
+          </tr>
+          <tr>
+            <td class="field-label">Flag Reason</td>
+            <td class="field-value">{{flag_reason}}</td>
+          </tr>
+        </table>
+
+        <!-- Airtable Links -->
+        <div class="airtable-links">
+          <p>Airtable Records</p>
+          <a href="https://airtable.com/appu4draYRRn3tXjV/tbl0HIA3rtGVKbhZs/{{nurse_record_id}}">→ Nurse Record ({{nurse_record_id}})</a>
+          <a href="https://airtable.com/appu4draYRRn3tXjV/tbldhV0r0q8DfzVJf/{{license_record_id}}">→ License Record ({{license_record_id}})</a>
+        </div>
+
+        <!-- Action Note -->
+        <div class="action-note">
+          Review the Airtable records above. If the license is valid and this is an error, update the StatusFlag to "Active" manually and re-trigger pass generation. If the flag is correct, no further action is needed — the nurse was not notified.
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>PassTo Internal Ops Alert — do not forward</p>
+        <p><a href="mailto:support@passto.com" style="color:#4F8EF7;">support@passto.com</a></p>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

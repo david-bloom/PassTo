@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Environment variables — never commit real credentials
+.env
+.env.local
+.env.production
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Certificates — never commit to git
+*.p12
+*.cer
+*.pem
+*.key
+
+# Google service account keys — never commit
+*service-account*.json
+*credentials*.json
+
+# Vercel
+.vercel
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build output
+dist/
+build/
