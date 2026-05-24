@@ -1,7 +1,7 @@
 # PassTo Engineering Team Operating Charter
 
 **Status:** Approved  
-**Version:** v1.2  
+**Version:** v1.3  
 **Owner:** David  
 **Canonical Location:** `/docs/team_charter/TEAM_CHARTER.md`  
 **Initial Approved Date:** 2026-05-23  
@@ -14,8 +14,9 @@
 | Version | Date | Approved By | Summary |
 |---|---:|---|---|
 | v1.0 | 2026-05-23 | David | Initial approved operating charter |
-| v1.1 | 2026-05-23 | David | Clarifies QA ownership, Class B boundaries, startup prompts, false-assumption escalation, task granularity, and blocked-approval protocol |
-| v1.2 | 2026-05-23 | David | Adds `/docs/design_system/` as a canonical folder and establishes design-system review rules for brand and user-facing work |
+| v1.1 | 2026-05-23 | David | Clarified QA ownership, Class B boundaries, startup prompts, false-assumption escalation, task granularity, and blocked-approval protocol |
+| v1.2 | 2026-05-23 | David | Added `/docs/design_system/` as a canonical folder and established design-system review rules for brand and user-facing work |
+| v1.3 | 2026-05-23 | David | Added close-of-session trigger, closeout requirements, role-specific closeout responsibilities, task status values, and GitHub handoff rules |
 
 ---
 
@@ -781,7 +782,257 @@ If David later approves, the next Codex or Claude session must restart from GitH
 
 ---
 
-## 22. Charter Evolution
+## 22. Close of Session Protocol
+
+Every Codex or Claude session must end with a written closeout when meaningful work occurred, a decision was made, a risk was identified, a task changed status, or the next step depends on future context.
+
+The purpose of closeout is to preserve project memory in GitHub so the next session can restart cleanly from source-of-truth documentation.
+
+### 22.1 Official Close Trigger
+
+David may close any Codex or Claude session with:
+
+```text
+[Codex/Claude], close the PassTo session.
+```
+
+This means the active AI must:
+
+1. Stop new work.
+2. Summarize current state.
+3. Update or prepare updates for the relevant GitHub docs.
+4. Identify approvals, blockers, risks, and next steps.
+5. End with a clean handoff.
+
+### 22.2 Close of Session Triggers
+
+A closeout is required when any of the following occur:
+
+1. A task is completed.
+2. A task is paused.
+3. A task is blocked.
+4. David approval is requested.
+5. David approval is granted or denied.
+6. Claude identifies a deviation, risk, blocker, false assumption, or structural concern.
+7. Codex completes a spec, QA review, architecture review, or security review.
+8. Claude completes implementation or remediation.
+9. A production-impacting, security-impacting, data-impacting, design-system-impacting, or architecture-impacting issue is discovered.
+10. The session is ending before the task is Done.
+11. David explicitly says: “close the session,” “wrap up,” “pause here,” “document where we are,” or similar.
+
+If there is uncertainty about whether closeout is required, closeout is required.
+
+### 22.3 Required Closeout Metadata
+
+Before ending a session, the active AI must update or prepare updates for the relevant GitHub documentation.
+
+At minimum, closeout must include:
+
+```text
+Session Date:
+Role:
+Task ID:
+Task Status:
+Work Completed:
+Files / Docs Changed:
+Open Questions:
+Risks / Issues:
+Decisions Made:
+David Approval Needed:
+Next Recommended Action:
+Handoff Notes:
+```
+
+### 22.4 Task Status at Closeout
+
+Every active task must end the session with one clear status:
+
+```text
+Not Started
+Spec Drafted
+Awaiting David Approval
+Approved for Execution
+In Progress
+Paused — Structural Concern
+Paused — False Assumption
+Blocked — Awaiting David Approval
+Blocked — External Dependency
+Ready for Codex QA
+Codex QA Complete
+Needs Claude Remediation
+Ready for David Review
+Done
+Do Not Do
+```
+
+### 22.5 Codex Closeout Responsibilities
+
+When Codex closes a session, Codex must document:
+
+- Specs written or revised
+- Acceptance criteria added or changed
+- QA plan added or changed
+- Architecture decisions made
+- Security/RLS concerns
+- Design System Impact, if relevant
+- Open risks
+- Required David approvals
+- Recommended next task or decision
+
+Codex closeout should be written to the relevant task file and, where appropriate, the activity log, decision log, or risk log.
+
+### 22.6 Claude Closeout Responsibilities
+
+When Claude closes a session, Claude must document:
+
+- Implementation work completed
+- Files, routes, components, tables, integrations, or assets affected
+- Tests run
+- Test results
+- Deviations from the approved spec
+- Risks or blockers discovered
+- False assumptions discovered
+- Remediation completed or still needed
+- Whether the task is ready for Codex QA, David review, or blocked
+
+Claude closeout should be written to the relevant task file and, where appropriate, the activity log or risk log.
+
+### 22.7 David Closeout Responsibilities
+
+When David closes a session, David should document or instruct Codex/Claude to document:
+
+- Approval decisions
+- Priority decisions
+- Done / Not Done decisions
+- Accepted risks
+- Tasks marked “Do Not Do”
+- Scope changes
+- Next priority
+
+David remains final approver for Done decisions and risk acceptance.
+
+### 22.8 Closeout Location
+
+Closeout notes should be written in the relevant task file under the appropriate section.
+
+For example:
+
+```markdown
+## Session Closeout — YYYY-MM-DD — Codex
+
+## Session Closeout — YYYY-MM-DD — Claude
+
+## David Decision — YYYY-MM-DD
+```
+
+If the session affects more than one task, a summary must also be added to:
+
+```text
+/docs/activity_log/ACTIVITY_LOG.md
+```
+
+If the session creates or resolves a risk, update:
+
+```text
+/docs/activity_log/RISKS_LOG.md
+```
+
+If the session records an architectural or operating decision, update:
+
+```text
+/docs/activity_log/DECISIONS_LOG.md
+```
+
+If the session records an approval, update:
+
+```text
+/docs/activity_log/APPROVALS_LOG.md
+```
+
+### 22.9 Closeout Summary Format
+
+Use this format:
+
+```markdown
+## Session Closeout — YYYY-MM-DD — [Codex/Claude/David]
+
+**Task ID:**  
+**Status:**  
+**Role:**  
+**Summary:**  
+
+### Work Completed
+
+-
+
+### Files / Docs Changed
+
+-
+
+### Decisions Made
+
+-
+
+### Risks / Issues
+
+-
+
+### Open Questions
+
+-
+
+### Approval Needed
+
+-
+
+### Next Recommended Action
+
+-
+
+### Handoff Notes
+
+-
+```
+
+### 22.10 Blocked Session Closeout
+
+If a session ends blocked, use this format:
+
+```markdown
+## Blocked Session Closeout — YYYY-MM-DD
+
+**Task ID:**  
+**Status:** Blocked — [reason]  
+**Blocked By:**  
+**Approval Needed From:** David / Codex / External  
+**Can Work Continue Safely?:** Yes / No  
+
+### Pending Decision
+
+-
+
+### Work Completed Before Block
+
+-
+
+### Risk If Work Continues Without Approval
+
+-
+
+### Recommended Next Action
+
+-
+```
+
+### 22.11 Closeout Rule
+
+No meaningful work session should end with project state trapped only in chat.
+
+If work, decisions, approvals, risks, implementation details, or blockers are not written to GitHub, they do not exist for future sessions.
+
+---
+
+## 23. Charter Evolution
 
 This charter is expected to evolve.
 
