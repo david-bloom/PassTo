@@ -1,9 +1,20 @@
 # PassTo Engineering Team Operating Charter
 
 **Status:** Approved  
+**Version:** v1.1  
 **Owner:** David  
 **Canonical Location:** `/docs/team_charter/TEAM_CHARTER.md`  
-**Approved Date:** 2026-05-23  
+**Initial Approved Date:** 2026-05-23  
+**Last Approved Date:** 2026-05-23  
+
+---
+
+## Version History
+
+| Version | Date | Approved By | Summary |
+|---|---:|---|---|
+| v1.0 | 2026-05-23 | David | Initial approved operating charter |
+| v1.1 | 2026-05-23 | David | Clarifies QA ownership, Class B boundaries, startup prompts, false-assumption escalation, task granularity, and blocked-approval protocol |
 
 ---
 
@@ -76,6 +87,7 @@ Codex owns:
 - Task decomposition
 - Task specs
 - Acceptance criteria
+- QA plans
 - QA standards
 - Governance
 - Security architecture
@@ -85,6 +97,8 @@ Codex owns:
 Codex writes:
 
 - Task specs
+- Acceptance criteria
+- QA plans
 - Architecture decisions
 - Security review notes
 - QA / architectural review notes
@@ -153,6 +167,7 @@ No execution begins until the task has an approved task ID and David approval is
 | Architecture | Codex | Claude |
 | Security model | Codex | Claude |
 | Task specs | Codex | David approves |
+| QA plans | Codex | Claude may recommend changes |
 | Implementation notes | Claude | Codex reviews |
 | QA review | Codex | Claude remediates |
 | Activity log | David, Codex, Claude | All |
@@ -160,7 +175,7 @@ No execution begins until the task has an approved task ID and David approval is
 
 Role-specific documentation rules:
 
-- Codex writes specs and architecture decisions.
+- Codex writes specs, acceptance criteria, QA plans, and architecture decisions.
 - Claude writes implementation notes, deviations, test results, and risks.
 - David writes approvals, priority decisions, and Done decisions.
 
@@ -207,9 +222,72 @@ Security Impact: High
 
 If security impact is Medium or High, Codex must write a security review note before execution proceeds.
 
+### 6.1 QA Plan Ownership
+
+Codex owns the QA Plan as part of the task spec.
+
+Claude may recommend additions or corrections to the QA Plan before or during execution, but Claude may not replace the QA Plan without Codex revision and, where required, David approval.
+
+At minimum, the QA Plan should identify:
+
+- Manual QA steps
+- Expected results
+- Regression areas
+- Error/failure cases
+- Whether automated tests are required
+- Any security, RLS, data, or integration checks required
+
+Claude is responsible for documenting the actual Test Results after execution.
+
 ---
 
-## 7. Approval Process
+## 7. Task Granularity
+
+PassTo work should be broken into tasks small enough to be executed, reviewed, and closed cleanly.
+
+### 7.1 Epic
+
+An epic is a large body of work made up of multiple tasks.
+
+Examples:
+
+- Account Creation
+- Sharing Flow
+- Payments
+- License Lookup
+- Notification System
+
+Epics should live in `/docs/prd/`, `/docs/features/`, or `/docs/flows/`.
+
+Epics are not directly executed by Claude.
+
+### 7.2 Task
+
+A task is a scoped unit of work that should usually be completable in a single focused Claude execution session.
+
+A task should have:
+
+- One clear product or technical goal
+- One approved task spec
+- One acceptance criteria set
+- One QA plan
+- One implementation summary
+- One Codex QA review
+- One David Done decision
+
+If a task cannot be reasonably reviewed in one pass, Codex should split it.
+
+### 7.3 Sub-task
+
+A sub-task is a smaller implementation step inside an approved task.
+
+Sub-tasks may be used by Claude for execution planning, but they do not replace the approved task spec.
+
+If a sub-task changes scope, architecture, security, data, integrations, deployment, or acceptance criteria, it must be escalated.
+
+---
+
+## 8. Approval Process
 
 David approval must be explicit.
 
@@ -243,9 +321,9 @@ David Approval: Approved for execution — YYYY-MM-DD
 
 ---
 
-## 8. Approval Classes
+## 9. Approval Classes
 
-### 8.1 Class A — David Approval Required
+### 9.1 Class A — David Approval Required
 
 David approval is required before execution for all product, architecture, security, data, integration, deployment, user-facing, or acceptance-criteria-impacting work.
 
@@ -272,23 +350,48 @@ Class A includes:
 
 ---
 
-### 8.2 Class B — Codex Approval Sufficient
+### 9.2 Class B — Codex Approval Sufficient
 
 Codex may approve limited maintenance work that does not change product behavior, architecture, security, data model, integrations, deployment, user experience, or acceptance criteria.
 
-Examples:
+Class B work must still be logged.
+
+Documentation-only Class B examples:
 
 - Documentation cleanup
-- Non-functional refactoring inside approved scope
-- Adding test coverage for approved behavior
 - Correcting internal documentation links
 - Adding missing implementation notes after a completed task
+- Clarifying existing documentation without changing policy or scope
 
-Class B work must still be logged.
+Code-touching Class B work requires explicit Codex approval before execution.
+
+Code-touching Class B work may include only low-risk, non-functional maintenance inside already-approved scope, such as:
+
+- Formatting
+- Lint fixes
+- Dead-code removal
+- Comment cleanup
+- Test-only additions for already-approved behavior
+- Minor import cleanup where behavior is unchanged
+
+Code-touching Class B work may not include:
+
+- Function restructuring
+- Logic changes
+- Parameter renaming that affects callers
+- API contract changes
+- Route changes
+- Database query changes
+- Auth, RLS, or permission changes
+- Error-handling behavior changes
+- Dependency changes
+- Any change that could affect runtime behavior
+
+If there is uncertainty about whether a code change is non-functional, the task is Class A and requires David approval.
 
 ---
 
-### 8.3 Class C — Claude May Execute and Log
+### 9.3 Class C — Claude May Execute and Log
 
 Claude may perform documentation hygiene only, such as:
 
@@ -302,7 +405,7 @@ Class C work cannot modify code, product behavior, architecture, security, data,
 
 ---
 
-### 8.4 Default Approval Rule
+### 9.4 Default Approval Rule
 
 Default: David approval required.
 
@@ -310,7 +413,7 @@ If classification is unclear, the task is Class A and requires David approval.
 
 ---
 
-## 9. Definition of Done
+## 10. Definition of Done
 
 A task is Done only when:
 
@@ -337,7 +440,7 @@ David alone closes the task.
 
 ---
 
-## 10. Security Responsibility
+## 11. Security Responsibility
 
 Security is Codex’s responsibility.
 
@@ -356,7 +459,7 @@ David makes product/security tradeoff decisions only after the risk is documente
 
 ---
 
-## 11. Change Control
+## 12. Change Control
 
 Claude may recommend changes but may not execute outside the approved scope without authorization.
 
@@ -380,7 +483,42 @@ Claude may not silently workaround structural concerns.
 
 ---
 
-## 12. Escalation
+## 13. False Assumption Escalation
+
+A false assumption is different from an improvement or scope change.
+
+A false assumption exists when an approved spec, architecture note, task brief, or product instruction is based on information that appears to be incorrect.
+
+Examples:
+
+- The spec assumes a table, route, API, dependency, or service exists when it does not.
+- The spec assumes a third-party integration behaves a certain way, but documentation or implementation proves otherwise.
+- The spec assumes an auth, RLS, data ownership, or payment behavior that is technically or commercially incorrect.
+- The spec describes current app behavior inaccurately.
+- The spec depends on an unavailable credential, environment variable, or production setting.
+
+When Claude discovers a false assumption, Claude must pause the task and document:
+
+```text
+False Assumption:
+Evidence:
+Impact:
+Recommended Path:
+Can any approved work continue safely? Yes/No
+```
+
+Codex must then review and either:
+
+1. Correct the task spec,
+2. Reclassify the task,
+3. Escalate to David for decision, or
+4. Cancel or split the task.
+
+If the false assumption affects product behavior, architecture, security, data, integrations, deployment, or acceptance criteria, David approval is required before execution resumes.
+
+---
+
+## 14. Escalation
 
 If Codex and Claude disagree on architecture:
 
@@ -393,7 +531,7 @@ If Codex and Claude disagree on architecture:
 
 ---
 
-## 13. GitHub Review Triggers
+## 15. GitHub Review Triggers
 
 Codex and Claude do not assume passive awareness of GitHub updates.
 
@@ -421,17 +559,23 @@ GitHub documentation is the source of truth. Chat context is not source of truth
 
 ---
 
-## 14. Uniform Startup Prompt
+## 16. Uniform Startup Prompt
 
-David may begin any Codex or Claude session with:
+David may begin any Codex or Claude session using either the short session trigger or the full startup prompt.
+
+### 16.1 Session Trigger — Short
+
+Use this when the AI already understands the PassTo operating model:
 
 ```text
 [Codex/Claude], let’s start a new PassTo session.
 ```
 
-This means the AI must complete the PassTo startup process before doing any work.
+The short trigger means the AI must perform the full startup process before doing any work.
 
-Full startup process:
+### 16.2 Full Startup Prompt — Paste Into Chat
+
+Use this when starting a fresh chat, reorienting an AI, onboarding a new tool, or when there is any risk that the AI does not know the PassTo operating model:
 
 ```text
 [Codex/Claude], let’s start a new PassTo session.
@@ -472,7 +616,7 @@ I reviewed the GitHub docs and am ready to execute only approved tasks. Here is 
 
 ---
 
-## 15. Option A Review / Respond Workflow
+## 17. Option A Review / Respond Workflow
 
 PassTo uses Option A for Claude-GitHub-Codex review/respond, with David as final approver.
 
@@ -502,7 +646,7 @@ David remains final approver.
 
 ---
 
-## 16. Flow and Feature Documentation
+## 18. Flow and Feature Documentation
 
 The approved documentation structure separates flows from features.
 
@@ -531,7 +675,7 @@ Examples:
 
 ---
 
-## 17. Production Safety
+## 19. Production Safety
 
 No production-impacting change may proceed without David approval and a rollback or recovery note.
 
@@ -549,7 +693,34 @@ Production-impacting changes include:
 
 ---
 
-## 18. Charter Evolution
+## 20. Blocked Approval Protocol
+
+If work is blocked because David approval is required and David is unavailable, Codex and Claude must not proceed with Class A work.
+
+When blocked on David approval:
+
+1. The task status should be marked `Blocked — Awaiting David Approval`.
+2. The approval request should be documented in the task file.
+3. A summary should be added to the activity log.
+4. Codex may queue the next recommended spec, risk note, or decision options.
+5. Claude may only perform approved Class C documentation hygiene or stop work.
+6. No production-impacting, security-impacting, data-impacting, integration-impacting, architecture-impacting, or user-facing work may proceed.
+
+The session may close with a clear handoff note:
+
+```text
+Status: Blocked — Awaiting David Approval
+Pending Decision:
+Recommended Next Action:
+Files Updated:
+Risks:
+```
+
+If David later approves, the next Codex or Claude session must restart from GitHub using the uniform startup prompt.
+
+---
+
+## 21. Charter Evolution
 
 This charter is expected to evolve.
 
