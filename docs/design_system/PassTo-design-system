@@ -1,0 +1,602 @@
+================================================================================
+  PASSTO — DESIGN SYSTEM
+  Handoff document for designers and web developers
+  Last updated: 23 May 2026
+================================================================================
+
+PassTo is a primary-source-verified digital nursing license credential. It
+lives in a nurse's Apple/Google Wallet and is shareable via a scannable link
+or QR for real-time employer verification. Freemium — credential is free,
+premium features layered on top.
+
+Brand pillars:
+  1. Verified  — Primary-source truth, not a photocopy
+  2. Portable  — Lives in your wallet, not a filing cabinet
+  3. Live      — Real-time, not a snapshot
+  4. Yours     — Nurse-owned and nurse-controlled
+
+Audience: US nurses — LPNs (~974K), travel nurses, agency nurses, new grads;
+secondarily 5.2M RNs. 88% women, median age ~46. Tech-literate but time-poor.
+The brand must be understood "by a nurse on hour 11 of a 12-hour shift."
+
+
+================================================================================
+  TABLE OF CONTENTS
+================================================================================
+
+  1. Voice & Content
+  2. Color tokens
+  3. Type system
+  4. Spacing & rhythm
+  5. Radii
+  6. Elevation / shadows
+  7. Motion
+  8. Iconography
+  9. Imagery
+  10. Components
+       10.1 Buttons
+       10.2 Inputs
+       10.3 Badges
+       10.4 Cards
+       10.5 The Pass
+       10.6 Live status
+       10.7 Rows, tabs, links
+  11. Logo & wordmark
+  12. Accessibility
+  13. Asset index
+
+
+================================================================================
+  1. VOICE & CONTENT
+================================================================================
+
+PassTo speaks TO a nurse, not at her. Plain. Direct. No jargon. No exclamation
+points. Numbers and dates beat adjectives. Verbs beat nouns. Respectful of
+her time and her expertise.
+
+VOICE RULES
+  - Second person. "Your license is verified." Never "Users can verify..."
+  - Active voice, present tense. "Verifies in seconds."
+  - Plain English. No "leverage," "streamline," "solution," "ecosystem."
+  - No hedging. "Expires in 47 days. Renew now." Not "may be expiring soon."
+  - No exclamation points. Confidence doesn't shout.
+  - No emoji in product UI.
+  - Sentence case for buttons and headings. Title Case only for proper nouns
+    and the wordmark.
+
+CASING
+  - Sentence case in headings/buttons: "Get your Pass," "How it works"
+  - Proper-noun "Pass" when referring to the artifact: "your Pass"
+  - "PassTo" is one word, Pass + To, "To" rendered in verified-600 on light
+    and verified-400 on dark.
+  - State names on credentials: UPPERCASE ("CALIFORNIA," "NEW YORK")
+  - Body dates: "14 May 2026". Pass dates: "14 MAY 2026" (uppercase, mono)
+
+ON-BRAND SAMPLES
+  - "Your license is verified and live."
+  - "Expires in 47 days. Renew now."
+  - "Tap to share. They'll see it live."
+  - "Three taps. One pocket."
+  - "PassTo re-verifies your license every 24 hours."
+
+OFF-BRAND (DO NOT WRITE)
+  - "Awesome! Your amazing credential is all set!"   — too eager, emoji
+  - "Don't forget — your license might expire soon!" — hedging
+  - "Leverage PassTo to seamlessly transmit..."      — enterprise jargon
+
+WHAT WE DO NOT WRITE
+  - Wellness-app language ("Take a deep breath," "Your journey")
+  - Marketing pitch ("Revolutionary," "Game-changing")
+  - Apologetic UI ("Oops!" "Whoops!" "Sorry...")
+  - Cute system anthropomorphism ("I'll just be a moment...")
+  - Long hedged FAQs
+
+
+================================================================================
+  2. COLOR TOKENS
+================================================================================
+
+Three families. No decoration. Signal colors are state-only.
+
+----- INK (boarding-pass black) -----
+The card itself, primary text, headers, wordmark on light.
+Not pure black, not blue-purple.
+
+  --pt-ink-900  #0B1220   Card / hero ink (canonical)
+  --pt-ink-800  #141B2D
+  --pt-ink-700  #1F2839
+  --pt-ink-600  #2E3849   Secondary text on light
+  --pt-ink-500  #4B5567   Tertiary text
+  --pt-ink-400  #6B7388
+  --pt-ink-300  #9AA1B1   Placeholder / disabled
+  --pt-ink-200  #C8CCD6   Hairlines on light
+  --pt-ink-100  #E4E7EC   Borders / dividers
+  --pt-ink-050  #F1F3F6   Subtle surface
+
+----- VERIFIED GREEN (brand accent) -----
+Live + active + true. Primary CTAs, live-pulse, checkmark, verification eyebrow.
+
+  --pt-verified-900  #08321F
+  --pt-verified-700  #0F5B36
+  --pt-verified-600  #14753F   Primary actions
+  --pt-verified-500  #1B8E4D   Default verified state (canonical)
+  --pt-verified-400  #2FB069   Live pulse only
+  --pt-verified-300  #7DD1A6
+  --pt-verified-200  #BFE7D2
+  --pt-verified-100  #E2F4EA   Verified surface tint
+
+----- PAPER (warm neutrals) -----
+Default page background. Distinct from cold SaaS white — reads as physical
+document.
+
+  --pt-paper-000  #FFFFFF
+  --pt-paper-050  #FAF8F4   Default page bg (canonical)
+  --pt-paper-100  #F4F1EA
+  --pt-paper-200  #ECE7DC
+
+----- SIGNAL COLORS (state only — never decoration) -----
+  --pt-amber-500  #C8830C   Expiring within 60 days
+  --pt-amber-100  #FBEFD2
+  --pt-red-600    #B42318   Expired / revoked
+  --pt-red-100    #FCE9E6
+  --pt-blue-600   #1859BD   Informational links only
+  --pt-blue-100   #DDEAFA
+
+----- SEMANTIC TOKENS -----
+  --pt-bg               = paper-050   Default body bg
+  --pt-bg-elevated      = paper-000   Elevated cards
+  --pt-bg-subtle        = paper-100
+  --pt-bg-ink           = ink-900     Inverse surfaces
+
+  --pt-fg-1             = ink-900     Primary text
+  --pt-fg-2             = ink-600     Secondary text
+  --pt-fg-3             = ink-500     Tertiary / meta
+  --pt-fg-disabled      = ink-300
+  --pt-fg-on-ink        = #F6F5F1     Text on ink card
+  --pt-fg-on-ink-2      = #B6BCC9     Secondary on ink
+
+  --pt-border           = ink-100
+  --pt-border-strong    = ink-200
+  --pt-border-on-ink    = rgba(255,255,255,0.10)
+  --pt-hairline-on-ink  = rgba(255,255,255,0.06)
+
+  --pt-action           = verified-600
+  --pt-action-hover     = verified-700
+  --pt-action-press     = verified-900
+  --pt-action-fg        = #FFFFFF
+
+  --pt-success          = verified-500
+  --pt-warning          = amber-500
+  --pt-danger           = red-600
+  --pt-info             = blue-600
+
+  --pt-live-dot         = verified-400
+
+
+================================================================================
+  3. TYPE SYSTEM
+================================================================================
+
+Three families, all served locally from /fonts.
+
+  Display:     Inter        weights 500/600/700
+               Tracking -0.02em to -0.035em at heading scales
+               H1–H4, wordmark, Pass name
+
+  Body:        Public Sans  variable, weights 400/500/600
+               Line-height 1.45 default
+               Lede, body, captions
+
+  Credential:  IBM Plex Mono  full weight range
+               Tabular figures, tracking +0.06em to +0.08em
+               License numbers, dates, timestamps, verification IDs
+
+NEVER substitute another face. No Inter alternatives, no Roboto, no Arial.
+
+----- TYPE SCALE -----
+  --pt-text-2xs   11px
+  --pt-text-xs    12px
+  --pt-text-sm    14px
+  --pt-text-md    16px   body baseline
+  --pt-text-lg    18px
+  --pt-text-xl    22px   h4
+  --pt-text-2xl   28px   h3
+  --pt-text-3xl   36px   h2
+  --pt-text-4xl   48px
+  --pt-text-5xl   64px   h1
+  --pt-text-6xl   80px
+
+MINIMUM SIZES
+  Body:           14px
+  Caption:        12px
+  Eyebrow/label:  10px
+  Heading:        18px (pt-h4)
+
+----- LINE HEIGHTS -----
+  tight    1.12   display
+  snug     1.25   subheads
+  normal   1.45   body (default)
+  relaxed  1.6    lede
+
+----- LETTER SPACING -----
+  tight        -0.02em
+  snug         -0.01em
+  normal        0em
+  wide         +0.04em   uppercase eyebrows
+  credential   +0.08em   license-number tabular
+
+----- WEIGHTS -----
+  regular   400
+  medium    500
+  semibold  600
+  bold      700
+
+----- SEMANTIC TYPE STYLES -----
+  .pt-h1         Inter 64px / bold / tight tracking / balance
+  .pt-h2         Inter 36px / semibold / snug tracking
+  .pt-h3         Inter 28px / semibold / snug
+  .pt-h4         Inter 22px / semibold
+  .pt-p          Public Sans 16px / normal line-height / fg-2
+  .pt-lead       Public Sans 18px / relaxed / fg-2
+  .pt-caption    Public Sans 12px / snug / fg-3
+  .pt-eyebrow    Public Sans 11px / semibold / wide tracking / uppercase / fg-3
+  .pt-credential IBM Plex Mono 16px / medium / +0.08em / tabular-nums
+  .pt-mono       IBM Plex Mono / tabular-nums
+
+
+================================================================================
+  4. SPACING & RHYTHM
+================================================================================
+
+4px base scale. Always use flex/grid `gap` for sibling spacing — never
+per-element margin.
+
+  --pt-space-1     4px
+  --pt-space-2     8px
+  --pt-space-3    12px
+  --pt-space-4    16px
+  --pt-space-5    20px
+  --pt-space-6    24px
+  --pt-space-7    32px
+  --pt-space-8    40px
+  --pt-space-9    56px
+  --pt-space-10   72px
+  --pt-space-11   96px
+
+RHYTHM
+  - Marketing-site section-to-section: 96px top + bottom
+  - Card-internal padding: 18–28px depending on density
+  - Default page bg: paper-050. Elevated cards: paper-000.
+  - Ink-900 used for premium / share-flow / footer surfaces. NEVER mid-tone gray.
+  - No imagery as background in app surfaces.
+  - No repeating patterns, no textures, no gradient meshes.
+  - Subtle radial gradients only in hero, ≤10% opacity, e.g.
+      radial-gradient(circle at 70% 30%, rgba(47,176,105,0.10), transparent 50%)
+
+
+================================================================================
+  5. RADII
+================================================================================
+
+  --pt-radius-xs       4px
+  --pt-radius-sm       8px
+  --pt-radius-md      12px
+  --pt-radius-lg      16px
+  --pt-radius-card    24px    THE canonical card radius — wallet metaphor
+  --pt-radius-xl      28px
+  --pt-radius-pill   999px
+
+Radii compose by stepping DOWN: inner controls inside a 24px card get 12px,
+not 24px. Never nest equal radii.
+
+
+================================================================================
+  6. ELEVATION / SHADOWS
+================================================================================
+
+  --pt-shadow-sm       Buttons, small controls
+                       0 1px 2px rgba(11,18,32,.06),
+                       0 1px 3px rgba(11,18,32,.04)
+
+  --pt-shadow-md       Popovers, dropdowns
+                       0 4px 12px -2px rgba(11,18,32,.10),
+                       0 2px 4px rgba(11,18,32,.06)
+
+  --pt-shadow-lg       Modals, sheets
+                       0 12px 32px -8px rgba(11,18,32,.16)
+
+  --pt-shadow-card     THE Pass — 3-layer wallet shadow
+                       0 1px 2px rgba(11,18,32,.06),
+                       0 8px 24px -8px rgba(11,18,32,.18),
+                       0 24px 48px -24px rgba(11,18,32,.22)
+
+  --pt-shadow-focus    4px verified-500 ring at 22% — :focus-visible
+                       0 0 0 4px rgba(27,142,77,.22)
+
+
+================================================================================
+  7. MOTION
+================================================================================
+
+  --pt-ease-standard     cubic-bezier(0.2, 0, 0, 1)    slight overshoot in, hard stop out
+  --pt-ease-emphasized   cubic-bezier(0.2, 0, 0, 1.2)
+  --pt-dur-snap          120ms   Press feedback (translateY(1px) on :active)
+  --pt-dur-fast          180ms   Hover, color transitions
+  --pt-dur-base          220ms   Sheet entry, menu reveal
+  --pt-dur-slow          320ms
+  --pt-dur-pulse        1800ms   ONLY for live-verified status dot
+
+RULES
+  - No bouncy springs. No "fun" wiggle.
+  - Animations confirm — they never entertain.
+  - No loading spinner > 1s without a skeleton state.
+  - The 1800ms pulse is the ONLY animation that exceeds 1s, and it only ever
+    applies to the live-verified status dot. The pulse IS the message.
+
+
+================================================================================
+  8. ICONOGRAPHY
+================================================================================
+
+Geometric line icons in Lucide style.
+
+  - 24×24 viewBox
+  - 2px stroke
+  - fill: none, stroke: currentColor
+  - Round caps and joins
+  - No filled icons. No bicolor. No emoji.
+
+Starter sprite at assets/icons.svg (~40 glyphs): shield-check, qr-code,
+wallet, share, settings, user, bell, check, x, alert-triangle, info,
+chevron-left/right/down, arrow-right, plus, search, copy, eye, clock,
+calendar, map-pin, mail, phone, log-out, camera, refresh, upload, lock,
+zap, building, briefcase, users, more-horizontal, home, globe, star,
+download, external-link, badge-check.
+
+USAGE
+  <svg width="20" height="20" style="color: var(--pt-verified-700)">
+    <use href="assets/icons.svg#badge-check" />
+  </svg>
+
+WHERE ICONS GO
+  - Inside buttons (16–18px), leading element, 6–8px gap to label
+  - Settings/list rows (18px) inside a 32×32 paper-100 rounded square
+  - Status markers near the live-pulse — but NEVER both `Icon` and
+    `pt-live-dot` in the same group; pick one.
+  - Activity timeline nodes
+
+WHERE ICONS DON'T GO
+  - Decorative header marks
+  - As bullet glyphs in body text
+  - Inside the Pass card itself (the Pass is type-only by design)
+  - Combined into "icon stack" compositions
+
+EMOJI / UNICODE
+  - Not in product UI.
+  - `✓` and `→` permitted in marketing email subjects, sparingly.
+  - `·` (U+00B7) is the canonical metadata separator.
+
+
+================================================================================
+  9. IMAGERY
+================================================================================
+
+  - Real nurses in real settings — not stock-photo smiles
+  - Emphasis on hands + phones (credential in context)
+  - Diverse representation reflecting actual workforce demographics
+  - Natural lighting, not overly stylized
+  - Color cast: warm but neutral — never cool-blue clinical
+
+In this system there are no real photos yet — placeholder selfies in the Pass
+are CSS gradients with abstract face geometry. Replace with real photography
+in production.
+
+
+================================================================================
+  10. COMPONENTS
+================================================================================
+
+All components reside in components.css. CSS class prefix: `pt-`.
+
+------------------------------------------------------------ 10.1 BUTTONS -----
+
+Base: .pt-btn  (pill radius, semibold, transition on hover/active/focus)
+
+SIZES
+  .pt-btn-sm   13px / 8×14 / min-h 32   tertiary actions
+  .pt-btn-md   14px / 10×18 / min-h 40  default
+  .pt-btn-lg   15px / 13×22 / min-h 48  primary CTA
+  .pt-btn-xl   16px / 16×28 / min-h 56  hero CTA
+
+VARIANTS
+  .pt-btn-primary    verified-600 bg, white fg     PRIMARY ACTION
+  .pt-btn-ink        ink-900 bg, white fg          alt primary on light
+  .pt-btn-secondary  paper-000 bg, ink-1 fg, border-strong
+  .pt-btn-ghost      transparent, ink-1 fg, paper-100 hover
+  .pt-btn-danger     red-600 bg, white fg
+
+STATES
+  hover     bg shifts to next-darker token
+  :active   translateY(1px) + action-press color
+  focus     verified-green ring (4px, 22%) — never browser default
+  disabled  opacity .5, no transform
+
+----------------------------------------------------------- 10.2 INPUTS ------
+
+.pt-input
+  family:    Public Sans 15px
+  bg:        paper-000
+  border:    1px ink-200, hover ink-400, focus verified-500 + focus-ring
+  radius:    12px (md)
+  padding:   11px 14px
+  min-h:     44px  (hit target floor)
+  invalid:   red-600 border + red focus ring
+
+.pt-input.pt-mono     For license numbers — Plex Mono, +0.06em, 14px
+
+Field group
+  .pt-field         flex column, 6px gap
+  .pt-field-label   13px semibold ink-1
+  .pt-field-hint    12px fg-3
+  .pt-field-error   12px red-600
+
+----------------------------------------------------------- 10.3 BADGES ------
+
+.pt-badge  base — 12px / semibold / +.02em / 4px×10px / pill
+
+VARIANTS
+  .pt-badge-verified    verified-100 bg, verified-700 fg
+  .pt-badge-expiring    amber-100 bg, amber-500 fg
+  .pt-badge-revoked     red-100 bg, red-600 fg
+  .pt-badge-info        blue-100 bg, blue-600 fg
+  .pt-badge-neutral     paper-100 bg, fg-2
+  .pt-badge-ink         ink-900 bg, fg-on-ink
+
+.pt-badge-credential   10px / +.08em / uppercase / 3×8 padding — used in Pass
+
+------------------------------------------------------------ 10.4 CARDS ------
+
+.pt-card           paper-000 / ink-100 border / 24px radius / shadow-sm / 24px pad
+.pt-card-sm        16px radius, 16px pad
+.pt-card-lg        32px pad
+.pt-card-flat      no shadow
+.pt-card-elevated  shadow-md
+
+------------------------------------------------------------ 10.5 THE PASS ---
+
+The hero component. There is ONE Pass. Canonical recipe:
+
+  .pt-pass             width 340px / paper-000 / 1px ink-100 border
+                       22px radius / overflow hidden / shadow-card
+  .pt-pass-head        16px 18px 0 padding / brand mark + identifier
+  .pt-pass-brand-name  Inter 14px semibold -0.01em
+  .pt-pass-mark        22×22 / 5px radius / brand mark
+  .pt-pass-body        18px 18px 14px
+  .pt-pass-label       Public Sans 9.5px semibold +.1em UPPERCASE fg-3
+  .pt-pass-name        Inter 20px semibold -0.01em / line-height 1.1
+  .pt-pass-name-sub    Public Sans 12px fg-3
+  .pt-pass-id-row      flex / 14px gap / selfie + name block
+  .pt-pass-selfie      64×64 / 14px radius / 1px ink-100
+                       Placeholder: linear-gradient(135deg,#c8a98e,#8f6b50)
+  .pt-pass-grid        2-col grid / 12px gap / 14px pad / top border ink-100
+  .pt-pass-value       Plex Mono 12.5px medium +.06em
+  .pt-pass-verif       Footer — paper-050 bg, top border ink-100
+                       Grid 1fr 56px / 14px gap / 14px 18px 16px pad
+  .pt-verif-eyebrow    9.5px semibold +.1em uppercase verified-700
+  .pt-verif-time       Plex Mono 12px medium +.04em
+  .pt-verif-source     Public Sans 11px / 1.35 line / fg-2
+  .pt-pass-qr          56×56 / white / 8px radius / 4px pad / inset hairline
+
+PASS RULES
+  - 24px is canonical card radius across the system, BUT the Pass uses 22px
+    to match Apple Wallet conventions.
+  - No icons inside the Pass — the Pass is type-only by design.
+  - No imagery as background.
+  - Selfie placeholders are abstract CSS gradient — replace with real photo.
+  - State on Pass is rendered UPPERCASE: "CALIFORNIA," "14 MAY 2026"
+
+----------------------------------------------------------- 10.6 LIVE STATUS -
+
+.pt-live-dot   8×8 verified-400 dot with infinite pulse animation
+               1800ms — the only >1s animation in the system
+
+.pt-live       Inline group — dot + "VERIFIED LIVE" eyebrow
+               11px semibold +.08em uppercase verified-700
+
+@keyframes pt-pulse
+  0%   box-shadow 0 0 0 0    rgba(47,176,105,.55)
+  70%  box-shadow 0 0 0 10px rgba(47,176,105,0)
+  100% box-shadow 0 0 0 0    rgba(47,176,105,0)
+
+------------------------------------------------------- 10.7 ROWS / TABS / LINKS
+
+.pt-row          flex space-between, 14px vertical pad, top hairline
+.pt-row-label    13px Public Sans fg-3
+.pt-row-value    13px Plex Mono +.04em ink-1
+
+.pt-tabs         flex, 4px gap, bottom hairline
+.pt-tab          14px / 500 / fg-3 / 12px 16px / 2px underline on active
+                 active: ink-1 fg + ink-900 underline + semibold
+
+.pt-link         info-600 / no underline / 1px bottom border / .7 hover opacity
+
+.pt-hr           1px ink-100 horizontal rule
+
+.pt-avatar       rounded-lg / paper-200 fallback / overflow hidden
+
+.pt-qr-frame     white / 12px radius / 10px pad / inset hairline + shadow-sm
+
+
+================================================================================
+  11. LOGO & WORDMARK
+================================================================================
+
+Assets in /assets/logo/:
+
+  wordmark.svg            "PassTo" — light contexts; "To" rendered verified-600
+  wordmark-on-dark.svg    "PassTo" — dark contexts; "To" rendered verified-400
+  monogram.svg            Square mark, default
+  monogram-on-paper.svg   On warm paper backgrounds
+  monogram-inverse.svg    On ink-900 / dark contexts
+  app-icon-1024.svg       iOS/Android app icon master (option E approved)
+
+USAGE
+  - The wordmark is "PassTo" — one word. Always.
+  - In product UI, lead with the monogram. The wordmark appears in the header
+    of marketing surfaces, the Pass head, and the App Store icon.
+  - Minimum monogram size: 16×16. Minimum wordmark height: 14px.
+  - Clearspace: half the cap height on all sides.
+  - Never recolor outside the brand palette. Never apply effects, drop
+    shadows, or gradients to the mark.
+
+
+================================================================================
+  12. ACCESSIBILITY
+================================================================================
+
+  - Hit targets: 44×44px minimum on touch surfaces.
+  - Contrast: all text/foreground tokens meet WCAG AA at body sizes against
+    their canonical backgrounds. Verify any new combination.
+  - Focus-visible: always use the verified-green focus ring
+    (--pt-shadow-focus). Never `outline: none` without a replacement.
+  - Live region: the live-pulse should NOT auto-announce on screen readers
+    every cycle — mark the status text as aria-live="polite" but the dot
+    itself aria-hidden="true".
+  - State color is never the only signal — pair with an icon, an eyebrow
+    label, or a textual cue.
+
+
+================================================================================
+  13. ASSET INDEX
+================================================================================
+
+  /colors_and_type.css       Color tokens, type tokens, semantic vars, base classes
+  /components.css            All component styles (load AFTER colors_and_type.css)
+  /fonts/                    Inter, Public Sans, IBM Plex Mono (variable + statics)
+  /assets/logo/              Monogram + wordmark SVGs (5 variants + app icon)
+  /assets/icons.svg          Sprite — ~40 Lucide-style glyphs
+  /assets/qr-placeholder.svg Placeholder QR sprite
+  /ui_kits/mobile/           4 screens: Wallet, Detail, Share, Settings
+  /ui_kits/marketing/        Landing site: hero, pillars, how-it-works, employers
+  /ui_kits/employer/         Desktop verification-result page
+  /Brand Guideline.html      Full first-draft brand guideline
+  /Pass Card v3.html         The approved Pass (canonical reference)
+
+HTML INTEGRATION (minimum boilerplate)
+
+  <link rel="stylesheet" href="colors_and_type.css">
+  <link rel="stylesheet" href="components.css">
+
+  <body class="pt-body">
+    <h1 class="pt-h1">Get your Pass</h1>
+    <button class="pt-btn pt-btn-primary pt-btn-lg">Verify license</button>
+  </body>
+
+
+================================================================================
+  END
+================================================================================
+
+Questions or revisions: this document is generated from the canonical CSS
+token sources. If a value here ever disagrees with colors_and_type.css or
+components.css, the CSS is the source of truth.
