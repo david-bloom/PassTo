@@ -290,3 +290,88 @@ Next Codex session should begin from:
 /docs/activity_log/APPROVALS_LOG.md
 /docs/activity_log/ACTIVITY_LOG.md
 ```
+
+---
+
+## Session Closeout — 2026-05-24 — Codex
+
+**Task ID:** Session Closeout  
+**Status:** Closed  
+**Role:** Codex / Engineering Director  
+**Summary:** Closed the PassTo session after completing TASK-0002 documentation decomposition and logging the related product decisions, approval, and activity closeout.
+
+### Work Completed
+
+- Confirmed session close request from David.
+- Preserved the completed TASK-0002 state in the activity log.
+- Confirmed next-session handoff path.
+
+### Files / Docs Changed
+
+- `/docs/activity_log/ACTIVITY_LOG.md`
+
+### Decisions Made
+
+- No new product or architecture decisions were made during closeout.
+
+### Risks / Issues
+
+- TASK-0001 still needs David final Done decision.
+- TASK-0002 still needs David final Done decision.
+- Final Terms of Use still requires legal/product drafting.
+- Subscription pricing remains unconfirmed unless separately approved.
+- Exact Supabase schema and RLS policies require a later task.
+
+### Open Questions
+
+- Should TASK-0003 be Supabase schema/RLS design or PRD/MVP scope baseline?
+- Should Free users be allowed to buy additional licenses in MVP, or should additional license be hidden for Free?
+- What are final Standard and Premier subscription prices?
+
+### Approval Needed
+
+- David final Done decision for TASK-0001.
+- David final Done decision for TASK-0002.
+
+### Next Recommended Action
+
+David should decide Done / Not Done for TASK-0001 and TASK-0002.
+
+Then proceed with:
+
+```text
+TASK-0003 — Create Supabase Product Attributes Schema and RLS Plan
+```
+
+Alternative:
+
+```text
+TASK-0003 — Create PassTo PRD and MVP Scope Baseline
+```
+
+### Handoff Notes
+
+Next session should begin with:
+
+```text
+Codex, let’s start a new PassTo session.
+```
+
+Codex should read:
+
+```text
+/docs/team_charter/TEAM_CHARTER.md
+/docs/activity_log/ACTIVITY_LOG.md
+/docs/activity_log/DECISIONS_LOG.md
+/docs/activity_log/APPROVALS_LOG.md
+/docs/tasks/TASK-0001.md
+/docs/tasks/TASK-0002.md
+/docs/architecture/PRODUCT_ATTRIBUTES_ARCHITECTURE.md
+/docs/features/TIER_FEATURES.md
+/docs/features/SHARING.md
+/docs/features/REFRESH.md
+/docs/features/PDF_EXPORT.md
+/docs/features/SUBSCRIPTIONS.md
+/docs/features/NOTIFICATIONS.md
+/docs/flows/VERIFIER_CREDENTIAL_VIEW.md
+```
