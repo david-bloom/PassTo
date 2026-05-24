@@ -1,0 +1,43 @@
+brand-suite/
+├── index.html                    Visual preview (open this first)
+├── 01-primary/                   Horizontal lockup (monogram + wordmark)
+│   ├── primary-light.svg / .png  for light backgrounds
+│   ├── primary-dark.svg  / .png  for dark / ink backgrounds
+│   ├── primary-black.svg / .png  1-color (print, fax, embossing)
+│   └── primary-white.svg / .png  1-color reverse
+├── 02-secondary/                 Vertical stack (mark above wordmark)
+│   ├── secondary-light.svg / .png
+│   └── secondary-dark.svg  / .png
+├── 03-wordmark/                  Text only
+│   ├── wordmark-light.svg / .png
+│   ├── wordmark-dark.svg  / .png
+│   ├── wordmark-black.svg / .png
+│   └── wordmark-white.svg / .png
+├── 04-submarks/                  The P-chip (monogram)
+│   ├── monogram-ink.svg / .png       canonical — ink chip, white P, green bar
+│   ├── monogram-paper.svg / .png     paper chip for dark photo backgrounds
+│   ├── monogram-inverse.svg / .png   white chip with ink P
+│   ├── monogram-mono-black.svg / .png  1-color black
+│   ├── monogram-mono-white.svg / .png  1-color white
+│   └── monogram-outline.svg / .png   outlined chip for small sizes
+├── 05-app-icons/
+│   ├── app-icon-ios-1024.svg     iOS master (squircle-masked at OS level)
+│   ├── app-icon-ios-1024.png     1024 PNG export
+│   ├── app-icon-ios-512.png      512 PNG export
+│   ├── app-icon-ios-256.png      256 PNG export
+│   ├── app-icon-ios-180.png      apple-touch-icon
+│   ├── app-icon-ios-120.png      iPhone touch icon
+│   ├── app-icon-ios-light-1024   light-mode iOS variant
+│   ├── app-icon-ios-tinted-1024  1-color tinted variant
+│   ├── android-adaptive-foreground-432  foreground layer (P + bar, transparent)
+│   ├── android-adaptive-background-432  background layer (solid ink)
+│   ├── android-monochrome-432    themed-icon silhouette (Android 13+)
+│   └── play-store-512            Google Play listing icon
+├── 06-favicon/
+│   ├── favicon.svg               primary — modern browsers
+│   ├── favicon-adaptive.svg      dark-mode aware via prefers-color-scheme
+│   ├── favicon-mask.svg          monochrome silhouette for Safari pinned tab
+│   ├── favicon-16.png            legacy raster fallbacks
+│   ├── favicon-32.png
+│   ├── favicon-48.png
+│   └── favicon-192.png           also serves as apple-touch fallback
