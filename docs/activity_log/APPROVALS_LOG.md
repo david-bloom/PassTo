@@ -98,3 +98,28 @@ David approved the v1.4 charter update covering Claude-direct assignment spec st
 ### Notes
 
 The main charter full-file replacement was blocked by the GitHub connector safety layer. The approved v1.4 rules were captured in `/docs/team_charter/TEAM_CHARTER_V1_4_AMENDMENT.md` and should be consolidated into `/docs/team_charter/TEAM_CHARTER.md` in a future maintenance task.
+
+---
+
+## APPROVAL-0004 — Charter v1.5 Amendment Approved
+
+**Date:** 2026-05-24  
+**Approved By:** David  
+**Related Task:** N/A — Charter Amendment  
+**Decision:** Approved  
+
+### Summary
+
+David approved the v1.5 charter update establishing GitHub label-based routing for Codex, Claude, and David because Claude does not have a GitHub username.
+
+### Approval Checklist
+
+- [x] I approve GitHub label-based routing instead of `@mentions` for Claude.
+- [x] I approve assignment labels: `assigned: codex`, `assigned: claude`, `assigned: david`.
+- [x] I approve response-needed labels: `needs: codex-review`, `needs: claude-response`, `needs: david-approval`.
+- [x] I approve status labels: `status: blocked`, `status: ready-for-review`, `status: ready-for-codex-qa`, `status: ready-for-david-review`.
+- [x] I approve adding this rule to the active charter as v1.5.
+
+### Notes
+
+The approved v1.5 rules were captured in `/docs/team_charter/TEAM_CHARTER_V1_5_AMENDMENT.md` and should be consolidated into `/docs/team_charter/TEAM_CHARTER.md` in a future maintenance task.
