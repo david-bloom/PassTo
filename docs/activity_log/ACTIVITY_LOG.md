@@ -185,3 +185,108 @@ Next Codex session should begin from:
 /docs/activity_log/RISKS_LOG.md
 /docs/activity_log/APPROVALS_LOG.md
 ```
+
+---
+
+## Session Closeout — 2026-05-24 — Codex
+
+**Task ID:** TASK-0002 — Decompose Product Attributes Blueprint into Canonical Feature Docs  
+**Status:** Ready for David Review  
+**Role:** Codex / Engineering Director  
+**Summary:** Decomposed the Product Attributes Blueprint v1.6 into canonical feature, flow, and architecture documents aligned with the Supabase/Vercel architecture direction. Logged product decisions confirmed by David.
+
+### Work Completed
+
+- Created `/docs/tasks/TASK-0002.md`.
+- Created `/docs/features/TIER_FEATURES.md`.
+- Created `/docs/features/SHARING.md`.
+- Created `/docs/features/REFRESH.md`.
+- Created `/docs/features/PDF_EXPORT.md`.
+- Created `/docs/features/SUBSCRIPTIONS.md`.
+- Created `/docs/features/NOTIFICATIONS.md`.
+- Created `/docs/flows/VERIFIER_CREDENTIAL_VIEW.md`.
+- Created `/docs/architecture/PRODUCT_ATTRIBUTES_ARCHITECTURE.md`.
+- Updated `/docs/activity_log/DECISIONS_LOG.md` with product and architecture decisions.
+- Updated `/docs/activity_log/APPROVALS_LOG.md` with TASK-0002 approval.
+
+### Files / Docs Changed
+
+- `/docs/tasks/TASK-0002.md`
+- `/docs/features/TIER_FEATURES.md`
+- `/docs/features/SHARING.md`
+- `/docs/features/REFRESH.md`
+- `/docs/features/PDF_EXPORT.md`
+- `/docs/features/SUBSCRIPTIONS.md`
+- `/docs/features/NOTIFICATIONS.md`
+- `/docs/flows/VERIFIER_CREDENTIAL_VIEW.md`
+- `/docs/architecture/PRODUCT_ATTRIBUTES_ARCHITECTURE.md`
+- `/docs/activity_log/DECISIONS_LOG.md`
+- `/docs/activity_log/APPROVALS_LOG.md`
+- `/docs/activity_log/ACTIVITY_LOG.md`
+
+### Decisions Made
+
+- Product Attributes Blueprint v1.6 should be decomposed into canonical docs.
+- Notifications replaces expiry-alerts as the broader feature scope.
+- Sharing and verifier credential view remain separate docs.
+- Verifier access uses one-time short-lived tokens.
+- Wallet pass does not carry a permanent verification QR.
+- Product attribute architecture moves away from Airtable/Make assumptions.
+- Status translation system is required.
+- Verifier form, disclaimers, and consent copy are confirmed.
+- MVP usage pricing and license entitlements are confirmed.
+
+### Risks / Issues
+
+- Final Terms of Use still requires legal/product drafting.
+- Subscription pricing remains unconfirmed unless separately approved.
+- Exact Supabase schema and RLS policies require a later task.
+- Design-system asset inventory remains a separate possible task.
+- TASK-0001 and TASK-0002 both still need David final Done decision.
+
+### Open Questions
+
+- Should the next task be Supabase schema/RLS design or PRD/MVP scope baseline?
+- Should Free users be allowed to buy additional licenses in MVP, or should additional license be hidden for Free?
+- What are final Standard and Premier subscription prices?
+
+### Approval Needed
+
+- David final Done decision for TASK-0002.
+- David final Done decision for TASK-0001 remains pending.
+
+### Next Recommended Action
+
+David should review TASK-0002 and decide Done / Not Done.
+
+Recommended next task:
+
+```text
+TASK-0003 — Create Supabase Product Attributes Schema and RLS Plan
+```
+
+Alternative next task:
+
+```text
+TASK-0003 — Create PassTo PRD and MVP Scope Baseline
+```
+
+### Handoff Notes
+
+Next Codex session should begin from:
+
+```text
+/docs/team_charter/TEAM_CHARTER.md
+/docs/tasks/TASK-0002.md
+/docs/features/TIER_FEATURES.md
+/docs/features/SHARING.md
+/docs/features/REFRESH.md
+/docs/features/PDF_EXPORT.md
+/docs/features/SUBSCRIPTIONS.md
+/docs/features/NOTIFICATIONS.md
+/docs/flows/VERIFIER_CREDENTIAL_VIEW.md
+/docs/architecture/PRODUCT_ATTRIBUTES_ARCHITECTURE.md
+/docs/activity_log/DECISIONS_LOG.md
+/docs/activity_log/APPROVALS_LOG.md
+/docs/activity_log/ACTIVITY_LOG.md
+```
