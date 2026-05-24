@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  
+  <rect class="bg" width="64" height="64" rx="13"></rect>
+  <text class="fg" x="32" y="42" text-anchor="middle" font-family="Inter, ui-sans-serif, system-ui, -apple-system, &#34;Segoe UI&#34;, sans-serif" font-weight="700" font-size="44" letter-spacing="-1.9">P</text>
+  <rect class="bar" x="14" y="50" width="36" height="5" rx="2.5"></rect>
+</svg>
