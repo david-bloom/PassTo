@@ -73,3 +73,28 @@ David confirmed TASK-0002 — Decompose Product Attributes Blueprint into Canoni
 ### Notes
 
 Approval captured from David’s confirmation: “TASK-0002 — Decompose Product Attributes Blueprint into Canonical Feature Docs CONFIRMED.”
+
+---
+
+## APPROVAL-0003 — Charter v1.4 Amendment Approved
+
+**Date:** 2026-05-24  
+**Approved By:** David  
+**Related Task:** N/A — Charter Amendment  
+**Decision:** Approved  
+
+### Summary
+
+David approved the v1.4 charter update covering Claude-direct assignment spec stubs, minimal/full startup read scope, David substitution for Codex on Class B code-touching work when Codex is unavailable, the `Ready for Codex Retrospective Review` status, and PM-level MVP architecture guidance.
+
+### Approval Checklist
+
+- [x] I approve Claude-direct assignment spec stubs.
+- [x] I approve minimal vs full startup read scope.
+- [x] I approve David substitution for Codex approval on Class B code-touching work when Codex is unavailable.
+- [x] I approve adding Ready for Codex Retrospective Review as a task status.
+- [x] I approve updating the charter to v1.4.
+
+### Notes
+
+The main charter full-file replacement was blocked by the GitHub connector safety layer. The approved v1.4 rules were captured in `/docs/team_charter/TEAM_CHARTER_V1_4_AMENDMENT.md` and should be consolidated into `/docs/team_charter/TEAM_CHARTER.md` in a future maintenance task.
