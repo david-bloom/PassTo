@@ -1,7 +1,7 @@
 # PassTo Engineering Team Operating Charter
 
 **Status:** Approved  
-**Version:** v1.1  
+**Version:** v1.2  
 **Owner:** David  
 **Canonical Location:** `/docs/team_charter/TEAM_CHARTER.md`  
 **Initial Approved Date:** 2026-05-23  
@@ -15,6 +15,7 @@
 |---|---:|---|---|
 | v1.0 | 2026-05-23 | David | Initial approved operating charter |
 | v1.1 | 2026-05-23 | David | Clarifies QA ownership, Class B boundaries, startup prompts, false-assumption escalation, task granularity, and blocked-approval protocol |
+| v1.2 | 2026-05-23 | David | Adds `/docs/design_system/` as a canonical folder and establishes design-system review rules for brand and user-facing work |
 
 ---
 
@@ -22,7 +23,7 @@
 
 This charter defines how David, Codex, and Claude work together as the PassTo engineering team.
 
-PassTo uses GitHub documentation as the source of truth for product, architecture, task, QA, approval, activity, and decision records. Chat history is not source of truth unless it has been captured in GitHub.
+PassTo uses GitHub documentation as the source of truth for product, architecture, task, QA, approval, activity, design, brand, and decision records. Chat history is not source of truth unless it has been captured in GitHub.
 
 The operating model is intentionally lightweight but strict: every meaningful task must be specified, approved, executed, reviewed, documented, and closed through the agreed workflow.
 
@@ -46,7 +47,10 @@ Approved canonical documentation folders:
 /docs/activity_log/
 /docs/features/
 /docs/flows/
+/docs/design_system/
 ```
+
+The PassTo Design System is the source of truth for brand, visual design, UI standards, and design assets.
 
 ---
 
@@ -64,6 +68,7 @@ David owns:
 - Tie-breaking between Codex and Claude
 - Final Definition of Done decision
 - Final approval for production-impacting changes
+- Final approval of design-system changes when they affect brand, UX, or customer-facing standards
 
 David writes or records:
 
@@ -74,8 +79,6 @@ David writes or records:
 - Explicit acceptance of known risks or issues
 
 David is the final authority on whether a task is Done.
-
----
 
 ### 3.2 Codex — Architect and Engineering Director
 
@@ -93,6 +96,7 @@ Codex owns:
 - Security architecture
 - Security review
 - Architectural review after Claude execution
+- Design System Impact classification in relevant task specs
 
 Codex writes:
 
@@ -109,8 +113,6 @@ Codex is responsible for identifying architectural risk proactively.
 
 Codex must bias toward MVP simplicity unless a more complex approach prevents a clear near-term risk.
 
----
-
 ### 3.3 Claude — Senior Engineer
 
 Claude owns:
@@ -122,6 +124,7 @@ Claude owns:
 - Test results
 - Risk reports discovered during execution
 - Remediation after Codex QA review
+- Reviewing the design system before implementing frontend, brand, marketing, notification, or customer-facing changes
 
 Claude writes:
 
@@ -131,6 +134,7 @@ Claude writes:
 - Test results
 - Risks and issues discovered during execution
 - Remediation notes
+- Design-system deviations, if any
 
 Claude may challenge architecture and pause work when a structural concern is discovered.
 
@@ -166,6 +170,7 @@ No execution begins until the task has an approved task ID and David approval is
 | PRD | David | Codex |
 | Architecture | Codex | Claude |
 | Security model | Codex | Claude |
+| Design system | David | Codex and Claude reference during user-facing work |
 | Task specs | Codex | David approves |
 | QA plans | Codex | Claude may recommend changes |
 | Implementation notes | Claude | Codex reviews |
@@ -176,6 +181,7 @@ No execution begins until the task has an approved task ID and David approval is
 Role-specific documentation rules:
 
 - Codex writes specs, acceptance criteria, QA plans, and architecture decisions.
+- Codex identifies Design System Impact for frontend, brand, marketing, notification, and customer-facing tasks.
 - Claude writes implementation notes, deviations, test results, and risks.
 - David writes approvals, priority decisions, and Done decisions.
 
@@ -201,6 +207,8 @@ Components Affected:
 Database/Tables Affected:
 Integrations Affected:
 Security/RLS Impact:
+Design System Impact:
+Design Source:
 Acceptance Criteria:
 QA Plan:
 Implementation Summary:
@@ -220,7 +228,19 @@ Security Impact: Medium
 Security Impact: High
 ```
 
+Design System Impact must be classified where relevant as one of:
+
+```text
+Design System Impact: None
+Design System Impact: Low
+Design System Impact: Medium
+Design System Impact: High
+Design Source: /docs/design_system/[file-or-asset-path]
+```
+
 If security impact is Medium or High, Codex must write a security review note before execution proceeds.
+
+If Design System Impact is Medium or High, Codex must identify the relevant design source and any brand, UX, visual, or asset constraints before Claude executes.
 
 ### 6.1 QA Plan Ownership
 
@@ -235,7 +255,7 @@ At minimum, the QA Plan should identify:
 - Regression areas
 - Error/failure cases
 - Whether automated tests are required
-- Any security, RLS, data, or integration checks required
+- Any security, RLS, data, integration, or design-system checks required
 
 Claude is responsible for documenting the actual Test Results after execution.
 
@@ -283,7 +303,7 @@ A sub-task is a smaller implementation step inside an approved task.
 
 Sub-tasks may be used by Claude for execution planning, but they do not replace the approved task spec.
 
-If a sub-task changes scope, architecture, security, data, integrations, deployment, or acceptance criteria, it must be escalated.
+If a sub-task changes scope, architecture, security, data, integrations, deployment, design standards, or acceptance criteria, it must be escalated.
 
 ---
 
@@ -325,7 +345,7 @@ David Approval: Approved for execution — YYYY-MM-DD
 
 ### 9.1 Class A — David Approval Required
 
-David approval is required before execution for all product, architecture, security, data, integration, deployment, user-facing, or acceptance-criteria-impacting work.
+David approval is required before execution for all product, architecture, security, data, integration, deployment, user-facing, design-system-impacting, or acceptance-criteria-impacting work.
 
 Class A includes:
 
@@ -347,12 +367,11 @@ Class A includes:
 - Any task with customer data impact
 - Any task where Codex and Claude disagree
 - Any task that changes acceptance criteria
-
----
+- Any task that changes brand, visual standards, UI standards, or customer-facing design assets
 
 ### 9.2 Class B — Codex Approval Sufficient
 
-Codex may approve limited maintenance work that does not change product behavior, architecture, security, data model, integrations, deployment, user experience, or acceptance criteria.
+Codex may approve limited maintenance work that does not change product behavior, architecture, security, data model, integrations, deployment, user experience, design standards, brand standards, customer-facing assets, or acceptance criteria.
 
 Class B work must still be logged.
 
@@ -385,11 +404,10 @@ Code-touching Class B work may not include:
 - Auth, RLS, or permission changes
 - Error-handling behavior changes
 - Dependency changes
+- Brand, layout, typography, color, component, iconography, or image-asset changes
 - Any change that could affect runtime behavior
 
 If there is uncertainty about whether a code change is non-functional, the task is Class A and requires David approval.
-
----
 
 ### 9.3 Class C — Claude May Execute and Log
 
@@ -401,9 +419,7 @@ Claude may perform documentation hygiene only, such as:
 - Fixing clearly broken internal anchors or links
 - Recording test output after an approved task
 
-Class C work cannot modify code, product behavior, architecture, security, data, integrations, deployment, or task scope.
-
----
+Class C work cannot modify code, product behavior, architecture, security, data, integrations, deployment, design standards, brand standards, customer-facing assets, or task scope.
 
 ### 9.4 Default Approval Rule
 
@@ -420,13 +436,14 @@ A task is Done only when:
 1. Every acceptance criterion is completed or explicitly marked “Do Not Do” with David approval.
 2. The implementation matches the approved technical scope.
 3. Any deviation from the task spec is documented.
-4. Routes, components, database changes, and integrations affected are documented.
+4. Routes, components, database changes, integrations, and design-system impacts are documented.
 5. Security/RLS impact has been reviewed by Codex.
-6. QA is complete and clean.
-7. Known risks/issues are documented and accepted by David.
-8. Claude has written the implementation summary.
-9. Codex has completed QA / architectural review.
-10. David has confirmed the task meets the Definition of Done.
+6. Design-system impact has been reviewed where applicable.
+7. QA is complete and clean.
+8. Known risks/issues are documented and accepted by David.
+9. Claude has written the implementation summary.
+10. Codex has completed QA / architectural review.
+11. David has confirmed the task meets the Definition of Done.
 
 Confirmation sequence:
 
@@ -479,7 +496,7 @@ Then one of the following must happen:
 - David explicitly approves the change.
 - The task pauses until the issue is resolved.
 
-Claude may not silently workaround structural concerns.
+Claude may not silently workaround structural concerns, design-system conflicts, or brand inconsistencies.
 
 ---
 
@@ -487,7 +504,7 @@ Claude may not silently workaround structural concerns.
 
 A false assumption is different from an improvement or scope change.
 
-A false assumption exists when an approved spec, architecture note, task brief, or product instruction is based on information that appears to be incorrect.
+A false assumption exists when an approved spec, architecture note, task brief, product instruction, or design instruction is based on information that appears to be incorrect.
 
 Examples:
 
@@ -495,7 +512,7 @@ Examples:
 - The spec assumes a third-party integration behaves a certain way, but documentation or implementation proves otherwise.
 - The spec assumes an auth, RLS, data ownership, or payment behavior that is technically or commercially incorrect.
 - The spec describes current app behavior inaccurately.
-- The spec depends on an unavailable credential, environment variable, or production setting.
+- The spec depends on an unavailable credential, environment variable, production setting, design asset, or brand standard.
 
 When Claude discovers a false assumption, Claude must pause the task and document:
 
@@ -514,16 +531,16 @@ Codex must then review and either:
 3. Escalate to David for decision, or
 4. Cancel or split the task.
 
-If the false assumption affects product behavior, architecture, security, data, integrations, deployment, or acceptance criteria, David approval is required before execution resumes.
+If the false assumption affects product behavior, architecture, security, data, integrations, deployment, design standards, brand standards, customer-facing assets, or acceptance criteria, David approval is required before execution resumes.
 
 ---
 
 ## 14. Escalation
 
-If Codex and Claude disagree on architecture:
+If Codex and Claude disagree on architecture, implementation, security, design-system interpretation, or task scope:
 
 1. The disagreement is documented.
-2. Codex states the architectural position.
+2. Codex states the architectural, QA, security, or design-governance position.
 3. Claude states the implementation or structural concern.
 4. David decides.
 5. Claude executes David’s decision.
@@ -546,6 +563,7 @@ Every session begins by reading the relevant GitHub documentation.
 - Responding to a structural concern
 - Approving Class B work
 - Reviewing security or production-impacting changes
+- Reviewing frontend, brand, marketing, notification, or customer-facing work
 
 ### Claude must read GitHub before:
 
@@ -554,16 +572,58 @@ Every session begins by reading the relevant GitHub documentation.
 - Remediating after Codex QA
 - Documenting implementation results
 - Responding to Codex review
+- Implementing frontend, brand, marketing, notification, or customer-facing changes
 
 GitHub documentation is the source of truth. Chat context is not source of truth unless written into GitHub.
 
 ---
 
-## 16. Uniform Startup Prompt
+## 16. Design System
+
+The PassTo Design System is the source of truth for brand, visual design, UI standards, and design assets.
+
+Canonical location:
+
+```text
+/docs/design_system/
+```
+
+The design system currently includes one primary design-system document and a library of supporting assets.
+
+Frontend, user-facing, brand, marketing, notification, and customer-facing tasks must reference the design system before execution.
+
+Codex must identify Design System Impact in relevant task specs:
+
+```text
+Design System Impact: None
+Design System Impact: Low
+Design System Impact: Medium
+Design System Impact: High
+Design Source: /docs/design_system/[file-or-asset-path]
+```
+
+Claude must review the PassTo Design System before implementing UI, brand, marketing, notification, or customer-facing changes.
+
+Claude must document any deviations from the design system in implementation notes, including deviations involving:
+
+- Brand
+- Layout
+- Typography
+- Color
+- Components
+- Iconography
+- Imagery or assets
+- Customer-facing copy where tone or presentation is governed by the design system
+
+If a design-system conflict affects user experience, brand standards, acceptance criteria, or implementation scope, the task must pause for Codex review and David approval where required.
+
+---
+
+## 17. Uniform Startup Prompt
 
 David may begin any Codex or Claude session using either the short session trigger or the full startup prompt.
 
-### 16.1 Session Trigger — Short
+### 17.1 Session Trigger — Short
 
 Use this when the AI already understands the PassTo operating model:
 
@@ -573,7 +633,7 @@ Use this when the AI already understands the PassTo operating model:
 
 The short trigger means the AI must perform the full startup process before doing any work.
 
-### 16.2 Full Startup Prompt — Paste Into Chat
+### 17.2 Full Startup Prompt — Paste Into Chat
 
 Use this when starting a fresh chat, reorienting an AI, onboarding a new tool, or when there is any risk that the AI does not know the PassTo operating model:
 
@@ -591,6 +651,7 @@ Start by reviewing:
 - /docs/activity_log/
 - /docs/features/
 - /docs/flows/
+- /docs/design_system/
 
 Then report back with:
 
@@ -616,7 +677,7 @@ I reviewed the GitHub docs and am ready to execute only approved tasks. Here is 
 
 ---
 
-## 17. Option A Review / Respond Workflow
+## 18. Option A Review / Respond Workflow
 
 PassTo uses Option A for Claude-GitHub-Codex review/respond, with David as final approver.
 
@@ -646,7 +707,7 @@ David remains final approver.
 
 ---
 
-## 18. Flow and Feature Documentation
+## 19. Flow and Feature Documentation
 
 The approved documentation structure separates flows from features.
 
@@ -675,7 +736,7 @@ Examples:
 
 ---
 
-## 19. Production Safety
+## 20. Production Safety
 
 No production-impacting change may proceed without David approval and a rollback or recovery note.
 
@@ -693,7 +754,7 @@ Production-impacting changes include:
 
 ---
 
-## 20. Blocked Approval Protocol
+## 21. Blocked Approval Protocol
 
 If work is blocked because David approval is required and David is unavailable, Codex and Claude must not proceed with Class A work.
 
@@ -704,7 +765,7 @@ When blocked on David approval:
 3. A summary should be added to the activity log.
 4. Codex may queue the next recommended spec, risk note, or decision options.
 5. Claude may only perform approved Class C documentation hygiene or stop work.
-6. No production-impacting, security-impacting, data-impacting, integration-impacting, architecture-impacting, or user-facing work may proceed.
+6. No production-impacting, security-impacting, data-impacting, integration-impacting, architecture-impacting, design-system-impacting, or user-facing work may proceed.
 
 The session may close with a clear handoff note:
 
@@ -720,7 +781,7 @@ If David later approves, the next Codex or Claude session must restart from GitH
 
 ---
 
-## 21. Charter Evolution
+## 22. Charter Evolution
 
 This charter is expected to evolve.
 
