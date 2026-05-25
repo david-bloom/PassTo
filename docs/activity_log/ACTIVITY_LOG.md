@@ -474,3 +474,96 @@ Next Claude session should begin with the full startup read:
 /docs/tasks/2026-05-24-claude-task-001-codex-qa-review.md
 GitHub Issue #1
 ```
+
+---
+
+## Session Activity — 2026-05-25 — Codex
+
+**Task ID:** TASK-0003 — Create PassTo PRD v0.1 and MVP Task Backlog  
+**Status:** Ready for David Review  
+**Role:** Codex / Engineering Director  
+**Summary:** Created PassTo PRD v0.1 and MVP Task Backlog incorporating Claude PRD outline feedback directly and David’s Lovable-hosted MVP frontend decision.
+
+### Work Completed
+
+- Reviewed Claude comments embedded in `/docs/prd/PASS_TO_PRD_OUTLINE.md`.
+- Created Codex response to Claude’s PRD outline review in `/docs/prd/CLAUDE_PRD_OUTLINE_REVIEW_RESPONSE.md`.
+- Captured David approval for TASK-0003.
+- Created `/docs/tasks/TASK-0003.md`.
+- Created `/docs/prd/PASS_TO_PRD.md`.
+- Created `/docs/tasks/MVP_TASK_BACKLOG.md`.
+- Updated `/docs/activity_log/APPROVALS_LOG.md` with APPROVAL-0007.
+- Updated this activity log.
+
+### Files / Docs Changed
+
+- `/docs/prd/PASS_TO_PRD_OUTLINE.md` — Claude comments present from review.
+- `/docs/prd/CLAUDE_PRD_OUTLINE_REVIEW_RESPONSE.md`.
+- `/docs/tasks/TASK-0003.md`.
+- `/docs/prd/PASS_TO_PRD.md`.
+- `/docs/tasks/MVP_TASK_BACKLOG.md`.
+- `/docs/activity_log/APPROVALS_LOG.md`.
+- `/docs/activity_log/ACTIVITY_LOG.md`.
+
+### Decisions / Direction Captured
+
+- Lovable is retained as the MVP frontend builder and website host.
+- Supabase is the system of record and RLS/data foundation.
+- Supabase Edge Functions are preferred for orchestration where practical.
+- Vercel is retained only for backend/API routes where needed.
+- Airtable and Make are abandoned as execution platforms.
+- ID.me, Twilio, RapidAPI/Propelus, data matching, selfie capture, and wallet pass issuance are now represented in the PRD and backlog.
+- Wallet pass is treated as core MVP unless David explicitly changes product definition.
+- Degraded-mode and ops alert requirements are now PRD-level requirements.
+
+### Risks / Issues
+
+- Activity log references DECISION-0011, but the visible `/docs/activity_log/DECISIONS_LOG.md` currently stops at DECISION-0010. A cleanup task may be required.
+- Final Standard/Premier subscription pricing has conflicting documentation signals: visible Decisions Log says still unconfirmed, while Claude schema activity references $9.99/$19.99.
+- Twilio A2P 10DLC remains a launch-readiness blocker unless David approves fallback.
+- Terms of Use and verifier disclaimer remain unresolved legal/product work.
+- Final Supabase schema and RLS design remain subject to Codex review and David approval.
+
+### Open Questions
+
+- Should TASK-0004 be the Lovable/Supabase/Vercel responsibility map as recommended?
+- Should Codex create a DECISION-0011 cleanup entry or locate the missing decision artifact first?
+- Should Standard/Premier pricing be treated as approved at $9.99/$19.99 or still open until David reconfirms?
+- Should admin/ops start with Supabase dashboard/views or a Lovable admin UI?
+
+### Approval Needed
+
+- David final Done decision for TASK-0003.
+- David final pricing confirmation before Stripe setup.
+- David launch fallback decision if Twilio A2P 10DLC is not ready.
+
+### Next Recommended Action
+
+Proceed with:
+
+```text
+TASK-0004 — Create Lovable/Supabase/Vercel Responsibility Map
+```
+
+Then:
+
+```text
+TASK-0005 — Create Supabase Schema and RLS Plan
+TASK-0006 — Create MVP Build Sequence for Claude
+```
+
+### Handoff Notes
+
+Next Codex or Claude session should read:
+
+```text
+/docs/team_charter/TEAM_CHARTER.md
+/docs/activity_log/ACTIVITY_LOG.md
+/docs/activity_log/DECISIONS_LOG.md
+/docs/activity_log/APPROVALS_LOG.md
+/docs/tasks/TASK-0003.md
+/docs/prd/PASS_TO_PRD.md
+/docs/tasks/MVP_TASK_BACKLOG.md
+/docs/prd/CLAUDE_PRD_OUTLINE_REVIEW_RESPONSE.md
+/docs/tasks/2026-05-24-claude-task-001-supabase-schema-remediation.md
+```
