@@ -123,3 +123,30 @@ David approved the v1.5 charter update establishing GitHub label-based routing f
 ### Notes
 
 The approved v1.5 rules were captured in `/docs/team_charter/TEAM_CHARTER_V1_5_AMENDMENT.md` and should be consolidated into `/docs/team_charter/TEAM_CHARTER.md` in a future maintenance task.
+
+---
+
+## APPROVAL-0005 — Charter v1.7 Amendment Approved
+
+**Date:** 2026-05-24
+**Approved By:** David
+**Related Task:** N/A — Charter Amendment
+**Decision:** Approved
+
+### Summary
+
+David approved the v1.7 charter update establishing Claude's authority to create GitHub pull requests for approved tasks, approved remediation work, and approved Class B work. Defines PR content requirements, routing label requirements, Codex PR review scope, and merge authority rules.
+
+### Approval Checklist
+
+- [x] I approve Claude PR creation authority for approved tasks, remediation, and Class B work.
+- [x] I approve the required PR content fields (Task ID, spec, criteria, summary, files, tests, deviations, risks).
+- [x] I approve routing labels: `assigned: codex`, `needs: codex-review`, `status: ready-for-codex-qa` for approved work.
+- [x] I approve draft PR + `assigned: david` / `needs: david-approval` / `status: blocked` for unapproved-scope work.
+- [x] I approve Codex PR review scope (scope, architecture, security/RLS, data/integration, design-system, criteria, QA).
+- [x] I confirm Claude may not merge or self-approve PRs.
+- [x] I confirm David remains final approver for Done and merge decisions.
+
+### Notes
+
+v1.6 was already committed (scheduled triage agents). This amendment is captured as v1.7 in `/docs/team_charter/TEAM_CHARTER_V1_7_AMENDMENT.md` and should be consolidated into `/docs/team_charter/TEAM_CHARTER.md` in a future maintenance task.
