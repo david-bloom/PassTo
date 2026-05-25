@@ -175,3 +175,28 @@ David approved the v1.8 charter update establishing the `C` / `c` handshake for 
 ### Notes
 
 The approved v1.8 rules were captured in `/docs/team_charter/TEAM_CHARTER_V1_8_AMENDMENT.md` and should be consolidated into `/docs/team_charter/TEAM_CHARTER.md` in a future maintenance task.
+
+---
+
+## APPROVAL-0007 — TASK-0003 Approved for Execution
+
+**Date:** 2026-05-25  
+**Approved By:** David  
+**Related Task:** TASK-0003  
+**Decision:** Approved  
+
+### Summary
+
+David approved TASK-0003 — Create PassTo PRD v0.1 and MVP Task Backlog, incorporating Claude feedback directly.
+
+### Approval Checklist
+
+- [x] I approve this task for execution.
+- [x] I approve creating `/docs/prd/PASS_TO_PRD.md`.
+- [x] I approve creating `/docs/tasks/MVP_TASK_BACKLOG.md`.
+- [x] I approve incorporating Claude PRD outline feedback directly.
+- [x] I understand this is documentation and planning work only, not implementation authorization.
+
+### Notes
+
+Approval captured from David’s confirmation: “TASK-0003 — Create PassTo PRD v0.1 and MVP Task Backlog, incorporating Claude feedback directly APPROVED.”
