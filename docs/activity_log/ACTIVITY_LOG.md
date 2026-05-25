@@ -375,3 +375,102 @@ Codex should read:
 /docs/features/NOTIFICATIONS.md
 /docs/flows/VERIFIER_CREDENTIAL_VIEW.md
 ```
+
+---
+
+## Session Closeout — 2026-05-24 — Claude
+
+**Task ID:** Claude Task 001 / Claude Task 001-R
+**Status:** Remediation Complete — Awaiting Codex Re-Review
+**Role:** Claude — Senior Engineer
+**Summary:** Executed Claude Task 001 (Supabase MVP Schema Spike), set up GitHub authentication, committed the schema artifact, captured charter v1.7 (Claude PR Authority), addressed Codex QA review blockers in v2, then executed formal Task 001-R incorporating DECISION-0011 to produce the v3 definitive remediation artifact. All 10 Codex QA blockers resolved. Issue #1 routed back to Codex for re-review.
+
+### Work Completed
+
+- Read full GitHub documentation at session start (team charter, activity log, task files, feature docs, architecture docs, decisions log, approvals log).
+- Executed Claude Task 001 — Supabase MVP Schema Spike. Produced v1 implementation artifact with 7 required sections (Migration SQL, RLS Policies, Schema Rationale, Challenge Log, Open Questions, Self-QA, Implementation Notes).
+- Installed `gh` CLI (GitHub CLI v2.92.0) to enable autonomous GitHub operations.
+- Committed v1 schema artifact to GitHub — resolved source-of-truth gap flagged by Codex.
+- Captured charter v1.7 amendment (Claude GitHub PR Authority) to `/docs/team_charter/TEAM_CHARTER_V1_7_AMENDMENT.md`.
+- Logged APPROVAL-0005 (charter v1.7) to `/docs/activity_log/APPROVALS_LOG.md`.
+- Reviewed Codex QA review (Issue #1) — 10 blockers, "Changes Required," migration not approved.
+- Produced v2 schema addressing all 10 Codex QA blockers. Committed to GitHub. Posted remediation response in Issue #1 format. Updated Issue #1 labels.
+- Created Task 001-R task artifact (`/docs/tasks/2026-05-24-claude-task-001-R-schema-remediation.md`).
+- Pulled DECISION-0011 from GitHub (committed by Codex/David with 10 approved migration-blocking decisions).
+- Executed formal Task 001-R — produced v3 definitive remediation artifact incorporating DECISION-0011: `pdf_exports` table, `token_type` field (share_link/show_qr), 7-year retention enforcement, entitlement model, subscription pricing. Committed, pushed, posted Issue #1 comment in required format, confirmed labels.
+
+### Files Created / Changed
+
+- `docs/tasks/2026-05-24-claude-task-001-supabase-schema-implementation.md` — v2 revision (10 blockers addressed)
+- `docs/tasks/2026-05-24-claude-task-001-supabase-schema-remediation.md` — v3 definitive remediation (DECISION-0011 incorporated) — **current schema source of truth**
+- `docs/tasks/2026-05-24-claude-task-001-R-schema-remediation.md` — Task 001-R formal task artifact
+- `docs/team_charter/TEAM_CHARTER_V1_7_AMENDMENT.md` — Claude GitHub PR Authority amendment
+- `docs/activity_log/APPROVALS_LOG.md` — APPROVAL-0005 added
+
+### Commits
+
+- `a49a9e4` — Add Claude Task 001 schema implementation artifact (v1)
+- `d636913` — Create Codex QA review for Claude Task 001
+- `1233cb0` — Add charter v1.7 amendment — Claude GitHub PR authority
+- `f5170f0` — Update v1.7 charter amendment for Claude PR authority
+- `83a77a6` — Remediate Task 001 schema — address all 10 Codex QA blockers (v2)
+- `76ce998` — Add Task 001-R artifact — schema remediation task record
+- `f871685` — Add Task 001-R remediation artifact — v3 schema with DECISION-0011
+
+### Decisions Made
+
+- GitHub is source of truth for all task artifacts — Claude must commit before declaring work complete.
+- `gh` CLI installed at `~/bin/gh` for autonomous GitHub push/comment/label operations.
+- Charter v1.7 approved: Claude may create pull requests for approved tasks; may not merge or self-approve.
+- DECISION-0011 approved: 7-year retention, two token TTLs (72h share_link / 45min show_qr), pdf_exports table, entitlement model, subscription pricing.
+- v3 schema artifact is the current source of truth for the Supabase MVP migration design.
+
+### Risks / Issues
+
+- BLOCKER 10 fully resolved in schema but production migration still blocked pending Codex re-review and David final approval.
+- `ON DELETE RESTRICT` on `purchases.profile_id` and `pdf_exports.profile_id` requires application to delete children before purging profiles after 7-year retention window.
+- `verifiers.token_id NOT NULL UNIQUE` may need schema change if show_qr tokens have no form gate (open Codex question 4).
+- PDF QR token type is unresolved (DECISION-0011 follow-up) — may require third `token_type` value.
+
+### Outstanding Items — David
+
+- TASK-0001: Final Done decision pending.
+- TASK-0002: Final Done decision pending.
+- Final migration approval (after Codex re-review clears remaining 5 architecture questions).
+
+### Outstanding Items — Codex
+
+- Issue #1: Re-review v3 remediation artifact (`f871685`).
+- Define `audit_events.action` canonical namespace before migration.
+- Decide `is_primary` designation implementation path.
+- Confirm RLS testing approach.
+- Confirm `verifiers` record behavior for `show_qr` tokens.
+- Decide PDF QR token type (if MVP — requires `token_type` enum update).
+
+### Next Recommended Action
+
+Codex should re-review Issue #1 and the v3 artifact:
+
+```text
+/docs/tasks/2026-05-24-claude-task-001-supabase-schema-remediation.md
+```
+
+If all remaining architecture questions are resolved and QA passes, Codex should update Issue #1 labels to `assigned: david` / `needs: david-approval` for final migration approval.
+
+### Handoff Notes
+
+Next Claude session should begin with the full startup read:
+
+```text
+/docs/team_charter/TEAM_CHARTER.md
+/docs/team_charter/TEAM_CHARTER_V1_4_AMENDMENT.md
+/docs/team_charter/TEAM_CHARTER_V1_5_AMENDMENT.md
+/docs/team_charter/TEAM_CHARTER_V1_6_AMENDMENT.md
+/docs/team_charter/TEAM_CHARTER_V1_7_AMENDMENT.md
+/docs/activity_log/ACTIVITY_LOG.md
+/docs/activity_log/DECISIONS_LOG.md
+/docs/activity_log/APPROVALS_LOG.md
+/docs/tasks/2026-05-24-claude-task-001-supabase-schema-remediation.md
+/docs/tasks/2026-05-24-claude-task-001-codex-qa-review.md
+GitHub Issue #1
+```
