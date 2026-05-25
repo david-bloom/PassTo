@@ -150,3 +150,28 @@ David approved the v1.7 charter update establishing Claude's authority to create
 ### Notes
 
 v1.6 was already committed (scheduled triage agents). This amendment is captured as v1.7 in `/docs/team_charter/TEAM_CHARTER_V1_7_AMENDMENT.md` and should be consolidated into `/docs/team_charter/TEAM_CHARTER.md` in a future maintenance task.
+
+---
+
+## APPROVAL-0006 — Charter v1.8 Amendment Approved
+
+**Date:** 2026-05-24  
+**Approved By:** David  
+**Related Task:** N/A — Charter Amendment  
+**Decision:** Approved  
+
+### Summary
+
+David approved the v1.8 charter update establishing the `C` / `c` handshake for the repo-visible Codex/Claude review loop.
+
+### Approval Checklist
+
+- [x] I approve `C` / `c` as David’s manual immediate trigger for the GitHub review loop.
+- [x] I approve that `C` in Codex means Codex must re-scan GitHub, review items assigned to Codex, and respond in the repo-visible thread.
+- [x] I approve that `C` in Claude means Claude must inspect repo-visible Codex feedback, act on every item, update GitHub, and report status.
+- [x] I approve that `C` never means continue from memory and always means read GitHub first.
+- [x] I approve that `C` does not authorize new Class A work, merge, deployment, migration, risk acceptance, or Done decisions.
+
+### Notes
+
+The approved v1.8 rules were captured in `/docs/team_charter/TEAM_CHARTER_V1_8_AMENDMENT.md` and should be consolidated into `/docs/team_charter/TEAM_CHARTER.md` in a future maintenance task.
