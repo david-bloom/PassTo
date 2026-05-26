@@ -31,10 +31,10 @@ This task list translates PRD Section 1 into execution controls. It separates co
 |---|---|---|---|---|
 | S1-OD-01 | Resolve `TASK-0006` open decisions `OD-1` through `OD-12`. | Resolved — TASK-0007 complete | Codex | v4 migration SQL drafting authorized |
 | S1-OD-02 | Confirm final MVP Standard and Premier subscription pricing. | Resolved — DECISION-0011 and DECISION-0014: Standard $9.99/month, Premier $19.99/month | David | Subscription PRD section, Stripe setup |
-| S1-OD-03 | Confirm wallet pass signing owner: Supabase or Vercel. | Open | David + Codex/Claude | Credential issuance tasks |
-| S1-OD-04 | Confirm Stripe webhook owner: Supabase or Vercel. | Open | David + Codex/Claude | Payment tasks |
-| S1-OD-05 | Confirm PDF generation owner: Supabase or Vercel. | Open | David + Codex/Claude | PDF export tasks |
-| S1-OD-06 | Confirm launch fallback if Twilio A2P 10DLC approval is delayed. | Open | David | Launch readiness |
+| S1-OD-03 | Confirm wallet pass signing owner: Supabase or Vercel. | **Resolved — FD-015: Vercel** | David | — |
+| S1-OD-04 | Confirm Stripe webhook owner: Supabase or Vercel. | **Resolved — FD-016: Supabase Edge Function** | David | — |
+| S1-OD-05 | Confirm PDF generation owner: Supabase or Vercel. | **Resolved — FD-017: Supabase Edge Function** | David | — |
+| S1-OD-06 | Confirm launch fallback if Twilio A2P 10DLC approval is delayed. | **Resolved — FD-018: Hard gate — no launch without approved SMS** | David | — |
 
 ## Master Tasks Created From Section 1
 
@@ -45,6 +45,12 @@ This task list translates PRD Section 1 into execution controls. It separates co
 | TASK-0009 | Audit existing Lovable routes and backend calls against the responsibility map. | Done — David approved 2026-05-26 | Claude | All 3 Lovable projects audited. 5 critical findings. Canonical Supabase confirmed (`wvzjfxacykgsaffskgtr`). |
 | TASK-0010 | Define MVP launch-critical vs. deferred foundation capabilities. | Done — David approved 2026-05-26 | Claude | 18 launch-critical, 8 deferred. All 6 open scope items resolved (FD-019–FD-024). See `/docs/prd/MVP_LAUNCH_SCOPE.md`. |
 | TASK-0011 | Specify P2 enrollment pipeline migration: remove Make, move ID.me server-side, wire wallet pass. | Done — David approved 2026-05-26 | Claude | Produces `P2_ENROLLMENT_PIPELINE_MIGRATION_SPEC.md`. All 4 ODs resolved (FD-025–FD-028). |
+| TASK-0012 | Write v4 migration SQL for `wvzjfxacykgsaffskgtr`. | Not Started | Claude | All 15 tables, RLS, indexes, initial data. Deliverable: `V4_MIGRATION_SQL.md`. Blocks TASK-0013. |
+| TASK-0013 | David review and authorization of v4 migration SQL. | Not Started | David | Gate task — migration cannot be applied without explicit David approval. Blocks TASK-0014. |
+| TASK-0014 | Apply v4 migration SQL to `wvzjfxacykgsaffskgtr`. | Not Started | Claude | Irreversible. Pre-flight checks required. Supabase MCP `apply_migration`. Blocks TASK-0015. |
+| TASK-0015 | Post-migration schema and RLS verification. | Not Started | Claude | Table presence, RLS enabled, constraint checks, policy spot checks, Supabase advisors. Deliverable: `V4_MIGRATION_VERIFICATION.md`. Blocks TASK-0016. |
+| TASK-0016 | Update P1/P2/P3 Lovable projects to canonical Supabase (`wvzjfxacykgsaffskgtr`). | Not Started | David + Claude | ENV var switch for all 3 projects. Smoke test after each. Blocks TASK-0017. |
+| TASK-0017 | Remove dead Airtable code from P1, P2, P3. | Not Started | David + Claude | Remove `sync-airtable` (P1), `create-airtable-record` (P2), dead Airtable comment (P3). Delete deployed dead edge functions. Completes Section 1. |
 
 ## Not In Scope For Section 1
 
