@@ -1,24 +1,31 @@
 # PassTo PRD Index
 
-**Status:** All Sections Approved — Ready for Consolidation  
+**Status:** Consolidated PRD Approved  
 **Owner:** David Bloom  
 **Maintained By:** Codex and Claude  
 **Created:** 2026-05-26  
-**Latest Approval:** David approved Sections 2-7 on 2026-05-26  
+**Latest Approval:** David approved Sections 1-7 on 2026-05-26  
+**Consolidated PRD:** `docs/prd/PASS_TO_PRD.md`  
 
 ## Purpose
 
 This file defines where the PassTo PRD is maintained in GitHub.
 
-The active PRD process is section-based: each PRD section is drafted, reviewed, approved, and paired with a master task list.
-
 GitHub is the source of truth for PRD work.
 
-## Active Section-Based PRD Files
+## Canonical PRD
+
+| File | Status | Notes |
+|---|---|---|
+| `docs/prd/PASS_TO_PRD.md` | Approved consolidated PRD | Replaces older full draft. Built from approved Sections 1-7. |
+
+## Supporting Section Files
+
+The section files remain as supporting artifacts and review history.
 
 | Section | File | Status | Associated Task List |
 |---|---|---|---|
-| Section 1 — Product Summary, Technical Context, and Current Build State | `docs/prd/PASS_TO_PRD.md` Section 1 / local section baseline | Approved by David | `docs/tasks/PRD_SECTION_01_MASTER_TASK_LIST.md` |
+| Section 1 — Product Summary, Technical Context, and Current Build State | `docs/prd/PASS_TO_PRD.md` Section 1 / section baseline | Approved by David | `docs/tasks/PRD_SECTION_01_MASTER_TASK_LIST.md` |
 | Section 2 — Users, MVP Goals, and Scope Boundaries | `docs/prd/PRD_SECTION_02_USERS_GOALS_SCOPE.md` | Approved by David | `docs/tasks/PRD_SECTION_02_MASTER_TASK_LIST.md` |
 | Section 3 — End-to-End MVP User Journeys | `docs/prd/PRD_SECTION_03_USER_JOURNEYS.md` | Approved by David | `docs/tasks/PRD_SECTION_03_MASTER_TASK_LIST.md` |
 | Section 4 — Data Model, RLS, and Backend Responsibilities | `docs/prd/PRD_SECTION_04_DATA_RLS_BACKEND.md` | Approved by David | `docs/tasks/PRD_SECTION_04_MASTER_TASK_LIST.md` |
@@ -28,44 +35,28 @@ GitHub is the source of truth for PRD work.
 
 ## Approval Record
 
-David approved Sections 2 through 7 on 2026-05-26.
-
-Approval record:
-
 ```text
 docs/prd/PRD_APPROVAL_2026-05-26.md
 ```
 
-## Existing Full PRD Draft
+## Execution Artifacts Created From PRD
 
-| File | Status | Notes |
+| File | Status | Purpose |
 |---|---|---|
-| `docs/prd/PASS_TO_PRD.md` | Older full draft / baseline reference | Ready to be replaced by consolidated approved sections when requested. |
-
-## Maintenance Rule
-
-New PRD work should be added as section-specific files first, then reconciled into the full PRD after David approval.
-
-Do not overwrite the full `PASS_TO_PRD.md` with section drafts until David approves consolidation.
-
-## Current Section Workflow
-
-1. Draft section-specific PRD file.
-2. Draft matching `PRD_SECTION_XX_MASTER_TASK_LIST.md`.
-3. David reviews and approves checklist.
-4. Mark section and task list approved.
-5. Update this index.
-6. Reconcile approved sections into the full PRD when David requests consolidation.
+| `docs/tasks/MVP_IMPLEMENTATION_BACKLOG.md` | Draft execution backlog | Converts approved PRD into launch-critical work blocks. |
+| `docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md` | Draft execution sequence | Defines recommended build order. |
 
 ## Current PRD Status
 
 ```text
 Sections 1-7: Approved by David
-Consolidation into full PASS_TO_PRD.md: Ready
+Consolidated PRD: Complete
+Implementation backlog: Created
+Launch-critical build sequence: Created
 ```
 
-## Next PRD Step
+## Next Project Step
 
 ```text
-Consolidate approved section files into docs/prd/PASS_TO_PRD.md.
+Create/execute TASK-0011 — Draft v4 Supabase Migration SQL From TASK-0007 Decisions.
 ```
