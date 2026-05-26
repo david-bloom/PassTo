@@ -41,9 +41,9 @@ This task list translates PRD Section 1 into execution controls. It separates co
 | Task ID | Task | Status | Recommended Owner | Notes |
 |---|---|---|---|---|
 | TASK-0007 | Resolve `TASK-0006` schema/RLS open decisions before migration SQL. | Done — 2026-05-26 | Codex | Created `/docs/architecture/CODEX_RESPONSE_TASK_0007_SCHEMA_QA.md`; v4 migration SQL authorized for drafting only. |
-| TASK-0008 | Convert accepted Section 1 foundation decisions into a canonical decisions log. | Done — David approved 2026-05-26 | Claude | Creates `/docs/decisions/DECISIONS_LOG.md`. FD-001–FD-018 recorded. |
+| TASK-0008 | Convert accepted Section 1 foundation decisions into a canonical decisions log. | Done — David approved 2026-05-26 | Claude | Creates `/docs/decisions/DECISIONS_LOG.md`. FD-001–FD-024 recorded (24 total; log is active and updated each session). |
 | TASK-0009 | Audit existing Lovable routes and backend calls against the responsibility map. | Done — David approved 2026-05-26 | Claude | All 3 Lovable projects audited. 5 critical findings. Canonical Supabase confirmed (`wvzjfxacykgsaffskgtr`). |
-| TASK-0010 | Define MVP launch-critical vs. deferred foundation capabilities. | Ready for David Review — 2026-05-26 | Claude | 18 launch-critical, 8 deferred, 6 open scope items. See `/docs/prd/MVP_LAUNCH_SCOPE.md`. |
+| TASK-0010 | Define MVP launch-critical vs. deferred foundation capabilities. | Done — David approved 2026-05-26 | Claude | 18 launch-critical, 8 deferred. All 6 open scope items resolved (FD-019–FD-024). See `/docs/prd/MVP_LAUNCH_SCOPE.md`. |
 
 ## Not In Scope For Section 1
 
