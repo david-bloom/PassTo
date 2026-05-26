@@ -2,7 +2,7 @@
 
 **Created:** 2026-05-26
 **Task:** TASK-0008
-**Status:** Ready for David Review
+**Status:** Active
 **Owner:** David Bloom
 **Maintained by:** Claude / Codex on David instruction
 
@@ -160,8 +160,6 @@ Every future implementation task must declare: frontend owner, data owner, backe
 
 **Canonical reference:** `/docs/architecture/LOVABLE_SUPABASE_VERCEL_RESPONSIBILITY_MAP.md`
 
-**Remaining open within this area:** Four platform assignments are still unresolved — see S1-OD-03 through S1-OD-05 below.
-
 ---
 
 ### FD-010 — Supabase Schema and RLS Plan Accepted as Planning Baseline
@@ -241,169 +239,65 @@ Stripe product setup can proceed using these prices once migration is approved.
 
 ---
 
-## OPEN DECISIONS
+### FD-013 — Canonical Supabase Instance Confirmed
 
-Open decisions are unresolved. Do not treat as settled or assume in implementation work until explicitly approved.
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes A-OD-01
+**Source:** TASK-0009 Lovable audit
+**Area:** Architecture / Infrastructure
 
----
+**Decision:**
+```
+Canonical Supabase project: PassTo Dev
+Project ID: wvzjfxacykgsaffskgtr
+URL: https://wvzjfxacykgsaffskgtr.supabase.co
+Region: us-west-2
+Status: ACTIVE_HEALTHY — empty, clean slate
+```
 
-### S1-OD-01 — Resolve TASK-0006 Schema/RLS Open Decisions (OD-1 through OD-12)
+This is the project where v4 migration SQL will be applied. All three Lovable projects (PassTo Website, PassTo Enroll, PassTo App) must be re-pointed to this instance after migration.
 
-**Status:** Open
-**Owner:** Codex (TASK-0007 assigned) + David for product calls
-**Blocks:** v4 migration SQL authorization
+**Inventory of all Supabase instances discovered during TASK-0009 audit:**
 
-See OD-1 through OD-12 below.
+| Project ID Prefix | Name | Owner | Status | Disposition |
+|---|---|---|---|---|
+| `wvzjfxacykgsaffskgtr` | PassTo Dev | David (this org) | Empty — canonical target | **KEEP — migrate here** |
+| `zpvbexzdiklxlvrxsvop` | david-bloom's Project | David (this org) | Empty | Decommission or ignore |
+| `zektkbhvmbbmhvthwah` | Lovable-managed (P1 Website) | Lovable org | Unknown data state | Replace with canonical after migration |
+| `ofpxczstptysqxoruiox` | Lovable-managed (P2 Enroll) | Lovable org | Has enrollment data | Audit for user data before decommission |
+| `vvefeasvpmdsqvwkkzsj` | Lovable-managed (P3 App) | Lovable org | Unknown data state | Replace with canonical after migration |
 
----
-
-### S1-OD-03 — Wallet Pass Signing Owner: Supabase or Vercel
-
-**Status:** Open
-**Owner:** David + Codex/Claude
-**Blocks:** Credential issuance implementation tasks
-
-**Context:** Existing Vercel routes `api/sign-apple.js` and `api/sign-google.js` handle wallet signing. Decision required: retain in Vercel or move to Supabase Edge Function.
-
----
-
-### S1-OD-04 — Stripe Webhook Owner: Supabase or Vercel
-
-**Status:** Open
-**Owner:** David + Codex/Claude
-**Blocks:** Payment implementation tasks
-
-**Context:** Stripe webhooks require a trusted backend endpoint with HMAC signature validation. Decision required: Supabase Edge Function or Vercel route.
-
----
-
-### S1-OD-05 — PDF Generation Owner: Supabase or Vercel
-
-**Status:** Open
-**Owner:** David + Codex/Claude
-**Blocks:** PDF export implementation tasks
-
-**Context:** PDFMonkey is the candidate provider. Decision required: Supabase Edge Function or Vercel route for generation trigger and PDF return to Supabase Storage.
+**Consequences:**
+- v4 migration SQL targets `wvzjfxacykgsaffskgtr`
+- All Lovable project `VITE_SUPABASE_URL` env vars must be updated to point to `wvzjfxacykgsaffskgtr` after migration
+- Before decommissioning P2's Lovable-managed Supabase (`ofpxczstptysqxoruiox`), check for any real user data that needs to be preserved
 
 ---
 
-### S1-OD-06 — Twilio A2P 10DLC Launch Fallback
+### FD-014 — Three Lovable Apps, One Supabase Project
 
-**Status:** Open
-**Owner:** David
-**Blocks:** Launch readiness
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes A-OD-02
+**Source:** TASK-0009 Lovable audit
+**Area:** Architecture
 
-**Context:** Twilio A2P 10DLC registration is required before production SMS can be sent. If approval is not ready at launch, phone verification cannot proceed. David must approve a fallback: email-only notification, manual verification, or soft launch without SMS.
+**Decision:**
+```
+P1 PassTo Website  → wvzjfxacykgsaffskgtr (PassTo Dev)
+P2 PassTo Enroll   → wvzjfxacykgsaffskgtr (PassTo Dev)
+P3 PassTo App      → wvzjfxacykgsaffskgtr (PassTo Dev)
+```
 
----
+Three permanent Lovable projects. All three share the single canonical Supabase instance. No consolidation of Lovable projects planned.
 
-### OD-1 — `audit_events.action` Canonical Namespace
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** `resource.verb` format (e.g., `credential.issued`, `token.expired`, `verification.viewed`)
-
----
-
-### OD-2 — `is_primary` License Designation Implementation Path
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** Service-role API route only — not client-settable, not managed via RLS directly
-
----
-
-### OD-3 — RLS Testing Approach Before Migration
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** Migration approval
-**Context:** Confirm testing methodology before David migration approval — e.g., Supabase test helpers, pgTAP, or manual validation protocol.
-
----
-
-### OD-4 — `verifiers` Record Behavior for `show_qr` Tokens
-
-**Status:** Open
-**Owner:** David (product call) + Codex (TASK-0007)
-**Blocks:** v4 migration SQL; verifier flow implementation
-**Context:** Does the show-QR verifier path require a form gate (creating a `verifiers` record) or no form gate?
-
----
-
-### OD-5 — PDF QR Token Type (`pdf_qr`) MVP Scope
-
-**Status:** Open
-**Owner:** David (product call) + Codex (TASK-0007)
-**Blocks:** v4 migration SQL if `pdf_qr` token type is included
-**Context:** Confirm whether a QR code embedded in a PDF export is in or out of MVP scope.
-
----
-
-### OD-6 — `passes` → `credentials` Rename
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** Accept rename — aligns with canonical naming
-
----
-
-### OD-7 — `stripe_subscriptions` → `subscriptions` Rename
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** Accept rename — aligns with canonical naming
-
----
-
-### OD-8 — `purchases` → `payments` Rename
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** Accept rename — aligns with canonical naming
-
----
-
-### OD-9 — `communication_events` → `notification_events` Rename
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** Accept rename — aligns with canonical naming
-
----
-
-### OD-10 — Add `stripe_events` Idempotency Table
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** Add table — required for Stripe webhook idempotency. Present in canonical naming but missing from v3 artifact.
-
----
-
-### OD-11 — Nurse UPDATE Policy on `profiles`: Scope to Safe Columns Only
-
-**Status:** Open — security concern
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Context:** The nurse UPDATE RLS policy on `profiles` must be scoped to safe columns only (e.g., `display_name`, `phone`, `avatar_url`). Must not allow nurse to update `subscription_tier`, `deleted_at`, `idme_subject`, or other privileged fields. Must not be left open at migration time.
-
----
-
-### OD-12 — `license_status_mappings`: DB Reference Table or Edge Function Logic
-
-**Status:** Open
-**Owner:** David (product call likely required) + Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Context:** Determine whether license status mapping logic lives in a database reference table or in Edge Function code. If DB table: schema required before migration. If Edge Function: table can be omitted.
-
----
+**Consequences:**
+- All three Lovable projects must have `VITE_SUPABASE_URL` updated to `https://wvzjfxacykgsaffskgtr.supabase.co` after v4 migration SQL is applied
+- Supabase Auth sessions created in P2 (enrollment) are valid in P3 (dashboard) — same auth system, same project
+- RLS policies must account for all three frontends sharing the same database — no per-app data isolation at the DB layer
+- Edge functions deployed to `wvzjfxacykgsaffskgtr` serve all three apps
+- P1's `create-checkout` edge function, P2's `submit-enrollment` edge function, and any future edge functions all land in the same project
 
 ---
 
@@ -482,92 +376,295 @@ PassTo will not launch to production without an approved Twilio A2P 10DLC SMS pa
 
 ---
 
-### FD-014 — Three Lovable Apps, One Supabase Project
+### FD-019 — Selfie Ownership: PassTo via Supabase Storage
 
 **Date:** 2026-05-26
 **Decision Owner:** David
-**Status:** Approved — closes A-OD-02
-**Source:** TASK-0009 Lovable audit
-**Area:** Architecture
+**Status:** Approved — closes TASK-0010 open scope item 1
+**Area:** Architecture / Data / Security
 
 **Decision:**
-```
-P1 PassTo Website  → wvzjfxacykgsaffskgtr (PassTo Dev)
-P2 PassTo Enroll   → wvzjfxacykgsaffskgtr (PassTo Dev)
-P3 PassTo App      → wvzjfxacykgsaffskgtr (PassTo Dev)
-```
+PassTo owns the post-match selfie asset. ID.me handles identity verification; the selfie captured after successful data matching is stored in Supabase Storage under PassTo's control.
 
-Three permanent Lovable projects. All three share the single canonical Supabase instance. No consolidation of Lovable projects planned.
+**Access rules:**
+- Protected Supabase Storage bucket — not public
+- Access via RLS/storage policies for authenticated nurse (own selfie only)
+- Service-role signed URLs for any ops/audit access
+- Selfie never returned in frontend API responses
 
 **Consequences:**
-- All three Lovable projects must have `VITE_SUPABASE_URL` updated to `https://wvzjfxacykgsaffskgtr.supabase.co` after v4 migration SQL is applied
-- Supabase Auth sessions created in P2 (enrollment) are valid in P3 (dashboard) — same auth system, same project
-- RLS policies must account for all three frontends sharing the same database — no per-app data isolation at the DB layer
-- Edge functions deployed to `wvzjfxacykgsaffskgtr` serve all three apps
-- P1's `create-checkout` edge function, P2's `submit-enrollment` edge function, and any future edge functions all land in the same project
+- `profiles` or a dedicated `selfie_assets` reference in the schema stores the Supabase Storage path
+- Storage bucket policy must enforce nurse-only read of own selfie
+- Selfie captured in P2 Lovable enrollment flow after data match gate passes
 
 ---
 
-### FD-013 — Canonical Supabase Instance Confirmed
+### FD-020 — Subscription Lapse Behavior
 
 **Date:** 2026-05-26
 **Decision Owner:** David
-**Status:** Approved — closes A-OD-01
-**Source:** TASK-0009 Lovable audit
-**Area:** Architecture / Infrastructure
+**Status:** Approved — closes TASK-0010 open scope item 2
+**Area:** Product / Subscriptions
 
 **Decision:**
-```
-Canonical Supabase project: PassTo Dev
-Project ID: wvzjfxacykgsaffskgtr
-URL: https://wvzjfxacykgsaffskgtr.supabase.co
-Region: us-west-2
-Status: ACTIVE_HEALTHY — empty, clean slate
-```
+On subscription lapse, downgrade to Free-tier behavior. Do not delete or hide credentials. Do not revoke wallet pass solely due to payment lapse.
 
-This is the project where v4 migration SQL will be applied. All three Lovable projects (PassTo Website, PassTo Enroll, PassTo App) must be re-pointed to this instance after migration.
+**Specific lapse rules:**
 
-**Inventory of all Supabase instances discovered during TASK-0009 audit:**
-
-| Project ID Prefix | Name | Owner | Status | Disposition |
-|---|---|---|---|---|
-| `wvzjfxacykgsaffskgtr` | PassTo Dev | David (this org) | Empty — canonical target | **KEEP — migrate here** |
-| `zpvbexzdiklxlvrxsvop` | david-bloom's Project | David (this org) | Empty | Decommission or ignore |
-| `zektkbhvmbbmhvthwah` | Lovable-managed (P1 Website) | Lovable org | Unknown data state | Replace with canonical after migration |
-| `ofpxczstptysqxoruiox` | Lovable-managed (P2 Enroll) | Lovable org | Has enrollment data | Audit for user data before decommission |
-| `vvefeasvpmdsqvwkkzsj` | Lovable-managed (P3 App) | Lovable org | Unknown data state | Replace with canonical after migration |
+| Item | On Lapse |
+|---|---|
+| Credential visibility | Remains visible to nurse — do not hide |
+| Wallet pass | Remains valid — do not revoke for payment lapse alone |
+| Nurse dashboard | Remains accessible |
+| Entitlement tier | Downgraded to Free immediately on lapse |
+| Extra licenses | Blocked — cannot purchase or add |
+| Included refreshes | Blocked — no paid-tier refresh quota |
+| Included PDFs | Blocked |
+| Included share/QR usage | Blocked for new paid-tier-only allocations |
+| Existing active share/QR tokens | Remain valid until normal TTL expiry |
+| Fraud / payment reversal | May require explicit revocation — handled separately |
 
 **Consequences:**
-- v4 migration SQL targets `wvzjfxacykgsaffskgtr`
-- All Lovable project `VITE_SUPABASE_URL` env vars must be updated to point to `wvzjfxacykgsaffskgtr` after migration
-- Before decommissioning P2's Lovable-managed Supabase (`ofpxczstptysqxoruiox`), check for any real user data that needs to be preserved
+- Lapse handling is a state transition in `subscriptions` table — not a data deletion
+- Entitlement gating logic must read current `subscription_tier` from `subscriptions` at request time
+- Existing active tokens not retroactively invalidated on lapse (only on fraud/reversal)
+- Wallet pass lifecycle (refresh, updates) pauses but pass is not revoked
 
 ---
 
-### S1-OD-03 — Wallet Pass Signing Owner: Supabase or Vercel
+### FD-021 — Lovable → Supabase Edge Function Invocation Pattern
 
-**Status:** Open — TASK-0009 finding: neither option currently wired
-**Owner:** David + Codex/Claude
-**Blocks:** Credential issuance implementation tasks
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes TASK-0010 open scope item 3
+**Area:** Architecture / Security
 
-**Updated context from TASK-0009:** Vercel `api/sign-apple.js` and `api/sign-google.js` exist but are not called from any Lovable project. Wallet pass generation is not implemented. Decision still required and now also needs an implementation task.
+**Decision:**
+Lovable invokes Supabase Edge Functions using the logged-in user's JWT. The publishable/anon key is the only Supabase key that lives in Lovable.
+
+```
+Pattern:
+  Lovable (publishable key + user JWT)
+    → supabase.functions.invoke("function-name", { body: data })
+    → Edge Function receives request with Authorization: Bearer <user_JWT>
+    → Edge Function verifies user via JWT
+    → Edge Function uses service_role internally for privileged reads/writes
+    → service_role key never appears in Lovable
+
+"Lovable knocks on the door; the Edge Function decides what happens inside."
+```
+
+**Consequences:**
+- Every Edge Function that performs privileged operations must validate the user JWT before using service_role
+- service_role key stored as Supabase Edge Function secret only — never in Lovable env vars
+- Unauthenticated Edge Function calls (e.g., verifier `/v/{token}` access) use a different pattern: public token lookup with service_role inside the function, no user JWT required
+- This pattern applies to P1, P2, and P3 Lovable projects equally
 
 ---
 
-## OPEN DECISIONS (updated after TASK-0009)
+### FD-022 — `passtodigital.com` Routes to P1 (PassTo Website)
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes A-OD-04 and TASK-0010 open scope item 4
+**Area:** Routing / Deployment
+
+**Decision:**
+`passtodigital.com` currently points to P1 (PassTo Website — Lovable project `6c973fd1-2dcd-4377-8c98-4d2f0d68732e`).
+
+Verifiable via: Lovable domain settings, Vercel domain settings, or DNS records for `passtodigital.com`.
+
+**Known subdomain routing:**
+- `passtodigital.com` → P1 PassTo Website
+- `enroll.passtodigital.com` → P2 PassTo Enroll
+- P3 PassTo App → domain/subdomain TBD
+
+**Consequences:**
+- Post-migration, P1 `VITE_SUPABASE_URL` is the first env var update that affects live production traffic at `passtodigital.com`
+- P3 domain assignment should be confirmed before implementation tasks target P3 routing
+
+---
+
+### FD-023 — Show QR Verifier Flow: Form-Gated
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes OD-4 and TASK-0010 open scope item 5
+**Area:** Product / Schema
+
+**Decision:**
+Show QR verification is form-gated. Verifiers must submit a form before viewing the credential.
+
+**Required form fields:**
+- `verifier_name`
+- `verifier_email`
+
+**Records created on submission:**
+- `verifiers` record
+- `verification_events` record
+
+This is consistent with the share link verifier flow (LC-11). Show QR and share link both gate access through the same verifier form + terms acceptance pattern.
+
+**Consequences:**
+- `verifiers` table design must support both `share_link` and `show_qr` token types
+- `verification_events` records the token type used
+- Show QR remains Deferred (D-1) for launch but its implementation pattern is now fully defined
+
+---
+
+### FD-024 — `license_status_mappings`: DB Reference Table
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes OD-12 and TASK-0010 open scope item 6
+**Area:** Schema / Product
+
+**Decision:**
+License status mapping logic lives in a database reference table, not solely in Edge Function code.
+
+**Rationale:** Status mapping is product logic and must be auditable and reviewable. Embedding it only in Edge Function code makes it invisible to ops and hard to update without a code deploy.
+
+**Consequences:**
+- `license_status_mappings` table is included in v4 migration SQL
+- Table is populated with initial status mappings before migration is approved
+- Edge Functions read from `license_status_mappings` at runtime — not hardcoded logic
+- Schema for this table must be defined in TASK-0007 Codex response or Claude v4 SQL work
+
+---
+
+## OPEN DECISIONS
+
+Open decisions are unresolved. Do not treat as settled or assume in implementation work until explicitly approved.
+
+---
+
+### S1-OD-01 — Resolve TASK-0006 Schema/RLS Open Decisions (OD-1 through OD-12)
+
+**Status:** Open
+**Owner:** Codex (TASK-0007 assigned) + David for product calls
+**Blocks:** v4 migration SQL authorization
+
+See OD-1 through OD-11 below. (OD-4 and OD-12 resolved by David — FD-023 and FD-024.)
+
+---
+
+### OD-1 — `audit_events.action` Canonical Namespace
+
+**Status:** Open
+**Owner:** Codex (TASK-0007)
+**Blocks:** v4 migration SQL
+**Recommendation:** `resource.verb` format (e.g., `credential.issued`, `token.expired`, `verification.viewed`)
+
+---
+
+### OD-2 — `is_primary` License Designation Implementation Path
+
+**Status:** Open
+**Owner:** Codex (TASK-0007)
+**Blocks:** v4 migration SQL
+**Recommendation:** Service-role API route only — not client-settable, not managed via RLS directly
+
+---
+
+### OD-3 — RLS Testing Approach Before Migration
+
+**Status:** Open
+**Owner:** Codex (TASK-0007)
+**Blocks:** Migration approval
+**Context:** Confirm testing methodology before David migration approval — e.g., Supabase test helpers, pgTAP, or manual validation protocol.
+
+---
+
+### OD-5 — PDF QR Token Type (`pdf_qr`) MVP Scope
+
+**Status:** Open
+**Owner:** David (product call) + Codex (TASK-0007)
+**Blocks:** v4 migration SQL if `pdf_qr` token type is included
+**Context:** Confirm whether a QR code embedded in a PDF export is in or out of MVP scope.
+
+---
+
+### OD-6 — `passes` → `credentials` Rename
+
+**Status:** Open
+**Owner:** Codex (TASK-0007)
+**Blocks:** v4 migration SQL
+**Recommendation:** Accept rename — aligns with canonical naming
+
+---
+
+### OD-7 — `stripe_subscriptions` → `subscriptions` Rename
+
+**Status:** Open
+**Owner:** Codex (TASK-0007)
+**Blocks:** v4 migration SQL
+**Recommendation:** Accept rename — aligns with canonical naming
+
+---
+
+### OD-8 — `purchases` → `payments` Rename
+
+**Status:** Open
+**Owner:** Codex (TASK-0007)
+**Blocks:** v4 migration SQL
+**Recommendation:** Accept rename — aligns with canonical naming
+
+---
+
+### OD-9 — `communication_events` → `notification_events` Rename
+
+**Status:** Open
+**Owner:** Codex (TASK-0007)
+**Blocks:** v4 migration SQL
+**Recommendation:** Accept rename — aligns with canonical naming
+
+---
+
+### OD-10 — Add `stripe_events` Idempotency Table
+
+**Status:** Open
+**Owner:** Codex (TASK-0007)
+**Blocks:** v4 migration SQL
+**Recommendation:** Add table — required for Stripe webhook idempotency. Present in canonical naming but missing from v3 artifact.
+
+---
+
+### OD-11 — Nurse UPDATE Policy on `profiles`: Scope to Safe Columns Only
+
+**Status:** Open — security concern
+**Owner:** Codex (TASK-0007)
+**Blocks:** v4 migration SQL
+**Context:** The nurse UPDATE RLS policy on `profiles` must be scoped to safe columns only (e.g., `display_name`, `phone`, `avatar_url`). Must not allow nurse to update `subscription_tier`, `deleted_at`, `idme_subject`, or other privileged fields. Must not be left open at migration time.
+
+---
+
+## OPEN DECISIONS SUMMARY TABLE
 
 | ID | Decision | Status | Blocks |
 |---|---|---|---|
 | S1-OD-01 | Resolve TASK-0006 OD-1 through OD-12 | Open — TASK-0007 assigned to Codex | v4 migration SQL |
+| S1-OD-02 | Final MVP subscription pricing | **Resolved — FD-012: Standard $9.99, Premier $19.99** | — |
 | S1-OD-03 | Wallet pass signing owner | **Resolved — FD-015: Vercel** | — |
 | S1-OD-04 | Stripe webhook owner | **Resolved — FD-016: Supabase Edge Function** | — |
 | S1-OD-05 | PDF generation owner | **Resolved — FD-017: Supabase Edge Function** | — |
 | S1-OD-06 | Twilio A2P 10DLC fallback | **Resolved — FD-018: Hard launch gate — no launch without approved SMS** | — |
 | A-OD-01 | Canonical Supabase instance | **Resolved — FD-013: `wvzjfxacykgsaffskgtr`** | — |
 | A-OD-02 | Are P1/P2/P3 permanent or consolidating? | **Resolved — FD-014: 3 Lovable apps, 1 Supabase project** | — |
-| A-OD-03 | Is `IdmeCallback.tsx` doing client-side code exchange? | **Resolved — No. Make holds client_secret. 2 launch blockers: idmelabs→production URL; nurseId→Supabase UUID** | TASK-0011 |
-| A-OD-04 | Which project serves `passtodigital.com` currently? P1 or P3? | Open | Routing clarity |
-| A-OD-05 | Wallet pass signing owner | Open (same as S1-OD-03) | — |
+| A-OD-03 | Is `IdmeCallback.tsx` doing client-side code exchange? | **Resolved — No. Make holds client_secret. 2 launch blockers: idmelabs→production URL; nurseId→Supabase UUID. TASK-0011.** | — |
+| A-OD-04 | Which project serves `passtodigital.com`? | **Resolved — FD-022: P1 PassTo Website** | — |
+| A-OD-05 | Wallet pass signing owner (duplicate of S1-OD-03) | **Resolved — FD-015: Vercel** | — |
+| OD-1 | `audit_events.action` canonical namespace | Open — Codex TASK-0007 | v4 migration SQL |
+| OD-2 | `is_primary` implementation path | Open — Codex TASK-0007 | v4 migration SQL |
+| OD-3 | RLS testing approach | Open — Codex TASK-0007 | Migration approval |
+| OD-4 | `verifiers` record behavior for `show_qr` | **Resolved — FD-023: Form-gated; verifier_name + verifier_email** | — |
+| OD-5 | PDF QR token type (`pdf_qr`) MVP scope | Open — David product call | v4 migration SQL |
+| OD-6 | `passes` → `credentials` rename | Open — Codex TASK-0007 | v4 migration SQL |
+| OD-7 | `stripe_subscriptions` → `subscriptions` rename | Open — Codex TASK-0007 | v4 migration SQL |
+| OD-8 | `purchases` → `payments` rename | Open — Codex TASK-0007 | v4 migration SQL |
+| OD-9 | `communication_events` → `notification_events` rename | Open — Codex TASK-0007 | v4 migration SQL |
+| OD-10 | Add `stripe_events` idempotency table | Open — Codex TASK-0007 | v4 migration SQL |
+| OD-11 | Nurse UPDATE policy on `profiles` scoped to safe columns | Open — Codex TASK-0007 | v4 migration SQL |
+| OD-12 | `license_status_mappings`: DB table or Edge Function logic | **Resolved — FD-024: DB reference table** | — |
 
 ---
 
@@ -576,9 +673,9 @@ This is the project where v4 migration SQL will be applied. All three Lovable pr
 | Field | Value |
 |---|---|
 | Created | 2026-05-26 |
-| Last updated | 2026-05-26 (TASK-0009 findings added) |
-| Log status | Updated — Ready for David Review |
-| Completed decisions | FD-001 through FD-018 |
-| Open decisions | S1-OD-01, A-OD-04, OD-1–OD-12 (14 total) |
-| Next action | TASK-0007 (Codex) resolves OD-1–OD-12; David to confirm A-OD-04 |
-| Critical blocking task | TASK-0007 — Codex must resolve OD-1 through OD-12 before v4 migration SQL |
+| Last updated | 2026-05-26 (FD-019–FD-024 added; OD-4, OD-12, A-OD-04 closed) |
+| Log status | Active |
+| Completed decisions | FD-001 through FD-024 (24 total) |
+| Open decisions | S1-OD-01, OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, OD-8, OD-9, OD-10, OD-11 (11 total) |
+| Next action | TASK-0007 (Codex) resolves OD-1–OD-3, OD-5–OD-11 before v4 migration SQL |
+| Critical blocking task | TASK-0007 — Codex must resolve remaining ODs before v4 migration SQL |
