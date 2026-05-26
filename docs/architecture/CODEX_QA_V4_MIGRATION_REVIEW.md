@@ -9,7 +9,22 @@
 - Approved consolidated PRD  
 
 **QA Result:** Changes Required  
-**Migration / Lovable Cutover Approval:** Not Approved  
+**Migration / Lovable Cutover Approval:** Not Approved by Codex  
+**Current Status:** Superseded by David direct approval with Claude — see `docs/activity_log/DECISION-0016-V4-MIGRATION-DIRECT-APPROVAL.md`  
+
+---
+
+## Status Note
+
+This Codex QA review remains a risk record. It is not deleted or rewritten.
+
+After this review, David approved the v4 migration directly with Claude. That direct approval is recorded in:
+
+```text
+docs/activity_log/DECISION-0016-V4-MIGRATION-DIRECT-APPROVAL.md
+```
+
+Future work should treat the migration as approved by David/Claude, while preserving the findings below as accepted risks or future cleanup items.
 
 ---
 
@@ -215,8 +230,8 @@ Before Codex can approve downstream Lovable cutover or build tasks against this 
 ```text
 V4 migration SQL: Changes Required
 V4 verification report: Changes Required
-Lovable cutover to canonical Supabase: Not Approved
-Next implementation tasks depending on this schema: Blocked until remediation
+Lovable cutover to canonical Supabase: Not Approved by Codex
+Next implementation tasks depending on this schema: Blocked by Codex QA, superseded only by David direct approval
 ```
 
 Recommended next task:
