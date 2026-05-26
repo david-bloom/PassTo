@@ -22,6 +22,8 @@ GitHub is the source of truth for PRD work.
 | Section 3 — End-to-End MVP User Journeys | `docs/prd/PRD_SECTION_03_USER_JOURNEYS.md` | Draft for David Review | `docs/tasks/PRD_SECTION_03_MASTER_TASK_LIST.md` |
 | Section 4 — Data Model, RLS, and Backend Responsibilities | `docs/prd/PRD_SECTION_04_DATA_RLS_BACKEND.md` | Draft for David Review | `docs/tasks/PRD_SECTION_04_MASTER_TASK_LIST.md` |
 | Section 5 — Feature Requirements | `docs/prd/PRD_SECTION_05_FEATURE_REQUIREMENTS.md` | Draft for David Review | `docs/tasks/PRD_SECTION_05_MASTER_TASK_LIST.md` |
+| Section 6 — Integrations, Failure States, and Admin/Ops | `docs/prd/PRD_SECTION_06_INTEGRATIONS_FAILURE_OPS.md` | Draft for David Review | `docs/tasks/PRD_SECTION_06_MASTER_TASK_LIST.md` |
+| Section 7 — Launch Readiness, QA, and Open Decisions | `docs/prd/PRD_SECTION_07_LAUNCH_QA_DECISIONS.md` | Draft for David Review | `docs/tasks/PRD_SECTION_07_MASTER_TASK_LIST.md` |
 
 ## Existing Full PRD Draft
 
@@ -44,14 +46,15 @@ Do not overwrite the full `PASS_TO_PRD.md` with section drafts until David appro
 5. Update this index.
 6. Reconcile approved sections into the full PRD when David requests consolidation.
 
-## Next PRD Section
+## Current PRD Status
 
 ```text
-Section 6 — Integrations, Failure States, and Admin/Ops
+Section 1: Approved by David
+Sections 2-7: Draft for David Review
 ```
 
-Expected paired task list:
+## Next PRD Step
 
 ```text
-docs/tasks/PRD_SECTION_06_MASTER_TASK_LIST.md
+David review and approval of Sections 2-7, then consolidation into full PASS_TO_PRD.md when requested.
 ```
