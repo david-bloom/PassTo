@@ -1,9 +1,10 @@
 # PassTo PRD Index
 
-**Status:** Active PRD Source Map  
+**Status:** All Sections Approved — Ready for Consolidation  
 **Owner:** David Bloom  
 **Maintained By:** Codex and Claude  
 **Created:** 2026-05-26  
+**Latest Approval:** David approved Sections 2-7 on 2026-05-26  
 
 ## Purpose
 
@@ -18,18 +19,28 @@ GitHub is the source of truth for PRD work.
 | Section | File | Status | Associated Task List |
 |---|---|---|---|
 | Section 1 — Product Summary, Technical Context, and Current Build State | `docs/prd/PASS_TO_PRD.md` Section 1 / local section baseline | Approved by David | `docs/tasks/PRD_SECTION_01_MASTER_TASK_LIST.md` |
-| Section 2 — Users, MVP Goals, and Scope Boundaries | `docs/prd/PRD_SECTION_02_USERS_GOALS_SCOPE.md` | Draft for David Review | `docs/tasks/PRD_SECTION_02_MASTER_TASK_LIST.md` |
-| Section 3 — End-to-End MVP User Journeys | `docs/prd/PRD_SECTION_03_USER_JOURNEYS.md` | Draft for David Review | `docs/tasks/PRD_SECTION_03_MASTER_TASK_LIST.md` |
-| Section 4 — Data Model, RLS, and Backend Responsibilities | `docs/prd/PRD_SECTION_04_DATA_RLS_BACKEND.md` | Draft for David Review | `docs/tasks/PRD_SECTION_04_MASTER_TASK_LIST.md` |
-| Section 5 — Feature Requirements | `docs/prd/PRD_SECTION_05_FEATURE_REQUIREMENTS.md` | Draft for David Review | `docs/tasks/PRD_SECTION_05_MASTER_TASK_LIST.md` |
-| Section 6 — Integrations, Failure States, and Admin/Ops | `docs/prd/PRD_SECTION_06_INTEGRATIONS_FAILURE_OPS.md` | Draft for David Review | `docs/tasks/PRD_SECTION_06_MASTER_TASK_LIST.md` |
-| Section 7 — Launch Readiness, QA, and Open Decisions | `docs/prd/PRD_SECTION_07_LAUNCH_QA_DECISIONS.md` | Draft for David Review | `docs/tasks/PRD_SECTION_07_MASTER_TASK_LIST.md` |
+| Section 2 — Users, MVP Goals, and Scope Boundaries | `docs/prd/PRD_SECTION_02_USERS_GOALS_SCOPE.md` | Approved by David | `docs/tasks/PRD_SECTION_02_MASTER_TASK_LIST.md` |
+| Section 3 — End-to-End MVP User Journeys | `docs/prd/PRD_SECTION_03_USER_JOURNEYS.md` | Approved by David | `docs/tasks/PRD_SECTION_03_MASTER_TASK_LIST.md` |
+| Section 4 — Data Model, RLS, and Backend Responsibilities | `docs/prd/PRD_SECTION_04_DATA_RLS_BACKEND.md` | Approved by David | `docs/tasks/PRD_SECTION_04_MASTER_TASK_LIST.md` |
+| Section 5 — Feature Requirements | `docs/prd/PRD_SECTION_05_FEATURE_REQUIREMENTS.md` | Approved by David | `docs/tasks/PRD_SECTION_05_MASTER_TASK_LIST.md` |
+| Section 6 — Integrations, Failure States, and Admin/Ops | `docs/prd/PRD_SECTION_06_INTEGRATIONS_FAILURE_OPS.md` | Approved by David | `docs/tasks/PRD_SECTION_06_MASTER_TASK_LIST.md` |
+| Section 7 — Launch Readiness, QA, and Open Decisions | `docs/prd/PRD_SECTION_07_LAUNCH_QA_DECISIONS.md` | Approved by David | `docs/tasks/PRD_SECTION_07_MASTER_TASK_LIST.md` |
+
+## Approval Record
+
+David approved Sections 2 through 7 on 2026-05-26.
+
+Approval record:
+
+```text
+docs/prd/PRD_APPROVAL_2026-05-26.md
+```
 
 ## Existing Full PRD Draft
 
 | File | Status | Notes |
 |---|---|---|
-| `docs/prd/PASS_TO_PRD.md` | Older full draft / baseline reference | Do not treat as final until reconciled with approved section files. |
+| `docs/prd/PASS_TO_PRD.md` | Older full draft / baseline reference | Ready to be replaced by consolidated approved sections when requested. |
 
 ## Maintenance Rule
 
@@ -49,12 +60,12 @@ Do not overwrite the full `PASS_TO_PRD.md` with section drafts until David appro
 ## Current PRD Status
 
 ```text
-Section 1: Approved by David
-Sections 2-7: Draft for David Review
+Sections 1-7: Approved by David
+Consolidation into full PASS_TO_PRD.md: Ready
 ```
 
 ## Next PRD Step
 
 ```text
-David review and approval of Sections 2-7, then consolidation into full PASS_TO_PRD.md when requested.
+Consolidate approved section files into docs/prd/PASS_TO_PRD.md.
 ```
