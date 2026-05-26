@@ -346,3 +346,164 @@ Additional licenses are $4.99 each beyond included entitlement.
 ### Risks / Follow-ups
 
 - Standard and Premier subscription prices still require final confirmation before Stripe product creation.
+
+---
+
+## DECISION-0011 — MVP Migration-Blocking Decisions (See Canonical File)
+
+**Date:** 2026-05-24  
+**Decision Owner:** David  
+**Status:** Approved  
+**Related Task:** Claude Task 001-R  
+**Area:** Product / Architecture / Security / Data / Pricing  
+
+### Decision
+
+Ten migration-blocking decisions approved by David. Full content in canonical file:
+
+```text
+/docs/activity_log/DECISION-0011-MVP-MIGRATION-BLOCKING-DECISIONS.md
+```
+
+### Summary of Approved Decisions
+
+1. Data retention: 7 years for operational, audit, payment, and verification records.
+2. Share-link verification token TTL: 72 hours or first successful use.
+3. Show-QR token TTL: 45 minutes or first use.
+4. Free-tier license entitlement: 1 license only, no additional license purchases in MVP.
+5. Paid additional-license entitlement: Standard = 1 included + $4.99 each; Premier = 2 included + $4.99 each.
+6. Subscription pricing: Standard = $9.99/month; Premier = $19.99/month.
+7. PDF storage: Supabase Storage.
+8. PDF records: tracked in `pdf_exports` table.
+9. PDF access control: authenticated nurse access or short-lived signed URLs.
+10. PDF disclaimer: static record with `disclaimer_version` field.
+
+### Consequences
+
+- Schema supports 7-year retention with `ON DELETE RESTRICT` on financial and PDF records.
+- Token TTL behavior distinguishes share_link from show_qr.
+- Free users cannot purchase additional licenses in MVP.
+- Standard and Premier plans support paid additional-license purchases.
+
+### Risks / Follow-ups
+
+- PDF QR token TTL still requires confirmation if PDF QR remains in MVP.
+- Terms of Use still requires final drafting.
+- Legal counsel may modify the 7-year retention period.
+
+---
+
+## DECISION-0012 — Stack Migration: Airtable and Make Abandoned, Supabase and Vercel Adopted
+
+**Date:** 2026-05-25  
+**Decision Owner:** David  
+**Status:** Approved  
+**Related Task:** TASK-0003  
+**Area:** Architecture  
+
+### Context
+
+PassTo was originally built on Airtable (database) and Make/Integromat (orchestration). The business logic captured in those tools needed to be migrated to a more capable foundation.
+
+### Decision
+
+Airtable and Make are abandoned as execution platforms. All data moves to Supabase PostgreSQL with RLS. All orchestration logic moves to Supabase Edge Functions or Vercel server-side routes.
+
+### Rationale
+
+Supabase provides a production-grade relational database, row-level security, auth, storage, and Edge Functions in one platform. The Airtable/Make stack was not suitable for credential-grade security, token validation, or service-role operations.
+
+### Consequences
+
+- Do not write new specs, task files, or blueprints against Airtable or Make.
+- All business logic from Make scenarios (S2–S13) must be re-specced for Supabase.
+- The Airtable base (`appn3CMhqiH4ExTOP`) is abandoned.
+- All future implementation tasks target Supabase + Vercel.
+
+### Risks / Follow-ups
+
+- Business logic from abandoned Make scenarios must be explicitly translated into Supabase task specs before implementation.
+- Old Make webhook assumptions may still be embedded in the Lovable frontend and must be audited.
+
+---
+
+## DECISION-0013 — Platform Ownership Boundaries: Lovable / Supabase / Vercel
+
+**Date:** 2026-05-25  
+**Decision Owner:** David  
+**Status:** Approved  
+**Related Task:** TASK-0004  
+**Area:** Architecture  
+
+### Context
+
+With the stack confirmed, clear ownership boundaries were needed between Lovable (frontend), Supabase (backend/data), and Vercel (targeted API routes) to prevent future implementation drift.
+
+### Decision
+
+```text
+Lovable owns the MVP user experience.
+Supabase owns product data, auth/data security, RLS, and preferred backend orchestration.
+Vercel owns backend/API routes only where Supabase Edge Functions are not the right fit.
+```
+
+Lovable remains the MVP frontend builder and website host unless David explicitly changes this.  
+Supabase is the MVP system of record.  
+Vercel is not the default frontend host. It is a targeted backend/API option.
+
+Full canonical reference:
+
+```text
+/docs/architecture/LOVABLE_SUPABASE_VERCEL_RESPONSIBILITY_MAP.md
+```
+
+### Rationale
+
+Clear ownership prevents implementation tasks from placing secrets, trust decisions, or backend orchestration in the wrong layer — particularly in Lovable, which must not perform privileged operations.
+
+### Consequences
+
+- Every future implementation task must declare: frontend owner, data owner, backend owner, integrations touched, secrets involved, service-role required, RLS impact, user-visible routes affected.
+- New Vercel routes require explicit justification before implementation.
+- Lovable must not hold secrets or perform credential/payment/token trust decisions.
+
+### Risks / Follow-ups
+
+- Four open decisions remain on specific platform assignments: wallet signing, ID.me callback, Stripe webhooks, PDF generation.
+- Selfie ownership (ID.me vs. PassTo-owned) requires clarification.
+- Lovable backend invocation pattern (auth method for Edge Function calls) is not yet defined.
+
+---
+
+## DECISION-0014 — Subscription Pricing Confirmed
+
+**Date:** 2026-05-26  
+**Decision Owner:** David  
+**Status:** Approved  
+**Related Task:** TASK-0006 / DECISION-0011  
+**Area:** Product / Pricing  
+
+### Context
+
+DECISION-0010 noted subscription pricing as a remaining follow-up. DECISION-0011 (approved 2026-05-24) included explicit pricing. This entry closes the open item from DECISION-0010.
+
+### Decision
+
+```text
+Standard subscription: $9.99/month
+Premier subscription: $19.99/month
+```
+
+### Rationale
+
+Pricing was confirmed by David as part of the MVP migration-blocking decisions (DECISION-0011) and is incorporated in the v3 schema artifact and Supabase Schema and RLS Plan.
+
+### Consequences
+
+- S1-OD-02 in `PRD_SECTION_01_MASTER_TASK_LIST.md` is resolved.
+- Stripe product setup can proceed using these prices once migration is approved.
+- DECISION-0010 follow-up risk is closed.
+
+### Risks / Follow-ups
+
+- Annual plan, trial, and coupon/discount behavior remain unconfirmed for MVP.
