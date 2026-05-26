@@ -532,6 +532,75 @@ License status mapping logic lives in a database reference table, not solely in 
 
 ---
 
+### FD-025 — ID.me Production Credentials: Not Yet Obtained (Launch Prerequisite)
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes OD-T11-01
+**Area:** Launch Readiness / Integrations
+
+**Decision:**
+PassTo currently holds only ID.me **sandbox** credentials (`client_id=8c31c52383e4d0d1b4ac2486281bac1f`, `api.idmelabs.com` endpoint). No production ID.me `client_id` or `client_secret` has been obtained.
+
+**Consequence:** Obtaining production ID.me credentials is a **hard launch prerequisite**, equivalent to Twilio A2P 10DLC (FD-018). The `idme-exchange` Edge Function cannot be deployed to production and the sandbox→production switch cannot complete until PassTo has approved production access from ID.me.
+
+**Required action before launch:** David must apply for production access at ID.me developer portal (`developer.id.me`). Production `client_id` and `client_secret` must be stored as Supabase Edge Function secrets in `wvzjfxacykgsaffskgtr` before `idme-exchange` can be deployed.
+
+---
+
+### FD-026 — Wallet Pass Issuance: Automatic at End of Enrollment via `PassReady.tsx`
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes OD-T11-02
+**Area:** Product / Architecture
+
+**Decision:**
+Wallet pass issuance is triggered automatically at the end of the enrollment flow. `PassReady.tsx` in P2 calls `supabase.functions.invoke("issue-wallet-pass")` after all enrollment gates pass. No separate nurse-initiated trigger from the P3 dashboard is required for MVP.
+
+**Consequences:**
+- `PassReady.tsx` must be updated to call `issue-wallet-pass` and display the returned pass download/save links
+- `issue-wallet-pass` Edge Function is invoked with the user JWT (FD-021 pattern)
+- If issuance fails, `PassReady.tsx` must handle the error state and allow retry
+
+---
+
+### FD-027 — License Lookup: Separate `lookup-license` Edge Function Call After ID.me
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes OD-T11-03
+**Area:** Architecture / Edge Function Design
+
+**Decision:**
+After `idme-exchange` returns successfully, `IdmeCallback.tsx` makes a **separate** `supabase.functions.invoke("lookup-license")` call. License lookup is not inline inside `idme-exchange`.
+
+**`idme-exchange` is single-purpose:** identity verification and `profiles` update only.
+
+**Consequences:**
+- `IdmeCallback.tsx` makes two sequential Edge Function calls after the ID.me redirect: (1) `idme-exchange`, (2) `lookup-license`
+- `lookup-license` implementation must align with `docs/tasks/FLOW-LICENSE-002-license-lookup-backend-service.md`
+- If `idme-exchange` fails, `lookup-license` is not called
+- Error handling in `IdmeCallback.tsx` must account for failure in either call independently
+
+---
+
+### FD-028 — P2 Lovable-Managed Supabase (`ofpxczstptysqxoruiox`): No Data to Preserve
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes OD-T11-04
+**Area:** Infrastructure / Data
+
+**Decision:**
+There is no user data in the P2 Lovable-managed Supabase instance (`ofpxczstptysqxoruiox`) that needs to be preserved or migrated. Once P2's `VITE_SUPABASE_URL` is switched to `wvzjfxacykgsaffskgtr`, the old instance can be decommissioned without a data migration step.
+
+**Consequences:**
+- P2 Supabase switch can proceed directly after v4 migration SQL is applied — no data migration step required
+- Decommission checklist for `ofpxczstptysqxoruiox`: update env vars → verify P2 working against canonical → delete/archive old instance
+
+---
+
 ## OPEN DECISIONS
 
 Open decisions are unresolved. Do not treat as settled or assume in implementation work until explicitly approved.
@@ -665,6 +734,10 @@ See OD-1 through OD-11 below. (OD-4 and OD-12 resolved by David — FD-023 and F
 | OD-10 | Add `stripe_events` idempotency table | Open — Codex TASK-0007 | v4 migration SQL |
 | OD-11 | Nurse UPDATE policy on `profiles` scoped to safe columns | Open — Codex TASK-0007 | v4 migration SQL |
 | OD-12 | `license_status_mappings`: DB table or Edge Function logic | **Resolved — FD-024: DB reference table** | — |
+| OD-T11-01 | ID.me production credentials status | **Resolved — FD-025: Sandbox only. Production creds are a hard launch prerequisite.** | — |
+| OD-T11-02 | Wallet pass issuance trigger | **Resolved — FD-026: Automatic at end of enrollment via `PassReady.tsx`** | — |
+| OD-T11-03 | License lookup trigger placement | **Resolved — FD-027: Separate `lookup-license` call from `IdmeCallback.tsx` after `idme-exchange`** | — |
+| OD-T11-04 | P2 Lovable Supabase user data to preserve | **Resolved — FD-028: No data to preserve. Safe to decommission `ofpxczstptysqxoruiox`.** | — |
 
 ---
 
@@ -673,9 +746,10 @@ See OD-1 through OD-11 below. (OD-4 and OD-12 resolved by David — FD-023 and F
 | Field | Value |
 |---|---|
 | Created | 2026-05-26 |
-| Last updated | 2026-05-26 (FD-019–FD-024 added; OD-4, OD-12, A-OD-04 closed) |
+| Last updated | 2026-05-26 (FD-025–FD-028 added; OD-T11-01–04 closed) |
 | Log status | Active |
-| Completed decisions | FD-001 through FD-024 (24 total) |
-| Open decisions | S1-OD-01, OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, OD-8, OD-9, OD-10, OD-11 (11 total) |
+| Completed decisions | FD-001 through FD-028 (28 total) |
+| Open decisions | S1-OD-01, OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, OD-8, OD-9, OD-10, OD-11 (11 total — all Codex TASK-0007) |
+| Launch prerequisites | Twilio A2P 10DLC (FD-018) + ID.me production credentials (FD-025) |
 | Next action | TASK-0007 (Codex) resolves OD-1–OD-3, OD-5–OD-11 before v4 migration SQL |
 | Critical blocking task | TASK-0007 — Codex must resolve remaining ODs before v4 migration SQL |
