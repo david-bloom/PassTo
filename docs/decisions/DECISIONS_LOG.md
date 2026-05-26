@@ -407,6 +407,81 @@ See OD-1 through OD-12 below.
 
 ---
 
+### FD-015 — Wallet Pass Signing Owner: Vercel
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes S1-OD-03 and A-OD-05
+**Area:** Architecture
+
+**Decision:**
+Wallet pass signing remains in Vercel. Existing routes confirmed as the implementation target:
+```
+api/sign-apple.js  — Apple Wallet pass generation (PassKit + @vercel/blob)
+api/sign-google.js — Google Wallet pass generation (JWT signing)
+```
+
+**Consequences:**
+- These routes are currently not called from any Lovable project — wiring them in is part of TASK-0011 / credential issuance implementation
+- Apple certs (`APPLE_WWDR_PEM_BASE64`, `APPLE_CERT_PEM_BASE64`, `APPLE_KEY_PEM_BASE64`) and Google service account (`GOOGLE_SERVICE_ACCOUNT_JSON`) remain as Vercel env vars
+- Lovable frontend calls a Supabase Edge Function or directly invokes the Vercel route to trigger signing — exact invocation pattern to be defined in implementation task
+
+---
+
+### FD-016 — Stripe Webhook Owner: Supabase Edge Function
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes S1-OD-04
+**Area:** Architecture
+
+**Decision:**
+Stripe webhooks are handled by a Supabase Edge Function, not a Vercel route.
+
+**Consequences:**
+- The `stripe_events` idempotency table (OD-10 in TASK-0007) is confirmed required — Supabase Edge Function needs it for webhook deduplication
+- Stripe webhook secret (`STRIPE_WEBHOOK_SECRET`) must be stored as a Supabase Edge Function secret, not a Vercel env var
+- Existing P1 `create-checkout` Supabase Edge Function aligns with this decision — checkout is already in Supabase
+- No Vercel route for Stripe — any existing Vercel Stripe references should be removed
+
+---
+
+### FD-017 — PDF Generation Owner: Supabase Edge Function
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes S1-OD-05
+**Area:** Architecture
+
+**Decision:**
+PDF generation is handled by a Supabase Edge Function, not a Vercel route.
+
+**Consequences:**
+- PDFMonkey (candidate provider) is called from a Supabase Edge Function
+- Generated PDF is stored in Supabase Storage per FD-011 (DECISION-0011 item 7)
+- PDF access uses authenticated nurse access or short-lived signed URLs per FD-011 (item 9)
+- No Vercel route for PDF generation
+
+---
+
+### FD-018 — Twilio Launch Gate: No Production Launch Without Approved SMS Path
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes S1-OD-06
+**Area:** Launch Readiness
+
+**Decision:**
+PassTo will not launch to production without an approved Twilio A2P 10DLC SMS path. There is no email-only or manual-verification fallback approved for launch.
+
+**Consequences:**
+- Twilio A2P 10DLC registration is a hard launch prerequisite — not optional
+- Launch readiness checklist must include A2P 10DLC approval status as a gate
+- Phone verification (Twilio SMS OTP) is required in the onboarding flow before credential issuance
+- If A2P 10DLC approval is delayed, launch date moves — not the SMS requirement
+
+---
+
 ### FD-014 — Three Lovable Apps, One Supabase Project
 
 **Date:** 2026-05-26
@@ -484,10 +559,10 @@ This is the project where v4 migration SQL will be applied. All three Lovable pr
 | ID | Decision | Status | Blocks |
 |---|---|---|---|
 | S1-OD-01 | Resolve TASK-0006 OD-1 through OD-12 | Open — TASK-0007 assigned to Codex | v4 migration SQL |
-| S1-OD-03 | Wallet pass signing owner: Supabase or Vercel | Open | Credential issuance |
-| S1-OD-04 | Stripe webhook owner: Supabase or Vercel | Open | Payment tasks |
-| S1-OD-05 | PDF generation owner: Supabase or Vercel | Open | PDF export tasks |
-| S1-OD-06 | Twilio A2P 10DLC launch fallback | Open | Launch readiness |
+| S1-OD-03 | Wallet pass signing owner | **Resolved — FD-015: Vercel** | — |
+| S1-OD-04 | Stripe webhook owner | **Resolved — FD-016: Supabase Edge Function** | — |
+| S1-OD-05 | PDF generation owner | **Resolved — FD-017: Supabase Edge Function** | — |
+| S1-OD-06 | Twilio A2P 10DLC fallback | **Resolved — FD-018: Hard launch gate — no launch without approved SMS** | — |
 | A-OD-01 | Canonical Supabase instance | **Resolved — FD-013: `wvzjfxacykgsaffskgtr`** | — |
 | A-OD-02 | Are P1/P2/P3 permanent or consolidating? | **Resolved — FD-014: 3 Lovable apps, 1 Supabase project** | — |
 | A-OD-03 | Is `IdmeCallback.tsx` doing client-side code exchange? | **Resolved — No. Make holds client_secret. 2 launch blockers: idmelabs→production URL; nurseId→Supabase UUID** | TASK-0011 |
@@ -503,7 +578,7 @@ This is the project where v4 migration SQL will be applied. All three Lovable pr
 | Created | 2026-05-26 |
 | Last updated | 2026-05-26 (TASK-0009 findings added) |
 | Log status | Updated — Ready for David Review |
-| Completed decisions | FD-001 through FD-014 |
-| Open decisions | S1-OD-01, S1-OD-03–S1-OD-06, A-OD-04, A-OD-05, OD-1–OD-12 (18 total) |
-| Next action | David reviews; A-OD-04 (which domain serves passtodigital.com) still open |
+| Completed decisions | FD-001 through FD-018 |
+| Open decisions | S1-OD-01, A-OD-04, OD-1–OD-12 (14 total) |
+| Next action | TASK-0007 (Codex) resolves OD-1–OD-12; David to confirm A-OD-04 |
 | Critical blocking task | TASK-0007 — Codex must resolve OD-1 through OD-12 before v4 migration SQL |
