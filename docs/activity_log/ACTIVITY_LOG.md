@@ -567,3 +567,85 @@ Next Codex or Claude session should read:
 /docs/prd/CLAUDE_PRD_OUTLINE_REVIEW_RESPONSE.md
 /docs/tasks/2026-05-24-claude-task-001-supabase-schema-remediation.md
 ```
+
+---
+
+## Session Activity — 2026-05-25 — Codex
+
+**Task ID:** TASK-0004 — Create Lovable/Supabase/Vercel Responsibility Map  
+**Status:** Ready for David Review  
+**Role:** Codex / Engineering Director  
+**Summary:** Created a documentation/architecture responsibility map defining what Lovable, Supabase, and Vercel each own for the PassTo MVP.
+
+### Work Completed
+
+- Captured David approval for TASK-0004.
+- Created `/docs/tasks/TASK-0004.md`.
+- Created `/docs/architecture/LOVABLE_SUPABASE_VERCEL_RESPONSIBILITY_MAP.md`.
+- Updated `/docs/activity_log/APPROVALS_LOG.md` with APPROVAL-0008.
+- Updated this activity log.
+
+### Files / Docs Changed
+
+- `/docs/tasks/TASK-0004.md`.
+- `/docs/architecture/LOVABLE_SUPABASE_VERCEL_RESPONSIBILITY_MAP.md`.
+- `/docs/activity_log/APPROVALS_LOG.md`.
+- `/docs/activity_log/ACTIVITY_LOG.md`.
+
+### Decisions / Direction Captured
+
+- Lovable owns MVP frontend, website hosting, route experience, and UI iteration.
+- Supabase owns system of record, auth/data foundation, RLS, storage where needed, Edge Functions where practical, event/audit persistence, and service-role-safe backend state.
+- Vercel is retained only for backend/API routes where Supabase Edge Functions or Lovable are not the right fit.
+- Vercel is not the default MVP frontend host.
+- Lovable must not hold privileged secrets or make trust/payment/credential issuance decisions.
+- Future implementation tasks must identify frontend owner, data owner, backend owner, integrations touched, secrets, service-role need, RLS impact, and affected routes.
+
+### Risks / Issues
+
+- Actual Lovable route inventory still needs audit.
+- Supabase Edge Functions vs. Vercel route boundaries may change after provider SDK/runtime review.
+- Existing Vercel wallet signing code needs explicit retain/rewrite decision.
+- ID.me callback, Stripe webhook, PDF generation, and wallet pass signing ownership remain open until implementation planning.
+- Admin/ops mechanism remains open: Supabase dashboard/views first vs. Lovable admin UI.
+
+### Open Questions
+
+- Should TASK-0005 be Supabase Schema and RLS Plan or Lovable Route/API Audit?
+- Should existing Vercel wallet signing endpoints be retained for MVP?
+- Should ID.me and Stripe webhook handling be Supabase Edge Functions or Vercel routes?
+- Should admin/ops begin with Supabase dashboard/views only?
+
+### Approval Needed
+
+- David final Done decision for TASK-0004.
+- David decision on next task priority.
+
+### Next Recommended Action
+
+Recommended next task:
+
+```text
+TASK-0005 — Create Supabase Schema and RLS Plan
+```
+
+Alternative if implementation sequencing risk feels higher:
+
+```text
+TASK-0005 — Audit Lovable MVP Routes and Backend Calls
+```
+
+### Handoff Notes
+
+Next Codex or Claude session should read:
+
+```text
+/docs/team_charter/TEAM_CHARTER.md
+/docs/activity_log/ACTIVITY_LOG.md
+/docs/activity_log/DECISIONS_LOG.md
+/docs/activity_log/APPROVALS_LOG.md
+/docs/tasks/TASK-0004.md
+/docs/architecture/LOVABLE_SUPABASE_VERCEL_RESPONSIBILITY_MAP.md
+/docs/prd/PASS_TO_PRD.md
+/docs/tasks/MVP_TASK_BACKLOG.md
+```
