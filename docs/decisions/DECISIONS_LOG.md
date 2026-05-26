@@ -601,61 +601,51 @@ There is no user data in the P2 Lovable-managed Supabase instance (`ofpxczstptys
 
 ---
 
+### FD-029 — All TASK-0007 Schema/RLS Open Decisions Resolved by Codex
+
+**Date:** 2026-05-26
+**Decision Owner:** Codex (TASK-0007) — David accepted via TASK-0007 Done status
+**Status:** Approved — closes S1-OD-01, OD-1 through OD-12
+**Source:** `/docs/architecture/CODEX_RESPONSE_TASK_0007_SCHEMA_QA.md`
+**Area:** Schema / RLS / Architecture
+
+**All 12 OD resolutions (authoritative source: CODEX_RESPONSE_TASK_0007_SCHEMA_QA.md):**
+
+| OD | Resolution |
+|---|---|
+| OD-1 | `audit_events.action` uses `resource.verb` namespace (e.g., `credential.issued`, `token.expired`) |
+| OD-2 | `licenses.is_primary` set only by service-role backend; partial unique index enforces one primary per profile |
+| OD-3 | RLS testing: SQL regression tests + Supabase advisors + manual smoke tests (three-part approach) |
+| OD-4 | `show_qr` is form-gated — creates `verifiers` record (confirmed by David as FD-023) |
+| OD-5 | `pdf_qr` token type is **out of MVP scope** — not included in v4 `verification_tokens.token_type` constraint |
+| OD-6 | `passes` → `credentials` rename accepted |
+| OD-7 | `stripe_subscriptions` → `subscriptions` rename accepted |
+| OD-8 | `purchases` → `payments` rename accepted |
+| OD-9 | `communication_events` → `notification_events` rename accepted |
+| OD-10 | `stripe_events` idempotency table added to v4 migration |
+| OD-11 | Nurse UPDATE on `profiles` scoped to safe self-service fields only (`first_name`, `last_name`, `phone`, `avatar_url`) |
+| OD-12 | `license_status_mappings` DB reference table added (confirmed by David as FD-024) |
+
+**Consequence:** v4 migration SQL is now authorized to be written. All decisions needed to write the SQL are resolved. Claude is the authorized SQL author per CODEX_RESPONSE_TASK_0007_SCHEMA_QA.md.
+
+---
+
 ## OPEN DECISIONS
 
-Open decisions are unresolved. Do not treat as settled or assume in implementation work until explicitly approved.
+There are no open schema or architecture decisions blocking v4 migration SQL. The remaining open decisions are launch-readiness items.
 
 ---
 
 ### S1-OD-01 — Resolve TASK-0006 Schema/RLS Open Decisions (OD-1 through OD-12)
 
-**Status:** Open
-**Owner:** Codex (TASK-0007 assigned) + David for product calls
-**Blocks:** v4 migration SQL authorization
-
-See OD-1 through OD-11 below. (OD-4 and OD-12 resolved by David — FD-023 and FD-024.)
-
----
-
-### OD-1 — `audit_events.action` Canonical Namespace
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** `resource.verb` format (e.g., `credential.issued`, `token.expired`, `verification.viewed`)
-
----
-
-### OD-2 — `is_primary` License Designation Implementation Path
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** Service-role API route only — not client-settable, not managed via RLS directly
-
----
-
-### OD-3 — RLS Testing Approach Before Migration
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** Migration approval
-**Context:** Confirm testing methodology before David migration approval — e.g., Supabase test helpers, pgTAP, or manual validation protocol.
-
----
-
-### OD-5 — PDF QR Token Type (`pdf_qr`) MVP Scope
-
-**Status:** Open
-**Owner:** David (product call) + Codex (TASK-0007)
-**Blocks:** v4 migration SQL if `pdf_qr` token type is included
-**Context:** Confirm whether a QR code embedded in a PDF export is in or out of MVP scope.
+**Status:** Resolved — FD-029 (Codex TASK-0007) + FD-023, FD-024 (David)
+**All 12 ODs resolved. v4 migration SQL authorized.**
 
 ---
 
 ### OD-6 — `passes` → `credentials` Rename
 
-**Status:** Open
+**Status:** Resolved — FD-029
 **Owner:** Codex (TASK-0007)
 **Blocks:** v4 migration SQL
 **Recommendation:** Accept rename — aligns with canonical naming
@@ -665,53 +655,17 @@ See OD-1 through OD-11 below. (OD-4 and OD-12 resolved by David — FD-023 and F
 ### OD-7 — `stripe_subscriptions` → `subscriptions` Rename
 
 **Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** Accept rename — aligns with canonical naming
-
----
-
-### OD-8 — `purchases` → `payments` Rename
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** Accept rename — aligns with canonical naming
-
----
-
-### OD-9 — `communication_events` → `notification_events` Rename
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** Accept rename — aligns with canonical naming
-
----
-
-### OD-10 — Add `stripe_events` Idempotency Table
-
-**Status:** Open
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Recommendation:** Add table — required for Stripe webhook idempotency. Present in canonical naming but missing from v3 artifact.
-
----
-
-### OD-11 — Nurse UPDATE Policy on `profiles`: Scope to Safe Columns Only
-
-**Status:** Open — security concern
-**Owner:** Codex (TASK-0007)
-**Blocks:** v4 migration SQL
-**Context:** The nurse UPDATE RLS policy on `profiles` must be scoped to safe columns only (e.g., `display_name`, `phone`, `avatar_url`). Must not allow nurse to update `subscription_tier`, `deleted_at`, `idme_subject`, or other privileged fields. Must not be left open at migration time.
+**Owner:** Codex (TASK-0007) — **Resolved — FD-029**
 
 ---
 
 ## OPEN DECISIONS SUMMARY TABLE
 
+All Section 1 open decisions are resolved. No blockers remain for v4 migration SQL.
+
 | ID | Decision | Status | Blocks |
 |---|---|---|---|
-| S1-OD-01 | Resolve TASK-0006 OD-1 through OD-12 | Open — TASK-0007 assigned to Codex | v4 migration SQL |
+| S1-OD-01 | Resolve TASK-0006 OD-1 through OD-12 | **Resolved — FD-029 (Codex TASK-0007) + FD-023, FD-024 (David)** | — |
 | S1-OD-02 | Final MVP subscription pricing | **Resolved — FD-012: Standard $9.99, Premier $19.99** | — |
 | S1-OD-03 | Wallet pass signing owner | **Resolved — FD-015: Vercel** | — |
 | S1-OD-04 | Stripe webhook owner | **Resolved — FD-016: Supabase Edge Function** | — |
@@ -719,25 +673,25 @@ See OD-1 through OD-11 below. (OD-4 and OD-12 resolved by David — FD-023 and F
 | S1-OD-06 | Twilio A2P 10DLC fallback | **Resolved — FD-018: Hard launch gate — no launch without approved SMS** | — |
 | A-OD-01 | Canonical Supabase instance | **Resolved — FD-013: `wvzjfxacykgsaffskgtr`** | — |
 | A-OD-02 | Are P1/P2/P3 permanent or consolidating? | **Resolved — FD-014: 3 Lovable apps, 1 Supabase project** | — |
-| A-OD-03 | Is `IdmeCallback.tsx` doing client-side code exchange? | **Resolved — No. Make holds client_secret. 2 launch blockers: idmelabs→production URL; nurseId→Supabase UUID. TASK-0011.** | — |
+| A-OD-03 | Is `IdmeCallback.tsx` doing client-side code exchange? | **Resolved — No. Make holds client_secret. TASK-0011 covers migration.** | — |
 | A-OD-04 | Which project serves `passtodigital.com`? | **Resolved — FD-022: P1 PassTo Website** | — |
 | A-OD-05 | Wallet pass signing owner (duplicate of S1-OD-03) | **Resolved — FD-015: Vercel** | — |
-| OD-1 | `audit_events.action` canonical namespace | Open — Codex TASK-0007 | v4 migration SQL |
-| OD-2 | `is_primary` implementation path | Open — Codex TASK-0007 | v4 migration SQL |
-| OD-3 | RLS testing approach | Open — Codex TASK-0007 | Migration approval |
+| OD-1 | `audit_events.action` canonical namespace | **Resolved — FD-029: `resource.verb` format** | — |
+| OD-2 | `is_primary` implementation path | **Resolved — FD-029: service-role only; partial unique index** | — |
+| OD-3 | RLS testing approach | **Resolved — FD-029: SQL regression tests + Supabase advisors + smoke tests** | — |
 | OD-4 | `verifiers` record behavior for `show_qr` | **Resolved — FD-023: Form-gated; verifier_name + verifier_email** | — |
-| OD-5 | PDF QR token type (`pdf_qr`) MVP scope | Open — David product call | v4 migration SQL |
-| OD-6 | `passes` → `credentials` rename | Open — Codex TASK-0007 | v4 migration SQL |
-| OD-7 | `stripe_subscriptions` → `subscriptions` rename | Open — Codex TASK-0007 | v4 migration SQL |
-| OD-8 | `purchases` → `payments` rename | Open — Codex TASK-0007 | v4 migration SQL |
-| OD-9 | `communication_events` → `notification_events` rename | Open — Codex TASK-0007 | v4 migration SQL |
-| OD-10 | Add `stripe_events` idempotency table | Open — Codex TASK-0007 | v4 migration SQL |
-| OD-11 | Nurse UPDATE policy on `profiles` scoped to safe columns | Open — Codex TASK-0007 | v4 migration SQL |
+| OD-5 | PDF QR token type (`pdf_qr`) MVP scope | **Resolved — FD-029: Out of MVP scope** | — |
+| OD-6 | `passes` → `credentials` rename | **Resolved — FD-029: Accept rename** | — |
+| OD-7 | `stripe_subscriptions` → `subscriptions` rename | **Resolved — FD-029: Accept rename** | — |
+| OD-8 | `purchases` → `payments` rename | **Resolved — FD-029: Accept rename** | — |
+| OD-9 | `communication_events` → `notification_events` rename | **Resolved — FD-029: Accept rename** | — |
+| OD-10 | Add `stripe_events` idempotency table | **Resolved — FD-029: Add to v4 migration** | — |
+| OD-11 | Nurse UPDATE policy on `profiles` scoped to safe columns | **Resolved — FD-029: Scoped to first_name, last_name, phone, avatar_url** | — |
 | OD-12 | `license_status_mappings`: DB table or Edge Function logic | **Resolved — FD-024: DB reference table** | — |
-| OD-T11-01 | ID.me production credentials status | **Resolved — FD-025: Sandbox only. Production creds are a hard launch prerequisite.** | — |
+| OD-T11-01 | ID.me production credentials status | **Resolved — FD-025: Sandbox only; production creds = hard launch prerequisite** | — |
 | OD-T11-02 | Wallet pass issuance trigger | **Resolved — FD-026: Automatic at end of enrollment via `PassReady.tsx`** | — |
-| OD-T11-03 | License lookup trigger placement | **Resolved — FD-027: Separate `lookup-license` call from `IdmeCallback.tsx` after `idme-exchange`** | — |
-| OD-T11-04 | P2 Lovable Supabase user data to preserve | **Resolved — FD-028: No data to preserve. Safe to decommission `ofpxczstptysqxoruiox`.** | — |
+| OD-T11-03 | License lookup trigger placement | **Resolved — FD-027: Separate `lookup-license` call after `idme-exchange`** | — |
+| OD-T11-04 | P2 Lovable Supabase user data to preserve | **Resolved — FD-028: No data. Safe to decommission `ofpxczstptysqxoruiox`.** | — |
 
 ---
 
@@ -746,10 +700,10 @@ See OD-1 through OD-11 below. (OD-4 and OD-12 resolved by David — FD-023 and F
 | Field | Value |
 |---|---|
 | Created | 2026-05-26 |
-| Last updated | 2026-05-26 (FD-025–FD-028 added; OD-T11-01–04 closed) |
+| Last updated | 2026-05-26 (FD-029 added; all Codex OD-1–OD-12 closed; zero open decisions) |
 | Log status | Active |
-| Completed decisions | FD-001 through FD-028 (28 total) |
-| Open decisions | S1-OD-01, OD-1, OD-2, OD-3, OD-5, OD-6, OD-7, OD-8, OD-9, OD-10, OD-11 (11 total — all Codex TASK-0007) |
+| Completed decisions | FD-001 through FD-029 (29 total) |
+| Open decisions | **None** — all Section 1 decisions resolved |
 | Launch prerequisites | Twilio A2P 10DLC (FD-018) + ID.me production credentials (FD-025) |
-| Next action | TASK-0007 (Codex) resolves OD-1–OD-3, OD-5–OD-11 before v4 migration SQL |
-| Critical blocking task | TASK-0007 — Codex must resolve remaining ODs before v4 migration SQL |
+| Next action | TASK-0012 — Claude writes v4 migration SQL; TASK-0013 — David approves |
+| Critical path | v4 migration SQL → David approval → apply to `wvzjfxacykgsaffskgtr` → verify → Lovable env var switch |
