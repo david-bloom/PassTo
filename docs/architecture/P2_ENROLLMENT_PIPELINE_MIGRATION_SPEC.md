@@ -4,7 +4,7 @@
 **Created:** 2026-05-26
 **Task:** TASK-0011
 **Owner:** Claude (David final approver)
-**Status:** Ready for David Review
+**Status:** Approved — David 2026-05-26
 **Target Supabase:** `wvzjfxacykgsaffskgtr` (PassTo Dev)
 
 ---
@@ -127,17 +127,25 @@ Step 4 — IdmeCallback.tsx
   raw      = localStorage.getItem(IDME_STORAGE_KEY)   ← { nurseId: UUID, phoneNumber }
   localStorage.removeItem(IDME_STORAGE_KEY)           ← cleanup
 
-  // Single server-side call — replaces both Make fetch() calls
-  const result = await supabase.functions.invoke("idme-exchange", {
+  // Call 1: server-side identity exchange — replaces both Make fetch() calls
+  const idmeResult = await supabase.functions.invoke("idme-exchange", {
     body: { code }                                    ← user JWT in Authorization header (FD-021)
   })
-  // idme-exchange Edge Function:
+  // idme-exchange Edge Function (single-purpose — identity only):
   //   verifies user JWT → auth.uid()
   //   exchanges code with api.id.me using IDME_CLIENT_SECRET (edge function secret)
   //   validates IAL2 + TEFCA scope
   //   updates profiles record (idme_verified, idme_subject, idme_verified_at)
-  //   triggers license lookup (see OD-T11-03 — inline or separate call)
   //   returns { verified: true, identity: { full_name, dob, ... } }
+
+  if (!idmeResult.data?.verified) { /* handle error */ return }
+
+  // Call 2: license lookup — separate call, not inline in idme-exchange (FD-027)
+  const licenseResult = await supabase.functions.invoke("lookup-license", {
+    body: {}                                          ← user JWT identifies the nurse; Edge Fn fetches profiles
+  })
+  // lookup-license aligns with FLOW-LICENSE-002 spec
+  // if licenseResult fails, show error/retry — do not block navigation on transient failure
 
   → navigates to /account-select
 
@@ -231,18 +239,28 @@ const res = await fetch(webhookUrl, { ... })         // line 81
 void fetch(licenseWebhookUrl, { ... })               // line 99
 ```
 
-**Change 2:** Replace with single `supabase.functions.invoke("idme-exchange")`:
+**Change 2:** Replace both Make `fetch()` calls with two sequential Edge Function invocations (FD-027):
 ```
-const { data, error } = await supabase.functions.invoke("idme-exchange", {
+// Step A: identity exchange (replaces Make webhook call 1)
+const { data: idmeData, error: idmeError } = await supabase.functions.invoke("idme-exchange", {
   body: { code }
 })
 
-if (error || !data?.verified) {
+if (idmeError || !idmeData?.verified) {
   // handle failure — navigate to error/retry screen
   return
 }
 
-// data.identity available if needed for UI display
+// Step B: license lookup (replaces Make webhook call 2 — separate function per FD-027)
+const { data: licenseData, error: licenseError } = await supabase.functions.invoke("lookup-license", {
+  body: {}
+})
+
+if (licenseError) {
+  // log error but do not hard-block — license lookup can be retried
+  console.error("License lookup failed:", licenseError)
+}
+
 // navigate to /account-select
 ```
 
@@ -522,14 +540,16 @@ Files to update in P3 Lovable:
 
 ---
 
-## 5. Open Decisions
+## 5. Open Decisions — All Resolved by David (2026-05-26)
 
-| ID | Decision | Owner | Blocks |
+| ID | Decision | Resolution | Reference |
 |---|---|---|---|
-| OD-T11-01 | **ID.me production credentials.** Does PassTo have a production `client_id` and `client_secret` from ID.me? Are they stored anywhere (Vercel env vars, 1Password, email)? Without these, `idme-exchange` cannot be deployed to production and the sandbox→production switch (CF-3 launch blocker) cannot complete. | David | `idme-exchange` deployment; production ID.me switch |
-| OD-T11-02 | **Wallet pass issuance trigger.** Option A: Automatically issue at the end of enrollment from `PassReady.tsx` (inline LC-7 → LC-8). Option B: Nurse-initiated from P3 dashboard (`/my-account` — "Add to Wallet" button). Option A is simpler for MVP. Option B gives the nurse control and handles cases where issuance fails (she can retry). | David | `issue-wallet-pass` invocation design; `PassReady.tsx` changes |
-| OD-T11-03 | **License lookup trigger placement.** Option A: `idme-exchange` triggers license lookup inline after verifying identity (one Edge Function call from browser, two things happen). Option B: `IdmeCallback.tsx` makes a second separate `invoke("lookup-license")` call after `idme-exchange` returns. Option A is cleaner from browser perspective. Option B makes each function single-purpose and easier to debug. | David + Codex | `idme-exchange` scope; FLOW-LICENSE-002 wiring |
-| OD-T11-04 | **P2 Lovable-managed Supabase (`ofpxczstptysqxoruiox`) user data.** Is there any real nurse enrollment data in this instance that needs to be preserved or migrated before the project's `VITE_SUPABASE_URL` is switched? If so, a data migration step is required before switching. | David | P2 Supabase switch timing |
+| OD-T11-01 | ID.me production credentials status | Sandbox only. No production `client_id` or `client_secret`. Applying for production ID.me developer access is a **hard launch prerequisite** (equivalent to Twilio A2P 10DLC). | FD-025 |
+| OD-T11-02 | Wallet pass issuance trigger | Automatic at end of enrollment. `PassReady.tsx` calls `issue-wallet-pass` upon enrollment completion. | FD-026 |
+| OD-T11-03 | License lookup trigger placement | Separate `invoke("lookup-license")` from `IdmeCallback.tsx` after `idme-exchange` returns. `idme-exchange` is identity-only. | FD-027 |
+| OD-T11-04 | P2 Lovable-managed Supabase data to preserve | No data to preserve. `ofpxczstptysqxoruiox` can be decommissioned directly after env var switch. | FD-028 |
+
+**Note on OD-T11-01:** `VITE_IDME_CLIENT_ID` in the P2 env var delta (§4.8) will be the **production** client_id once PassTo obtains it. Until then, sandbox credentials remain in place. The `idme-exchange` Edge Function cannot be deployed to production without production credentials.
 
 ---
 
@@ -576,7 +596,7 @@ These changes require `profiles`, `licenses`, `credentials`, `wallet_passes` tab
 | CreateAccount backend | `create-airtable-record` (dead) + `submit-enrollment`→Make | `submit-enrollment` with JWT, step: "create" |
 | ID.me endpoint | `api.idmelabs.com` (sandbox) | `api.id.me` (production) |
 | ID.me code exchange | Browser → Make webhook (Make holds client_secret) | `idme-exchange` Edge Function (server-side, Supabase holds client_secret) |
-| License lookup trigger | Second Make webhook call from browser | `idme-exchange` inline (OD-T11-03) or separate `invoke("lookup-license")` |
+| License lookup trigger | Second Make webhook call from browser | Separate `invoke("lookup-license")` from `IdmeCallback.tsx` after `idme-exchange` (FD-027) |
 | Selfie storage | Unknown (Airtable / local state) | Supabase Storage protected bucket (`selfies/`) — FD-019 |
 | Wallet pass issuance | Not implemented (CF-5) | `issue-wallet-pass` → Vercel `api/sign-apple.js` + `api/sign-google.js` |
 | Auth source | Supabase Auth signUp (UUID created) + Airtable ID used | Supabase Auth signUp; UUID used throughout |
