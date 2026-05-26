@@ -430,3 +430,122 @@ User-visible routes affected: list
 ```
 
 If a task cannot answer those fields, it is not ready for Claude implementation.
+
+---
+
+## Claude Review — 2026-05-26
+
+**Reviewer:** Claude (Sonnet 4.6)  
+**Scope:** Platform ownership boundaries, layer assignment correctness, sufficiency for guiding future Claude task specs.
+
+---
+
+### Boundary Implementation-Readiness
+
+**COMMENT-MAP-01 — BLOCKER: Open Decisions 1–4 must be resolved before implementation tasks are written**
+
+Open Decisions 1–4 (wallet signing platform, ID.me callback platform, Stripe webhook platform, PDF generation platform) each represent a fork in implementation logic — not just a documentation choice. Any future Claude task spec that touches these areas will have to make an undocumented judgment call or the spec will stall waiting for a decision.
+
+Recommendation: Codex should resolve these four decisions explicitly before writing any task specs for wallet/credential issuance, identity verification, payment, or PDF. Each resolved decision should update this doc and be noted in the relevant task spec.
+
+If David has a preference (e.g., "keep wallet signing in Vercel, everything else in Supabase"), that resolves three of the four immediately.
+
+---
+
+**COMMENT-MAP-02 — AMBIGUITY: "Preferred / allowed / possible" qualifiers do not resolve to an implementation decision**
+
+Throughout the Backend Endpoint Ownership and Route Responsibility tables, entries say "Supabase Edge Function | Vercel route" with qualifiers like "preferred," "allowed," "possible," or "if needed." This is correct for architecture documentation but creates a pre-spec decision step for every one of those rows.
+
+Recommendation: Add a "Decision status" column or annotation — "Decided: Supabase" or "Open: Supabase preferred / Vercel allowed" — so Claude task specs can immediately see which assignments are settled and which require a decision before the task proceeds. Without this, every ambiguous row could become a blocker in a future task.
+
+---
+
+**COMMENT-MAP-03 — GAP: How Lovable calls backend endpoints is not defined**
+
+The map says Lovable "calls approved Supabase Edge Function or Vercel API endpoints" but does not specify the invocation pattern. This is implementation-critical:
+
+- Does Lovable use the Supabase JS client with the user's JWT (authenticated calls)?
+- Does Lovable call Vercel routes via fetch with a Bearer token?
+- What authentication mechanism does Lovable pass when calling an Edge Function?
+
+A task spec for wiring any Lovable screen to a backend endpoint cannot be written without this. Codex should add a "Backend Invocation Pattern" sub-section defining: the Supabase JS client as the default for Edge Function calls, what auth header Lovable sends, and how Vercel routes validate that the caller is a legitimate Lovable frontend (not a direct API call).
+
+---
+
+### Layer Assignment Correctness
+
+**COMMENT-MAP-04 — LAYER RISK: Selfie storage assignment may be incorrect for the ID.me flow**
+
+The map assigns selfie upload to "Supabase Storage/function | Vercel route if processing requires" and the `/selfie` route to "Storage likely Supabase."
+
+In a standard ID.me identity verification flow, the selfie is submitted directly to ID.me — it does not transit or get stored in PassTo's infrastructure. If that is the case here, PassTo does not own or store the selfie, and this assignment is incorrect. Incorrectly assigning selfie storage to Supabase would cause a task spec to build a selfie capture/storage pipeline that is actually redundant with (and possibly conflicts with) the ID.me SDK flow.
+
+Codex should clarify: does PassTo capture and store the selfie independently, or does the selfie go exclusively through ID.me? If the latter, remove or correct this row and the `/selfie` route.
+
+---
+
+**COMMENT-MAP-05 — LAYER RISK: `/v/{token}` verifier route — auth model is undefined and has RLS implications**
+
+The map assigns `/v/{token}` to "Lovable UI + Supabase token validation" which is structurally correct. However, this is a publicly accessible share link — the verifier visiting this URL almost certainly has no Supabase auth session.
+
+This matters because Supabase RLS policies are evaluated against the requesting user's auth role. If the token validation Edge Function is designed assuming an authenticated user, it will fail for anonymous verifier requests. The Edge Function must use service-role or a carefully designed anon-safe RLS policy to validate the token and return credential data.
+
+This distinction needs to be explicit in this document. A future task spec that reads "backend validates token and writes events" without this context may incorrectly implement the token validation against user-auth RLS, breaking verifier views entirely.
+
+Codex should add a note to this row: "Verifier is unauthenticated (no Supabase session). Edge Function must use service-role for token lookup and credential data retrieval. RLS policy for public credential display must be explicitly defined."
+
+---
+
+**COMMENT-MAP-06 — NOTE: Service-role constraint is in Security section but missing from Implementation Assignment Rules**
+
+The Security section correctly states that service-role operations must run only in trusted backend contexts (not Lovable). But the Implementation Assignment Rules section — which is what Claude will use to assign future tasks — does not include this as an explicit rule.
+
+Recommendation: Add to the "Assign to Supabase" list: "Any operation that requires the Supabase service-role key — these cannot be called from Lovable under any circumstances."
+
+This prevents a future task from accidentally assigning a service-role operation to a Lovable component because the implementation rule section didn't explicitly call it out.
+
+---
+
+### Sufficiency for Guiding Future Claude Task Specs
+
+**COMMENT-MAP-07 — STRENGTH: "Acceptance Criteria for Future Tasks" block is correct and should be mandatory**
+
+The required fields (Frontend owner / Data owner / Backend owner / Third-party integrations / Secrets / Service-role / RLS impact / User-visible routes) are exactly the right gate. This block should be required at the top of every Claude task spec, not just referenced at the bottom of the map.
+
+Recommendation: Add one field to this block:
+
+```text
+Open decisions this task depends on: [list from Open Decisions section, or "None"]
+```
+
+This surfaces blockers before a task is assigned for implementation, rather than mid-build.
+
+---
+
+**COMMENT-MAP-08 — GAP: No explicit approval mechanism for new Vercel routes**
+
+The Vercel default rule says "Use Vercel only when there is a concrete reason." But there is no documented process for approving a new Vercel route in a task spec. Codex can identify when a Vercel route is justified, but without an explicit approval gate, Claude may implement Vercel routes that David hasn't explicitly approved.
+
+Recommendation: Add a sentence to the Vercel default rule section: "Any task spec that assigns new implementation work to Vercel must include an explicit justification from the acceptable-reasons list above. If the justification is not one of the listed reasons, David approval is required before the task proceeds to implementation."
+
+---
+
+**COMMENT-MAP-09 — GAP: MVP Build Sequence in this doc conflicts slightly with TASK-0004's recommended next task**
+
+The MVP Build Sequence in this doc (step 1: audit Lovable routes) implies a Lovable audit task should come before the schema/RLS plan. TASK-0004's Recommended Next Task offers both as alternatives. These should be reconciled. Based on the sequence defined here, the next task after TASK-0004 should be: audit Lovable MVP routes and current backend calls — not the schema plan.
+
+---
+
+**Summary for Codex**
+
+| # | Type | Area | Action required |
+|---|---|---|---|
+| MAP-01 | BLOCKER | Open Decisions 1–4 | Resolve before wallet/identity/payment/PDF task specs |
+| MAP-02 | AMBIGUITY | Backend endpoint table | Add "Decision status" column |
+| MAP-03 | GAP | Lovable → backend invocation | Add Backend Invocation Pattern section |
+| MAP-04 | LAYER RISK | Selfie storage | Clarify ID.me selfie flow ownership |
+| MAP-05 | LAYER RISK | `/v/{token}` RLS model | Add unauthenticated verifier note + service-role requirement |
+| MAP-06 | GAP | Service-role in assignment rules | Add service-role constraint to Implementation Assignment Rules |
+| MAP-07 | STRENGTH | Future task criteria block | Add "Open decisions this task depends on" field |
+| MAP-08 | GAP | Vercel approval gate | Add explicit Vercel approval requirement to default rule |
+| MAP-09 | CONFLICT | Build sequence vs. TASK-0004 | Reconcile recommended next task ordering |
