@@ -1309,3 +1309,147 @@ docs/tasks/TASK-0013.md — David review gate
 docs/tasks/TASK-0014.md — Apply migration
 docs/tasks/TASK-0015.md — Post-migration verification
 ```
+---
+
+## Applied Remediations
+
+The SQL blocks below were applied as separate migrations after the base `v4_passto_mvp_schema` migration. Together with the base migration, they represent the complete final state of `wvzjfxacykgsaffskgtr` as of 2026-05-26.
+
+---
+
+### Remediation R1 — `v4_passto_mvp_remediation_r1`
+
+Fixes: `set_updated_at` mutable search_path · anon EXECUTE revokes · `profiles` RLS initplan · 4 missing FK indexes
+
+```sql
+-- Fix set_updated_at search_path
+create or replace function public.set_updated_at()
+returns trigger language plpgsql security invoker
+set search_path = public
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+-- Revoke anon EXECUTE on SECURITY DEFINER functions
+revoke execute on function public.auth_profile_id() from anon;
+revoke execute on function public.get_verification_history(uuid) from anon;
+revoke execute on function public.handle_new_user() from anon;
+revoke execute on function public.update_own_profile_basic(text,text,text,text,text,jsonb) from anon;
+
+-- Fix profiles RLS initplan (evaluate auth.uid() once per query)
+drop policy if exists "nurse_select_own_profile" on public.profiles;
+create policy "nurse_select_own_profile"
+  on public.profiles for select to authenticated
+  using (auth_user_id = (select auth.uid()));
+
+-- Add 4 missing FK indexes
+create index if not exists idx_license_lookups_payment_id
+  on public.license_lookups(payment_id);
+create index if not exists idx_pdf_exports_credential_id
+  on public.pdf_exports(credential_id);
+create index if not exists idx_pdf_exports_payment_id
+  on public.pdf_exports(payment_id);
+create index if not exists idx_verification_tokens_credential_id
+  on public.verification_tokens(credential_id);
+```
+
+---
+
+### Remediation R2 — `v4_passto_mvp_remediation_r2`
+
+Fixes: REVOKE PUBLIC EXECUTE on SECURITY DEFINER functions · re-grant to authenticated only
+
+```sql
+revoke execute on function public.auth_profile_id() from public;
+grant  execute on function public.auth_profile_id() to authenticated;
+
+revoke execute on function public.handle_new_user() from public;
+
+revoke execute on function public.update_own_profile_basic(text,text,text,text,text,jsonb) from public;
+grant  execute on function public.update_own_profile_basic(text,text,text,text,text,jsonb) to authenticated;
+
+revoke execute on function public.get_verification_history(uuid) from public;
+grant  execute on function public.get_verification_history(uuid) to authenticated;
+```
+
+---
+
+### Remediation R3 — `v4_passto_mvp_remediation_r3`
+
+Fixes: subscriptions ON DELETE RESTRICT · narrow token revoke RPC · license_status_mappings Pending group
+
+```sql
+-- 1. subscriptions.profile_id: CASCADE → RESTRICT
+alter table public.subscriptions
+  drop constraint subscriptions_profile_id_fkey;
+alter table public.subscriptions
+  add constraint subscriptions_profile_id_fkey
+  foreign key (profile_id) references public.profiles(id) on delete restrict;
+
+-- 2. Replace broad verification_tokens UPDATE policy with SECURITY DEFINER RPC
+drop policy if exists "nurse_revoke_own_verification_token"
+  on public.verification_tokens;
+
+create or replace function public.revoke_own_verification_token(p_token_id uuid)
+returns void language plpgsql security definer set search_path = public
+as $$
+begin
+  update public.verification_tokens
+  set status = 'revoked', revoked_at = now(), updated_at = now()
+  where id = p_token_id
+    and profile_id = public.auth_profile_id()
+    and status = 'active';
+  if not found then
+    raise exception 'Token not found, not owned by caller, or not currently active'
+      using errcode = 'P0002';
+  end if;
+end;
+$$;
+revoke execute on function public.revoke_own_verification_token(uuid) from public;
+grant  execute on function public.revoke_own_verification_token(uuid) to authenticated;
+
+-- 3. license_status_mappings: add Pending (8th normalized status)
+alter table public.license_status_mappings
+  drop constraint license_status_mappings_normalized_status_check;
+alter table public.license_status_mappings
+  add constraint license_status_mappings_normalized_status_check
+  check (normalized_status = any (array[
+    'Active','Inactive','Expired','Surrendered',
+    'Revoked','Suspended','Pending','Unknown'
+  ]));
+
+insert into public.license_status_mappings
+  (source_type, source_name, raw_status, source_status_display,
+   normalized_status, status_intent, wallet_pass_treatment,
+   credential_issuance_allowed, requires_alert)
+values
+  ('nursys','Nursys NLC','Pending','Pending',
+   'Pending','credential_caution','do_not_issue',false,true),
+  ('nursys','Nursys Single-State','Application Pending','Application Pending',
+   'Pending','credential_caution','do_not_issue',false,true),
+  ('nursys','Nursys NLC','Renewal Pending','Renewal Pending',
+   'Pending','credential_caution','caution',false,true),
+  ('state_board','Generic State Board','Pending Review','Pending Review',
+   'Pending','credential_caution','do_not_issue',false,true),
+  ('state_board','Generic State Board','Pending Application','Pending Application',
+   'Pending','credential_caution','do_not_issue',false,true);
+
+-- NOTE: audit_events.actor_id ON DELETE SET NULL is intentional.
+-- SET NULL preserves audit rows when a profile is deleted (retention satisfied).
+-- RESTRICT would block profile deletion for any account with audit history.
+```
+
+---
+
+## Migration Chain Summary
+
+| Migration | Applied | Key Changes |
+|---|---|---|
+| `v4_passto_mvp_schema` | 2026-05-26 | Base: 15 tables, RLS, indexes, 37 seed rows, SECURITY DEFINER RPCs |
+| `v4_passto_mvp_remediation_r1` | 2026-05-26 | search_path fix, anon revokes, initplan fix, 4 FK indexes |
+| `v4_passto_mvp_remediation_r2` | 2026-05-26 | PUBLIC EXECUTE revoke, explicit authenticated grants |
+| `v4_passto_mvp_remediation_r3` | 2026-05-26 | subscriptions RESTRICT, token revoke RPC, Pending status group |
+| **Final state** | **2026-05-26** | **15 tables · 42 seed rows · 69 indexes · 5 SECURITY DEFINER functions** |
