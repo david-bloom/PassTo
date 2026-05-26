@@ -1,10 +1,10 @@
 # PRD Section 1 Master Task List
 
-**PRD Section:** Section 1 — Product Summary, Technical Context, and Current Build State  
-**Status:** Approved by David  
-**Created:** 2026-05-26  
-**Owner:** David Bloom  
-**Execution Support:** Codex and Claude  
+**PRD Section:** Section 1 — Product Summary, Technical Context, and Current Build State
+**Status:** Approved by David
+**Created:** 2026-05-26
+**Owner:** David Bloom
+**Execution Support:** Codex and Claude
 
 ## Purpose
 
@@ -40,8 +40,8 @@ This task list translates PRD Section 1 into execution controls. It separates co
 | Task ID | Task | Status | Recommended Owner | Notes |
 |---|---|---|---|---|
 | TASK-0007 | Resolve `TASK-0006` schema/RLS open decisions before migration SQL. | Created — assigned to Codex | Codex + Claude | Must close `OD-1` through `OD-12`. |
-| TASK-0008 | Convert accepted Section 1 foundation decisions into a canonical decisions log. | Done — 2026-05-26 | Codex | Creates durable record so later sections can reference decisions cleanly. |
-| TASK-0009 | Audit existing Lovable routes and backend calls against the responsibility map. | Proposed | Claude or Codex | Needed before detailed route-by-route implementation specs. |
+| TASK-0008 | Convert accepted Section 1 foundation decisions into a canonical decisions log. | Ready for David Review — 2026-05-26 | Claude | Creates `/docs/decisions/DECISIONS_LOG.md`. 12 completed decisions + 17 open decisions recorded. |
+| TASK-0009 | Audit existing Lovable routes and backend calls against the responsibility map. | Proposed | Claude or Codex | Lovable URL known (`passtodigital.com`). Needs David confirmation on Supabase connections and Make webhook status. |
 | TASK-0010 | Define MVP launch-critical vs. deferred foundation capabilities. | Proposed | David + Claude | Prevents Section 1 from silently expanding MVP scope. |
 
 ## Not In Scope For Section 1
