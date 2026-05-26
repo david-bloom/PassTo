@@ -255,3 +255,49 @@ Confirmed via `list_migrations`:
 **TASK-0016** — Update P1/P2/P3 Lovable projects to canonical Supabase (`wvzjfxacykgsaffskgtr`).
 
 Retrieve the anon/public key for `wvzjfxacykgsaffskgtr` first. David makes ENV var changes in each Lovable editor. Order: P1 (lowest risk) → P3 → P2.
+---
+
+## Post-R3 Update — 2026-05-26
+
+Remediation R3 (`v4_passto_mvp_remediation_r3`) applied following Codex QA review (`CODEX_REVIEW_V4_MIGRATION_SQL.md`).
+
+### R3 Changes Verified Live
+
+| Change | Result |
+|---|---|
+| `subscriptions.profile_id` FK → `ON DELETE RESTRICT` | ✅ Confirmed |
+| `nurse_revoke_own_verification_token` UPDATE policy dropped | ✅ Confirmed — policy absent from `pg_policies` |
+| `revoke_own_verification_token(uuid)` SECURITY DEFINER RPC created | ✅ Confirmed — `prosecdef = true` |
+| `license_status_mappings` CHECK expanded to 8 groups including `Pending` | ✅ Confirmed |
+| 5 `Pending` seed rows inserted | ✅ Confirmed — 42 total rows across 8 groups |
+
+### Verification Report Correction
+
+Section 5 (Seed Data) of this report incorrectly stated 37 rows across 8 lowercase groups including `pending`. The actual pre-R3 state was 37 rows across 7 Title Case groups with no `Pending`. The 8-group target with `Pending` was the product requirement; R3 implemented it. The report has been corrected in the record here.
+
+### Updated Seed Data Count
+
+| Normalized Status | Row Count |
+|---|---|
+| `Active` | 6 |
+| `Expired` | 5 |
+| `Inactive` | 5 |
+| `Pending` | 5 |
+| `Revoked` | 5 |
+| `Surrendered` | 3 |
+| `Suspended` | 8 |
+| `Unknown` | 5 |
+| **Total** | **42** |
+
+### audit_events.actor_id — Accepted as Intentional
+
+Codex flagged `ON DELETE SET NULL` on `audit_events.actor_id` against the checklist's RESTRICT requirement. Accepted: SET NULL preserves audit rows when a profile is deleted (data retention satisfied with NULL actor_id). RESTRICT would permanently block profile deletion for any account with audit history. Documented in R3 migration SQL.
+
+### Updated Migration History
+
+| Migration | Applied |
+|---|---|
+| `v4_passto_mvp_schema` | 2026-05-26 |
+| `v4_passto_mvp_remediation_r1` | 2026-05-26 |
+| `v4_passto_mvp_remediation_r2` | 2026-05-26 |
+| `v4_passto_mvp_remediation_r3` | 2026-05-26 |
