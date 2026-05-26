@@ -29,7 +29,7 @@ This task list translates PRD Section 1 into execution controls. It separates co
 | Decision ID | Decision | Status | Owner | Blocks |
 |---|---|---|---|---|
 | S1-OD-01 | Resolve `TASK-0006` open decisions `OD-1` through `OD-12`. | Open | David + Codex/Claude | v4 migration SQL |
-| S1-OD-02 | Confirm final MVP Standard and Premier subscription pricing. | Open | David | Subscription PRD section, Stripe setup |
+| S1-OD-02 | Confirm final MVP Standard and Premier subscription pricing. | Resolved — DECISION-0011 and DECISION-0014: Standard $9.99/month, Premier $19.99/month | David | Subscription PRD section, Stripe setup |
 | S1-OD-03 | Confirm wallet pass signing owner: Supabase or Vercel. | Open | David + Codex/Claude | Credential issuance tasks |
 | S1-OD-04 | Confirm Stripe webhook owner: Supabase or Vercel. | Open | David + Codex/Claude | Payment tasks |
 | S1-OD-05 | Confirm PDF generation owner: Supabase or Vercel. | Open | David + Codex/Claude | PDF export tasks |
@@ -39,8 +39,8 @@ This task list translates PRD Section 1 into execution controls. It separates co
 
 | Task ID | Task | Status | Recommended Owner | Notes |
 |---|---|---|---|---|
-| TASK-0007 | Resolve `TASK-0006` schema/RLS open decisions before migration SQL. | Proposed | Codex + Claude | Must close `OD-1` through `OD-12`. |
-| TASK-0008 | Convert accepted Section 1 foundation decisions into a canonical decisions log. | Proposed | Codex | Creates durable record so later sections can reference decisions cleanly. |
+| TASK-0007 | Resolve `TASK-0006` schema/RLS open decisions before migration SQL. | Created — assigned to Codex | Codex + Claude | Must close `OD-1` through `OD-12`. |
+| TASK-0008 | Convert accepted Section 1 foundation decisions into a canonical decisions log. | Done — 2026-05-26 | Codex | Creates durable record so later sections can reference decisions cleanly. |
 | TASK-0009 | Audit existing Lovable routes and backend calls against the responsibility map. | Proposed | Claude or Codex | Needed before detailed route-by-route implementation specs. |
 | TASK-0010 | Define MVP launch-critical vs. deferred foundation capabilities. | Proposed | David + Claude | Prevents Section 1 from silently expanding MVP scope. |
 
