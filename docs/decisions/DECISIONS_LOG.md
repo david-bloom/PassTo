@@ -407,6 +407,32 @@ See OD-1 through OD-12 below.
 
 ---
 
+### FD-014 — Three Lovable Apps, One Supabase Project
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes A-OD-02
+**Source:** TASK-0009 Lovable audit
+**Area:** Architecture
+
+**Decision:**
+```
+P1 PassTo Website  → wvzjfxacykgsaffskgtr (PassTo Dev)
+P2 PassTo Enroll   → wvzjfxacykgsaffskgtr (PassTo Dev)
+P3 PassTo App      → wvzjfxacykgsaffskgtr (PassTo Dev)
+```
+
+Three permanent Lovable projects. All three share the single canonical Supabase instance. No consolidation of Lovable projects planned.
+
+**Consequences:**
+- All three Lovable projects must have `VITE_SUPABASE_URL` updated to `https://wvzjfxacykgsaffskgtr.supabase.co` after v4 migration SQL is applied
+- Supabase Auth sessions created in P2 (enrollment) are valid in P3 (dashboard) — same auth system, same project
+- RLS policies must account for all three frontends sharing the same database — no per-app data isolation at the DB layer
+- Edge functions deployed to `wvzjfxacykgsaffskgtr` serve all three apps
+- P1's `create-checkout` edge function, P2's `submit-enrollment` edge function, and any future edge functions all land in the same project
+
+---
+
 ### FD-013 — Canonical Supabase Instance Confirmed
 
 **Date:** 2026-05-26
@@ -463,8 +489,8 @@ This is the project where v4 migration SQL will be applied. All three Lovable pr
 | S1-OD-05 | PDF generation owner: Supabase or Vercel | Open | PDF export tasks |
 | S1-OD-06 | Twilio A2P 10DLC launch fallback | Open | Launch readiness |
 | A-OD-01 | Canonical Supabase instance | **Resolved — FD-013: `wvzjfxacykgsaffskgtr`** | — |
-| A-OD-02 | Are P1/P2/P3 permanent or consolidating? | Open — David decision | Architecture |
-| A-OD-03 | Is `IdmeCallback.tsx` doing client-side code exchange? | Open — security review required | ID.me migration |
+| A-OD-02 | Are P1/P2/P3 permanent or consolidating? | **Resolved — FD-014: 3 Lovable apps, 1 Supabase project** | — |
+| A-OD-03 | Is `IdmeCallback.tsx` doing client-side code exchange? | **Resolved — No. Make holds client_secret. 2 launch blockers: idmelabs→production URL; nurseId→Supabase UUID** | TASK-0011 |
 | A-OD-04 | Which project serves `passtodigital.com` currently? P1 or P3? | Open | Routing clarity |
 | A-OD-05 | Wallet pass signing owner | Open (same as S1-OD-03) | — |
 
@@ -477,7 +503,7 @@ This is the project where v4 migration SQL will be applied. All three Lovable pr
 | Created | 2026-05-26 |
 | Last updated | 2026-05-26 (TASK-0009 findings added) |
 | Log status | Updated — Ready for David Review |
-| Completed decisions | FD-001 through FD-013 |
-| Open decisions | S1-OD-01, S1-OD-03–S1-OD-06, A-OD-02–A-OD-05, OD-1–OD-12 (21 total) |
-| Next action | David reviews FD-013 and A-OD-02 through A-OD-04 |
+| Completed decisions | FD-001 through FD-014 |
+| Open decisions | S1-OD-01, S1-OD-03–S1-OD-06, A-OD-04, A-OD-05, OD-1–OD-12 (18 total) |
+| Next action | David reviews; A-OD-04 (which domain serves passtodigital.com) still open |
 | Critical blocking task | TASK-0007 — Codex must resolve OD-1 through OD-12 before v4 migration SQL |
