@@ -279,18 +279,18 @@ These are confirmed non-goals from PRD Section 1 and do not require a decision t
 
 ---
 
-## OPEN SCOPE ITEMS (Require David Decision Before Implementation)
+## OPEN SCOPE ITEMS — All Resolved by David (2026-05-26)
 
-These items have ambiguity that must be resolved before the relevant implementation task is assigned.
+All six open scope items resolved in a single David decision block. No implementation blockers remain from this document.
 
-| Item | Question | Blocks |
+| Item | Decision | Reference |
 |---|---|---|
-| Selfie storage owner | Does PassTo own the selfie (stored in Supabase Storage) or does ID.me own it? | LC-6 implementation |
-| Subscription lapse behavior | On lapse: do credentials remain visible? Are share/QR/PDF/refresh blocked? Are wallet passes affected? Are additional licenses frozen? | LC-13 implementation |
-| Lovable backend invocation pattern | How does Lovable call Supabase Edge Functions that require service-role auth? Auth method not yet defined. | All Edge Function wiring in Lovable |
-| `passtodigital.com` domain routing | Which Lovable project (P1 or P3) currently serves `passtodigital.com`? | Routing and deployment planning |
-| Show QR verifier form gate | Does show_qr path require a verifier form gate (OD-4)? | D-1 (if promoted to launch-critical) |
-| `license_status_mappings` | DB reference table or Edge Function logic (OD-12)? | v4 migration SQL |
+| Selfie storage owner | PassTo via Supabase Storage — protected bucket; nurse-only RLS; service-role signed URLs for ops/audit | FD-019 |
+| Subscription lapse behavior | Downgrade to Free; credentials visible; wallet not revoked; paid-tier actions blocked; existing active tokens valid until TTL | FD-020 |
+| Lovable backend invocation pattern | Publishable key + user JWT in Lovable only; Edge Function verifies JWT, uses service_role internally; service_role never in Lovable | FD-021 |
+| `passtodigital.com` domain routing | P1 PassTo Website (`6c973fd1-2dcd-4377-8c98-4d2f0d68732e`) | FD-022 |
+| Show QR verifier form gate | Form-gated; collect verifier_name + verifier_email; create verifiers + verification_events records | FD-023 |
+| `license_status_mappings` | DB reference table — auditable, reviewable, read by Edge Functions at runtime | FD-024 |
 
 ---
 
