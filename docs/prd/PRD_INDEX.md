@@ -19,6 +19,7 @@ GitHub is the source of truth for PRD work.
 |---|---|---|---|
 | Section 1 — Product Summary, Technical Context, and Current Build State | `docs/prd/PASS_TO_PRD.md` Section 1 / local section baseline | Approved by David | `docs/tasks/PRD_SECTION_01_MASTER_TASK_LIST.md` |
 | Section 2 — Users, MVP Goals, and Scope Boundaries | `docs/prd/PRD_SECTION_02_USERS_GOALS_SCOPE.md` | Draft for David Review | `docs/tasks/PRD_SECTION_02_MASTER_TASK_LIST.md` |
+| Section 3 — End-to-End MVP User Journeys | `docs/prd/PRD_SECTION_03_USER_JOURNEYS.md` | Draft for David Review | `docs/tasks/PRD_SECTION_03_MASTER_TASK_LIST.md` |
 
 ## Existing Full PRD Draft
 
@@ -44,11 +45,11 @@ Do not overwrite the full `PASS_TO_PRD.md` with section drafts until David appro
 ## Next PRD Section
 
 ```text
-Section 3 — End-to-End MVP User Journeys
+Section 4 — Data Model, RLS, and Backend Responsibilities
 ```
 
 Expected paired task list:
 
 ```text
-docs/tasks/PRD_SECTION_03_MASTER_TASK_LIST.md
+docs/tasks/PRD_SECTION_04_MASTER_TASK_LIST.md
 ```
