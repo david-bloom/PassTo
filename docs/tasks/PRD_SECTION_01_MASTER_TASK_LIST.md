@@ -23,12 +23,13 @@ This task list translates PRD Section 1 into execution controls. It separates co
 | Confirm Vercel as targeted backend/API layer only. | Done | Used where Supabase Edge Functions are not the right fit. |
 | Complete `TASK-0004` responsibility map. | Done | Platform ownership baseline accepted. |
 | Complete `TASK-0006` Supabase Schema and RLS Plan. | Done | Accepted as planning baseline; migration SQL not yet authorized. |
+| Complete `TASK-0007` schema/RLS open decision review. | Done | All 12 open decisions resolved; v4 migration SQL authorized for drafting only. |
 
 ## Open Decisions
 
 | Decision ID | Decision | Status | Owner | Blocks |
 |---|---|---|---|---|
-| S1-OD-01 | Resolve `TASK-0006` open decisions `OD-1` through `OD-12`. | Open | David + Codex/Claude | v4 migration SQL |
+| S1-OD-01 | Resolve `TASK-0006` open decisions `OD-1` through `OD-12`. | Resolved — TASK-0007 complete | Codex | v4 migration SQL drafting authorized |
 | S1-OD-02 | Confirm final MVP Standard and Premier subscription pricing. | Resolved — DECISION-0011 and DECISION-0014: Standard $9.99/month, Premier $19.99/month | David | Subscription PRD section, Stripe setup |
 | S1-OD-03 | Confirm wallet pass signing owner: Supabase or Vercel. | Open | David + Codex/Claude | Credential issuance tasks |
 | S1-OD-04 | Confirm Stripe webhook owner: Supabase or Vercel. | Open | David + Codex/Claude | Payment tasks |
@@ -39,7 +40,7 @@ This task list translates PRD Section 1 into execution controls. It separates co
 
 | Task ID | Task | Status | Recommended Owner | Notes |
 |---|---|---|---|---|
-| TASK-0007 | Resolve `TASK-0006` schema/RLS open decisions before migration SQL. | Created — assigned to Codex | Codex + Claude | Must close `OD-1` through `OD-12`. |
+| TASK-0007 | Resolve `TASK-0006` schema/RLS open decisions before migration SQL. | Done — 2026-05-26 | Codex | Created `/docs/architecture/CODEX_RESPONSE_TASK_0007_SCHEMA_QA.md`; v4 migration SQL authorized for drafting only. |
 | TASK-0008 | Convert accepted Section 1 foundation decisions into a canonical decisions log. | Ready for David Review — 2026-05-26 | Claude | Creates `/docs/decisions/DECISIONS_LOG.md`. 12 completed decisions + 17 open decisions recorded. |
 | TASK-0009 | Audit existing Lovable routes and backend calls against the responsibility map. | Proposed | Claude or Codex | Lovable URL known (`passtodigital.com`). Needs David confirmation on Supabase connections and Make webhook status. |
 | TASK-0010 | Define MVP launch-critical vs. deferred foundation capabilities. | Proposed | David + Claude | Prevents Section 1 from silently expanding MVP scope. |
