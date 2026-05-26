@@ -200,3 +200,28 @@ David approved TASK-0003 — Create PassTo PRD v0.1 and MVP Task Backlog, incorp
 ### Notes
 
 Approval captured from David’s confirmation: “TASK-0003 — Create PassTo PRD v0.1 and MVP Task Backlog, incorporating Claude feedback directly APPROVED.”
+
+---
+
+## APPROVAL-0008 — TASK-0004 Approved for Execution
+
+**Date:** 2026-05-25  
+**Approved By:** David  
+**Related Task:** TASK-0004  
+**Decision:** Approved  
+
+### Summary
+
+David approved TASK-0004 — Create Lovable/Supabase/Vercel Responsibility Map as a documentation/architecture task.
+
+### Approval Checklist
+
+- [x] I approve this task for execution.
+- [x] I approve creating `/docs/tasks/TASK-0004.md`.
+- [x] I approve creating `/docs/architecture/LOVABLE_SUPABASE_VERCEL_RESPONSIBILITY_MAP.md`.
+- [x] I approve defining Lovable, Supabase, and Vercel MVP responsibility boundaries.
+- [x] I understand this is documentation and architecture-planning work only, not implementation authorization.
+
+### Notes
+
+Approval captured from David’s confirmation: “TASK-0004 — Create Lovable/Supabase/Vercel Responsibility Map Approved” and follow-up instruction: “restart creating TASK-0004 as a documentation/architecture task, then add the responsibility map that defines what Lovable, Supabase, and Vercel each own for MVP.”
