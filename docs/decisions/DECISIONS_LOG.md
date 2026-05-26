@@ -405,14 +405,79 @@ See OD-1 through OD-12 below.
 
 ---
 
+---
+
+### FD-013 — Canonical Supabase Instance Confirmed
+
+**Date:** 2026-05-26
+**Decision Owner:** David
+**Status:** Approved — closes A-OD-01
+**Source:** TASK-0009 Lovable audit
+**Area:** Architecture / Infrastructure
+
+**Decision:**
+```
+Canonical Supabase project: PassTo Dev
+Project ID: wvzjfxacykgsaffskgtr
+URL: https://wvzjfxacykgsaffskgtr.supabase.co
+Region: us-west-2
+Status: ACTIVE_HEALTHY — empty, clean slate
+```
+
+This is the project where v4 migration SQL will be applied. All three Lovable projects (PassTo Website, PassTo Enroll, PassTo App) must be re-pointed to this instance after migration.
+
+**Inventory of all Supabase instances discovered during TASK-0009 audit:**
+
+| Project ID Prefix | Name | Owner | Status | Disposition |
+|---|---|---|---|---|
+| `wvzjfxacykgsaffskgtr` | PassTo Dev | David (this org) | Empty — canonical target | **KEEP — migrate here** |
+| `zpvbexzdiklxlvrxsvop` | david-bloom's Project | David (this org) | Empty | Decommission or ignore |
+| `zektkbhvmbbmhvthwah` | Lovable-managed (P1 Website) | Lovable org | Unknown data state | Replace with canonical after migration |
+| `ofpxczstptysqxoruiox` | Lovable-managed (P2 Enroll) | Lovable org | Has enrollment data | Audit for user data before decommission |
+| `vvefeasvpmdsqvwkkzsj` | Lovable-managed (P3 App) | Lovable org | Unknown data state | Replace with canonical after migration |
+
+**Consequences:**
+- v4 migration SQL targets `wvzjfxacykgsaffskgtr`
+- All Lovable project `VITE_SUPABASE_URL` env vars must be updated to point to `wvzjfxacykgsaffskgtr` after migration
+- Before decommissioning P2's Lovable-managed Supabase (`ofpxczstptysqxoruiox`), check for any real user data that needs to be preserved
+
+---
+
+### S1-OD-03 — Wallet Pass Signing Owner: Supabase or Vercel
+
+**Status:** Open — TASK-0009 finding: neither option currently wired
+**Owner:** David + Codex/Claude
+**Blocks:** Credential issuance implementation tasks
+
+**Updated context from TASK-0009:** Vercel `api/sign-apple.js` and `api/sign-google.js` exist but are not called from any Lovable project. Wallet pass generation is not implemented. Decision still required and now also needs an implementation task.
+
+---
+
+## OPEN DECISIONS (updated after TASK-0009)
+
+| ID | Decision | Status | Blocks |
+|---|---|---|---|
+| S1-OD-01 | Resolve TASK-0006 OD-1 through OD-12 | Open — TASK-0007 assigned to Codex | v4 migration SQL |
+| S1-OD-03 | Wallet pass signing owner: Supabase or Vercel | Open | Credential issuance |
+| S1-OD-04 | Stripe webhook owner: Supabase or Vercel | Open | Payment tasks |
+| S1-OD-05 | PDF generation owner: Supabase or Vercel | Open | PDF export tasks |
+| S1-OD-06 | Twilio A2P 10DLC launch fallback | Open | Launch readiness |
+| A-OD-01 | Canonical Supabase instance | **Resolved — FD-013: `wvzjfxacykgsaffskgtr`** | — |
+| A-OD-02 | Are P1/P2/P3 permanent or consolidating? | Open — David decision | Architecture |
+| A-OD-03 | Is `IdmeCallback.tsx` doing client-side code exchange? | Open — security review required | ID.me migration |
+| A-OD-04 | Which project serves `passtodigital.com` currently? P1 or P3? | Open | Routing clarity |
+| A-OD-05 | Wallet pass signing owner | Open (same as S1-OD-03) | — |
+
+---
+
 ## Log Metadata
 
 | Field | Value |
 |---|---|
 | Created | 2026-05-26 |
-| Task | TASK-0008 |
-| Log status | Ready for David Review |
-| Completed decisions | FD-001 through FD-012 |
-| Open decisions | S1-OD-01, S1-OD-03–S1-OD-06, OD-1–OD-12 (18 total) |
-| Next action | David reviews and approves or amends entries |
+| Last updated | 2026-05-26 (TASK-0009 findings added) |
+| Log status | Updated — Ready for David Review |
+| Completed decisions | FD-001 through FD-013 |
+| Open decisions | S1-OD-01, S1-OD-03–S1-OD-06, A-OD-02–A-OD-05, OD-1–OD-12 (21 total) |
+| Next action | David reviews FD-013 and A-OD-02 through A-OD-04 |
 | Critical blocking task | TASK-0007 — Codex must resolve OD-1 through OD-12 before v4 migration SQL |
