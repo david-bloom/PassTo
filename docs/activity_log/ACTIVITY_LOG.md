@@ -828,3 +828,58 @@ docs/tasks/TASK-0020.md
 docs/tasks/TASK-0019.md
 docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md
 ```
+---
+
+## Session Activity — 2026-05-27 — Claude
+
+**Task ID:** TASK-0021 — Phase 2 Profile Init and Onboarding Routing Spec
+**Status:** Done — 2026-05-27
+**Role:** Claude / Engineer
+**Summary:** Produced the implementation-ready Phase 2 specification for Lovable auth wiring, profile initialization, onboarding step routing, and Airtable/Make dead-code removal. No Supabase migrations, Edge Functions, or code deployed — spec only.
+
+### Work Completed
+
+- Read 11 source documents from `david-bloom/PassTo` including V4_MIGRATION_SQL.md, P2_ENROLLMENT_PIPELINE_MIGRATION_SPEC.md, MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md, PRD sections, and all prior tasks.
+- Confirmed `handle_new_user()` trigger fully creates profiles row at signUp — no `profile-init` Edge Function needed for Phase 2.
+- Documented correct UUID identity: `profiles.auth_user_id = auth.uid()` ≠ `profiles.id` — corrects stale P2 pipeline spec Note 2.
+- Specified exact ENV var updates for P1/P2/P3 Lovable projects pointing at `wvzjfxacykgsaffskgtr`.
+- Specified `update_own_profile_basic()` RPC call pattern for name/phone population post-signUp.
+- Specified `routeByOnboardingStep()` router reading `profiles.onboarding_step`.
+- Identified all Airtable/Make dead code to remove: `create-airtable-record` (P2), `sync-airtable` (P1), Airtable comment block (P3).
+- Defined 14 ordered implementation tasks for TASK-0022.
+- Defined 28-item Phase 2.4 QA checklist.
+- Wrote complete spec to `docs/tasks/TASK-0021.md` on GitHub (commit 81b1ad819c308250d69cc070304f9be2ffff16a4).
+
+### Files / Docs Changed
+
+- `docs/tasks/TASK-0021.md` — updated: skeleton replaced with complete Phase 2 spec, status Done
+
+### Decisions / Direction Captured
+
+- `handle_new_user()` trigger is sufficient for Phase 2 row creation — no new Edge Function needed
+- `profiles.auth_user_id` = `auth.uid()` (not `profiles.id`) — all Lovable identity references must use `authData.user.id`
+- Stale `create-airtable-record` and `sync-airtable` are dead code; removal is Phase 2 scope
+- `onboarding_step` remains backend-controlled only — Lovable must never write it directly
+- Phase 2 is fully unblocked from R4 remediation (only Phase 3.3 needs R4)
+
+### Risks / Issues
+
+- Null-profile guard needed for legacy pre-v4 auth accounts — minimum viable guard defined in Section 6
+- `update_own_profile_basic()` RPC failure on signUp is non-blocking (profiles row exists, name/phone null) but should be logged
+- `profiles.id ≠ auth.uid()` discrepancy in P2_ENROLLMENT_PIPELINE_MIGRATION_SPEC.md Note 2 — documented, flagged for Phase 3 Edge Function implementers
+
+### Next Recommended Actions
+
+```
+TASK-0022 — Implement Phase 2 Auth, Profile Init, and Onboarding Routing (14 tasks — David in Lovable)
+Pre-Phase-3.3: Apply v4_passto_mvp_remediation_r4 (licenses.normalized_status CHECK expansion)
+```
+
+### Handoff Notes
+
+Next session should read:
+```
+docs/tasks/TASK-0021.md
+docs/tasks/TASK-0020.md
+docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md
+```
