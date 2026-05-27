@@ -766,3 +766,65 @@ docs/tasks/TASK-0019.md
 docs/architecture/V4_MIGRATION_SQL.md
 docs/architecture/P2_ENROLLMENT_PIPELINE_MIGRATION_SPEC.md
 ```
+
+---
+
+## Session Activity — 2026-05-27 — Claude
+
+**Task ID:** TASK-0020 — Implement Selfie Storage Bucket, Policies, and Profile Fields
+**Status:** Done — 2026-05-27
+**Role:** Claude / Engineer
+**Summary:** Implemented the selfie Storage foundation approved in TASK-0019. Created private `selfies` bucket, applied three exact-path Storage RLS policies, and applied schema migration `v4_passto_mvp_selfie_storage` adding `selfie_storage_path` and `selfie_captured_at` to `profiles`. All 13 verification checks passed. No deviations.
+
+### Work Completed
+
+- Confirmed clean baseline: no `selfies` bucket, no Storage policies, no selfie columns on `profiles`.
+- Applied migration `v4_passto_mvp_selfie_storage` (version `20260527143033`) via Supabase MCP to `wvzjfxacykgsaffskgtr`.
+- Migration scope: bucket INSERT, three Storage RLS policies (INSERT/UPDATE/SELECT), two `profiles` column additions with service-role comments.
+- Ran full verification plan (13 checks) — all passed.
+- Updated `docs/tasks/TASK-0020.md` on GitHub with execution results, checked acceptance criteria, marked Done.
+- Updated `docs/activity_log/ACTIVITY_LOG.md`.
+
+### Files / Docs Changed
+
+- `docs/tasks/TASK-0020.md` — updated: status Done, acceptance criteria checked, execution results and verification table added
+
+### Supabase Changes Applied
+
+| Object | Type | Detail |
+|---|---|---|
+| `selfies` | Storage bucket | private, 10 MB, image/jpeg + image/png + image/webp |
+| `nurse_upload_own_selfie` | Storage RLS policy | INSERT, exact-path, authenticated |
+| `nurse_update_own_selfie` | Storage RLS policy | UPDATE (USING + WITH CHECK), exact-path, authenticated |
+| `nurse_select_own_selfie` | Storage RLS policy | SELECT, exact-path, authenticated |
+| `profiles.selfie_storage_path` | Schema column | text, nullable, service-role write only |
+| `profiles.selfie_captured_at` | Schema column | timestamptz, nullable, service-role write only |
+
+### Decisions / Direction Captured
+
+- No authenticated DELETE policy on `selfies` — deletion via service-role only
+- `selfie_storage_path` and `selfie_captured_at` are NOT in `update_own_profile_basic()` — confirmed
+- Exact-path RLS (`name = auth.uid()::text || '/selfie.jpg'`) enforced — Codex QA correction applied
+
+### Risks / Issues
+
+- Selfie purge process still not defined — must be documented before production launch
+- Backend confirmation step (Edge Function) must enforce `onboarding_step` gate before confirming selfie — not yet built
+- Phase 3.5 Lovable implementation must handle HEIC/HEIF: convert to JPEG or show unsupported-format retry message
+
+### Next Recommended Actions
+
+```
+TASK-0021 — Phase 2: Profile Init and Onboarding Routing
+Pre-Phase-3.3: Apply v4_passto_mvp_remediation_r4 (licenses.normalized_status CHECK expansion)
+Pre-Phase-3.5: Edge Function confirmation logic for selfie step (submit-enrollment)
+```
+
+### Handoff Notes
+
+Next session should read:
+```
+docs/tasks/TASK-0020.md
+docs/tasks/TASK-0019.md
+docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md
+```
