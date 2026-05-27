@@ -2,8 +2,8 @@
 
 **Status:** Baseline — Not Implementation Approved  
 **Owner:** Codex  
-**Last Updated:** 2026-05-25  
-**Related Task:** TASK-0005  
+**Last Updated:** 2026-05-27  
+**Related Task:** TASK-0005, TASK-0018  
 
 ---
 
@@ -29,6 +29,7 @@ PassTo MVP security goals:
 6. Verifier private contact data is not displayed directly to nurses.
 7. Stripe, jobs, and privileged operations use service-role/server-side paths.
 8. Operational, audit, payment, and verification records are retained safely.
+9. Biometric/selfie assets are stored only in protected private storage.
 
 ---
 
@@ -61,6 +62,7 @@ Used for:
 - PDF generation/storage workflows
 - Wallet pass updates
 - Admin/operational writes
+- Selfie confirmation and protected asset operations
 
 Service role must not be exposed to the client.
 
@@ -93,6 +95,25 @@ These should generally be written by server-side/service-role flows.
 
 ---
 
+## Storage Security
+
+Selfies are biometric PII and must be stored only in private Supabase Storage.
+
+Approved MVP pattern:
+
+```text
+Bucket: selfies
+Path: {auth_user_id}/selfie.jpg
+Access: authenticated nurse exact-path INSERT/UPDATE/SELECT only
+Delete: service-role only
+```
+
+Selfie paths on `profiles` are trust-gate fields. They must be written only by backend confirmation after upload validation. Nurses must not be able to self-attest `selfie_storage_path` through direct profile updates.
+
+Long-lived signed URLs for selfies are not approved for MVP. If a support/ops use case later requires viewing a selfie outside the Supabase dashboard, use a backend-generated short-TTL signed URL only.
+
+---
+
 ## Token Security
 
 All live verifier access tokens are one-time and short-lived.
@@ -112,7 +133,9 @@ share_link: 72 hours or first successful use
 show_qr: 45 minutes or first use
 ```
 
-PDF QR token TTL still requires confirmation if PDF QR remains in MVP.
+`show_qr` is schema-supported but implementation-deferred. No launch task may create or expose `show_qr` tokens until David reopens scope.
+
+PDF QR token TTL still requires confirmation if PDF QR is later reopened.
 
 Store:
 
@@ -199,6 +222,16 @@ Retain operational, audit, payment, and verification records for 7 years unless 
 
 Use soft delete/deactivation for accounts.
 
+Normal account closure must use:
+
+```text
+profiles.deleted_at
+```
+
+Hard delete of `auth.users` is not an approved account-closure operation. It may cascade through profile-linked product records and destroy license, credential, token, verifier, and lookup history for accounts without payment/subscription RESTRICT protection.
+
+Hard delete may only be used by a dedicated purge process after the approved retention window and with explicit operational approval. That future purge process must also handle protected Storage objects such as `selfies/{auth_user_id}/selfie.jpg`.
+
 Do not cascade-delete operational records that are needed for payment, audit, support, verification, or legal traceability.
 
 ---
@@ -236,6 +269,7 @@ Before approving implementation, Codex should check:
 - Are Stripe webhooks idempotent?
 - Are audit/payment/verification records retained safely?
 - Are hard deletes avoided where retention is required?
+- Are selfie/biometric assets private and exact-path scoped?
 
 ---
 
@@ -248,4 +282,5 @@ Before approving implementation, Codex should check:
 /docs/architecture/NAMING_CONVENTIONS.md
 /docs/tasks/2026-05-24-claude-task-001-codex-qa-review.md
 /docs/activity_log/DECISION-0011-MVP-MIGRATION-BLOCKING-DECISIONS.md
+/docs/architecture/V4_REMEDIATION_R4_LICENSE_PENDING.md
 ```
