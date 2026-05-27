@@ -707,3 +707,62 @@ docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md
 docs/prd/PRD_SECTION_04_DATA_RLS_BACKEND.md
 docs/architecture/V4_MIGRATION_SQL.md
 ```
+
+---
+
+## Session Activity — 2026-05-27 — Claude
+
+**Task ID:** TASK-0019 — Supabase Storage Architecture Plan: Selfie Assets
+**Status:** Done — 2026-05-27
+**Role:** Claude / Architect
+**Summary:** Created the complete Supabase Storage architecture specification for PassTo selfie assets. Reviewed against PRD Sections 3, 4, 5, 6, P2 enrollment pipeline spec, and TASK-0018 findings. No bucket, policy, or migration was applied. All 12 required deliverables produced.
+
+### Work Completed
+
+- Read source artifacts from GitHub: `PRD_SECTION_03_USER_JOURNEYS.md`, `PRD_SECTION_04_DATA_RLS_BACKEND.md`, `PRD_SECTION_05_FEATURE_REQUIREMENTS.md`, `PRD_SECTION_06_INTEGRATIONS_FAILURE_OPS.md`, `P2_ENROLLMENT_PIPELINE_MIGRATION_SPEC.md`, `SECURITY_MODEL.md`, `V4_MIGRATION_SQL.md`, `LOVABLE_SUPABASE_VERCEL_RESPONSIBILITY_MAP.md`, `TASK-0018.md`.
+- Identified that `profiles` table has no `selfie_storage_path` or `selfie_captured_at` columns — both required before Phase 3.5.
+- Confirmed bucket name `selfies` from P2 pipeline spec.
+- Designed private bucket with path `{auth_user_id}/selfie.jpg`, overwrite-on-retry pattern.
+- Specified two-step upload pattern: Lovable direct upload (user JWT + Storage RLS) + Edge Function backend confirmation (service-role profile field update, audit event write, onboarding step advance).
+- Specified four Storage RLS policies: INSERT, UPDATE, SELECT (nurse-scoped to own path); no DELETE for authenticated users.
+- Specified required schema migration `v4_passto_mvp_selfie_fields`: add `selfie_storage_path text` and `selfie_captured_at timestamptz` to `profiles` — service-role only writes.
+- Documented 8 failure scenarios, 7 security risks with mitigations, 14 acceptance criteria.
+- Created `docs/tasks/TASK-0019.md` and pushed to GitHub (commit d287c38).
+- No Supabase bucket, policy, or migration was applied.
+
+### Files / Docs Changed
+
+- `docs/tasks/TASK-0019.md` — created
+
+### Decisions / Direction Captured
+
+- Selfie bucket name: `selfies` (already in P2 pipeline spec)
+- Bucket: private; PRD Section 5.9 explicit requirement
+- Path: `{auth_user_id}/selfie.jpg` using `auth.uid()` prefix (not `profiles.id`) — avoids join in Storage RLS
+- Upload pattern: Lovable direct upload + mandatory Edge Function confirmation step
+- `selfie_storage_path` must NOT be in `update_own_profile_basic()` RPC — nurse cannot self-attest
+- No signed URLs approved for MVP selfies except short-TTL (≤60s) ops-only pattern
+- Credential issuance gate: `selfie_storage_path IS NULL` blocks credential creation
+
+### Risks / Issues
+
+- `profiles` schema gap: `selfie_storage_path` and `selfie_captured_at` not yet in v4 schema — required before Phase 3.5
+- Selfie purge process not yet defined — must be documented before production launch
+- Upload BEFORE data match: Storage RLS cannot enforce enrollment gate; backend Edge Function must enforce `onboarding_step` check
+
+### Next Recommended Actions
+
+```
+TASK-0020 — Implement Selfie Storage: Create selfies bucket, apply Storage RLS policies, apply v4_passto_mvp_selfie_fields migration
+Gate: Codex QA review of TASK-0019 plan + David approval before TASK-0020 execution
+Pre-Phase-3.3: Apply v4_passto_mvp_remediation_r4 (licenses.normalized_status CHECK expansion)
+```
+
+### Handoff Notes
+
+Next session should read:
+```
+docs/tasks/TASK-0019.md
+docs/architecture/V4_MIGRATION_SQL.md
+docs/architecture/P2_ENROLLMENT_PIPELINE_MIGRATION_SPEC.md
+```
