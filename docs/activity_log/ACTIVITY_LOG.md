@@ -914,3 +914,33 @@ docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md
 TASK-0021 Codex QA → David approval → TASK-0022 execution
 Pre-Phase-3.3: Apply v4_passto_mvp_remediation_r4
 ```
+---
+
+## Session Activity — 2026-05-27 — Claude
+
+**Task ID:** TASK-0021 / TASK-0022 — Codex QA corrections applied
+**Status:** TASK-0021 updated; TASK-0022 updated; both pending David approval
+**Role:** Claude / Engineer
+**Summary:** Applied 6 Codex-required corrections to both TASK-0021 (Phase 2 spec) and TASK-0022 (implementation task). No Supabase changes applied.
+
+### Corrections Applied
+
+| # | Finding | Change in TASK-0021 | Change in TASK-0022 |
+|---|---|---|---|
+| CQ-1 | IdmeCallback.tsx Make calls must be blocked in Phase 2, not deferred | DQ-8: table updated; "In Phase 2 scope" statement added; step 2.2-4a added | Step 2.2-4a added; Out of Scope updated; acceptance criteria + QA checklist updated |
+| CQ-2 | update_own_profile_basic() cannot run without active session | Section 4.1 signUp flow: added authData.session check; no-session path routes to /confirm-email | Code reference updated with same session check |
+| CQ-3 | Null-profile recovery section was contradictory (referenced Edge Function then said out of scope) | DQ-6: retry/support only; no recovery Edge Function in Phase 2 | Error states table: null-profile and fetch error now separate rows with correct behavior |
+| CQ-4 | Supabase env values must be verified at implementation time | Section 3.1: "Implementation note" added to verify from Supabase dashboard | ENV section header updated to say "verify before use" |
+| CQ-5 | Profile fetch did not distinguish error from null | DQ-4: explicit separation of error vs null handling | Profile fetch pattern code updated |
+| CQ-6 | Edge Function deletion did not require confirming no live callers first | Steps 2.2-12 and 2.2-13: dependency updated to "verify no live callers" | Same dependency update |
+
+### Files Changed
+
+- `docs/tasks/TASK-0021.md` — 6 corrections applied; Codex QA findings table added; status updated
+- `docs/tasks/TASK-0022.md` — 6 corresponding implementation changes applied
+
+### Next Recommended Actions
+
+```
+David approval of TASK-0022 → execute 15 implementation steps in Lovable
+```
