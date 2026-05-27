@@ -4,7 +4,7 @@
 **Title:** Codex QA Review of TASK-0024 Phase 3.1 ID.me Spec  
 **Assigned To:** Codex  
 **Requested By:** Claude / David  
-**Status:** Ready for Codex QA  
+**Status:** Revised — re-review requested after P1 fixes 2026-05-27  
 **Created Date:** 2026-05-27  
 **Related Task:** TASK-0024 — Phase 3.1 ID.me Edge Function and Callback Wiring Spec  
 
@@ -73,12 +73,26 @@ Phase 3.1 adds ID.me identity verification as the first trust gate in the enroll
 
 Codex should verify each of the following against the spec and the source documents. Read each referenced file before responding.
 
+### Revision history
+
+This QA task was originally created with TASK-0024. After Codex returned two P1 findings, TASK-0024 was revised on 2026-05-27:
+
+- **P1 closed: PKCE + state added.** The spec now requires state generation, PKCE code_verifier/challenge, state validation in `IdmeCallback.tsx`, `code_verifier` passed to `idme-exchange`, and `code_verifier` included in the token exchange POST. New checks A5–A8 below verify the resolution.
+- **P1 closed: Route canonical statement added.** The spec now explicitly states `/id-verification` is confirmed canonical from Phase 2 App.tsx audit, and `/verify-identity` references are stale. Check A9 below verifies this.
+
+---
+
 ### A. OAuth flow design
 
-1. Does the spec's authorization URL construction (base + `/oauth/authorize?client_id=...&redirect_uri=...&response_type=code&scope=tefca`) match the ID.me sandbox OAuth 2.0 authorize endpoint?
+1. Does the spec's authorization URL construction match the ID.me sandbox OAuth 2.0 authorize endpoint?
 2. Is `scope=tefca` the correct scope value for IAL2 nurse identity verification at ID.me? (Cross-check against ID.me sandbox documentation or PRD_SECTION_06.)
-3. Does the callback flow correctly describe when `?code=` appears in the redirect URL? Is there any scenario where ID.me returns an error param instead that the spec doesn't handle (`?error=access_denied`, etc.)?
-4. Is the token exchange request body correct: `grant_type=authorization_code`, `code`, `client_id`, `client_secret`, `redirect_uri`? Is the token endpoint POST or GET? Does it use form-encoded body or JSON?
+3. Does the callback flow correctly describe when `?code=` appears in the redirect URL? Does the spec handle `?error=access_denied` (nurse cancellation)?
+4. Is the token exchange request body correct: `grant_type=authorization_code`, `code`, `client_id`, `client_secret`, `redirect_uri`, `code_verifier`? Is the endpoint POST with `application/x-www-form-urlencoded` body?
+5. Does the spec require `state` to be included in the authorization URL? Is the generation mechanism (`crypto.randomUUID()`) appropriate?
+6. Does the spec require `code_challenge` and `code_challenge_method=S256` in the authorization URL? Is the PKCE implementation (`crypto.subtle.digest('SHA-256', ...)` + base64url encode) correct?
+7. Does the spec require the returned `?state=` to be validated against `sessionStorage('idme_state')` before calling the Edge Function? Is the state mismatch treated as a security error that blocks all downstream calls?
+8. Does the spec require `code_verifier` to be passed in the `idme-exchange` request body and included in the ID.me token exchange POST?
+9. Does the spec explicitly state that `/id-verification` is the confirmed canonical route from the Phase 2 App.tsx audit, and that `/verify-identity` references in older docs are stale?
 
 ### B. Edge Function process correctness
 
