@@ -4,6 +4,18 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Session Update — 2026-05-27 — Claude
+
+**Tasks:** TASK-0024 (Phase 3.1 spec), TASK-0024-CODEX-QA
+**Status:** Both pushed to GitHub
+**Summary:** Finalized TASK-0024 Phase 3.1 ID.me spec — marked all open dependencies resolved (sandbox confirmed, IDME_CLIENT_SECRET held by David, redirect URI whitelisted 2026-05-27, P2 deploy URL confirmed). Created TASK-0024-CODEX-QA with 39 verification checks across 9 areas: OAuth flow design, Edge Function process correctness, security boundary compliance, schema alignment, Lovable changes completeness, failure state coverage, audit event compliance, phase scope boundary, and implementation task completeness.
+
+### Open After This Session
+- TASK-0024-CODEX-QA: awaiting Codex review
+- TASK-0025 (Phase 3.1 implementation): blocked on Codex QA approval + David approval
+
+---
+
 ## Session Closeout — 2026-05-27 — Claude
 
 **Task ID:** TASK-0022 — Implement Phase 2 Auth, Profile Init, and Onboarding Routing
