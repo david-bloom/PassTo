@@ -81,6 +81,9 @@ This QA task was originally created with TASK-0024. After Codex returned two P1 
 - **P1 closed: Route canonical statement added.** The spec now explicitly states `/id-verification` is confirmed canonical from Phase 2 App.tsx audit, and `/verify-identity` references are stale. Check A9 below verifies this.
 - **P2 closed: Scope/protocol flagged as open dependencies.** `scope=tefca` is now marked ⚠️ Pending — exact scope, protocol (Attributes API vs OIDC UserInfo), and `acr_values` requirement must be confirmed from David's ID.me app configuration before steps 3.1-3/3.1-5. Authorization URL now shows `<CONFIRMED_SCOPE>` placeholder. New check A10 below verifies this.
 - **P2 closed: HTTP status contract made consistent.** Process step 4 now correctly returns `200 { verified: false, error: 'exchange_failed' }` on ID.me token exchange failure, matching the Failure Cases table. The contract is: 400/401/404 for malformed/unauthenticated/missing-profile; 200 for all post-auth provider and verification failures. New check B12a below verifies this.
+- **P2 closed: Idempotency fallback added to IdmeCallback.tsx pseudocode.** After `exchange_failed`, the callback now fetches the profile and navigates to `/verify-phone` if `id_verification_status='verified'` and `onboarding_step='phone'`. New check E23a verifies this.
+- **P2 closed: Unique-constraint race handling added to step 9.** The profile update step now requires catching database unique-constraint violations on `id_me_subject` and returning `identity_already_registered`. The advisory pre-check in step 8 is noted as best-effort only. New check B12b verifies this.
+- **P2 closed: Audit coverage extended to all profile-known failures.** The Audit Event Requirements table now has an explicit row for each failure type (`exchange_failed`, `ial1_only`, `identity_already_registered`, `provider_error`, missing subject, database error). The rule is stated: write `identity.verification_failed` for every failure after profile lookup; log-only for pre-profile failures. New check G30a verifies this.
 
 ---
 
@@ -107,6 +110,7 @@ This QA task was originally created with TASK-0024. After Codex returned two P1 
 10. Does the spec describe what happens if the `id_me_subject` extraction fails (field absent from attributes response)? If not, flag as a gap.
 11. In step 9, the profile update includes `onboarding_step = 'phone'`. Is `'phone'` a valid value in the `onboarding_step` CHECK constraint in the v4 schema?
 12a. Is the HTTP status contract consistent throughout the spec? Does step 4 of the process, the Failure Cases table, and the idempotency section all agree that `exchange_failed` returns `200 { verified: false, error: 'exchange_failed' }`? Are 400/401/404 reserved exclusively for malformed-request/unauthenticated/missing-profile?
+12b. Does step 8 describe the pre-check as advisory/best-effort and explicitly note that the UNIQUE constraint on `profiles.id_me_subject` is the final protection? Does step 9 require catching the unique-constraint violation and returning `identity_already_registered` rather than a generic error?
 
 ### C. Security boundary compliance
 
@@ -128,6 +132,7 @@ This QA task was originally created with TASK-0024. After Codex returned two P1 
 21. `IdVerification.tsx`: The spec replaces the hardcoded `IDME_AUTHORIZE_URL` constant with `buildIdmeAuthorizeUrl()`. Does the spec provide a backward-compatibility note for `IdmeCallback.tsx`'s import of `IDME_AUTHORIZE_URL`? Is the proposed migration path clear?
 22. `IdmeCallback.tsx`: The spec adds a `ranRef` guard to prevent double-firing in React strict mode. Is `ranRef` already present in the Phase 2 stub, or does it need to be added? If it needs to be added, is the spec clear about this?
 23. `IdmeCallback.tsx`: The spec adds a 30-second timeout using `window.setTimeout`. Is there a corresponding `setStatus("timeout")` state and UI render path in the existing component, or does a `"timeout"` status need to be added?
+23a. Does the `IdmeCallback.tsx` pseudocode include an idempotency fallback after `exchange_failed`? Specifically: does it fetch the profile and navigate to `/verify-phone` if `id_verification_status='verified'` and `onboarding_step='phone'`? Does it correctly scope the fallback to `exchange_failed` only (not other error keys)?
 24. Does the spec cover what happens if `supabase.functions.invoke` throws (network error, CORS, Edge Function crash returning non-2xx)? The `data`/`error` destructuring from `invoke` — is the catch block in the spec sufficient?
 25. Does the spec describe the UI state during the Edge Function call (loading spinner, disabled restart button)? If the current component already has a loading state, is it correctly wired?
 
@@ -141,6 +146,7 @@ This QA task was originally created with TASK-0024. After Codex returned two P1 
 ### G. Audit event compliance
 
 30. Is `identity.verification_completed` a valid `resource.verb` pattern under OD-1? (Resource = `identity`, verb = `verification_completed` — is compound verb allowed, or must it be a single word like `identity.verified`?)
+30a. Does the Audit Event Requirements table cover every profile-known failure explicitly: `exchange_failed`, `ial1_only`, `identity_already_registered`, `provider_error`, missing `id_me_subject`, and database update errors? Does the spec state that `identity.verification_failed` is required for all failures after profile lookup (step 3+), and that pre-profile failures (steps 1–2) are log-only?
 31. Is `identity.verification_failed` a valid `resource.verb` pattern under OD-1?
 32. Does the spec require writing `actor_id` as `profile.id` (the UUID PK from the `profiles` table), not `auth_user_id`? Confirm this matches the `audit_events` schema's `actor_id` column definition.
 
