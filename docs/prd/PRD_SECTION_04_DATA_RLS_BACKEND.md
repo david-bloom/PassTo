@@ -1,9 +1,10 @@
 # PRD Section 4 — Data Model, RLS, and Backend Responsibilities
 
-**Status:** Draft for David Review  
+**Status:** Approved by David  
 **Owner:** David Bloom  
 **Drafting Support:** Codex and Claude  
 **Created:** 2026-05-26  
+**Updated:** 2026-05-27 — TASK-0018 cleanup  
 **Associated Task List:** `/docs/tasks/PRD_SECTION_04_MASTER_TASK_LIST.md`  
 
 ## 4.1 Purpose
@@ -51,22 +52,23 @@ The canonical MVP table set is:
 
 | Table | Purpose | Launch Critical |
 |---|---|---|
-| `profiles` | Authenticated nurse profile and account state. | Yes |
+| `profiles` | Authenticated nurse profile and account state. Includes `stripe_customer_id` for the approved MVP Stripe customer mapping. | Yes |
 | `licenses` | License records and source lookup/status data. | Yes |
 | `credentials` | PassTo credential record derived from profile/license gates. | Yes |
 | `wallet_passes` | Apple/Google/PassKit provider records. | Yes |
 | `verification_tokens` | Hashed, short-lived verifier access tokens. | Yes |
 | `verifiers` | Minimal verifier identity captured in verifier flow. | Yes |
 | `verification_events` | Verifier access/view events. | Yes |
-| `stripe_customers` | Stripe customer mapping. | Yes |
 | `subscriptions` | Subscription/tier state. | Yes |
 | `payments` | Payment and paid-action records. | Yes |
 | `stripe_events` | Stripe webhook idempotency and processing records. | Yes |
 | `notification_events` | Outbound notification attempts and results. | Yes |
-| `refresh_events` | Credential/license refresh attempts. | Near-MVP / may be minimal at launch |
+| `license_lookups` | Initial and refresh license lookup attempts. | Yes / minimal at launch |
 | `pdf_exports` | PDF export records. | Deferred with PDF export |
 | `audit_events` | Append-only operational audit history. | Yes |
 | `license_status_mappings` | Raw source status to PassTo status mapping. | Yes |
+
+`stripe_customers` is not a separate MVP table. The accepted v4 design stores `stripe_customer_id` on `profiles` and duplicates provider identifiers where needed on `subscriptions` and `payments`. See `docs/architecture/ADR/ADR-0001-stripe-customer-mapping.md`.
 
 The final migration may include deferred-supporting tables if they are low-risk and useful for future-proofing, but launch tasks must not treat deferred product features as launch blockers.
 
@@ -168,18 +170,25 @@ Vercel must write durable product state back to Supabase. It must not become a s
 
 Verifier access uses short-lived tokens stored as hashes.
 
-MVP token types:
+MVP launch token type:
 
 ```text
 share_link
 ```
 
-Deferred token types:
+Schema-supported but implementation-deferred token type:
 
 ```text
 show_qr
+```
+
+Deferred and not in the v4 token constraint:
+
+```text
 pdf_qr
 ```
+
+The v4 schema allows `show_qr` because TASK-0007 OD-4 confirmed that any future Show QR flow must be form-gated and auditable. However, Show QR is not launch-critical. No Edge Function, Lovable route, or backend task may create `show_qr` tokens until David explicitly reopens that scope.
 
 Share-link tokens must expire after the approved TTL or first successful use.
 
