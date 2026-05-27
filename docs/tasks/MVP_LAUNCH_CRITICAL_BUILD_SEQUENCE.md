@@ -3,6 +3,7 @@
 **Status:** Draft Execution Baseline  
 **Owner:** Codex  
 **Created:** 2026-05-26  
+**Updated:** 2026-05-27 — TASK-0018 cleanup  
 **Source:** Approved PRD Sections 1-7  
 
 ## Purpose
@@ -18,6 +19,7 @@ The sequence is designed to keep implementation moving while preserving the appr
 3. Use Edge Functions for privileged operations unless Vercel is explicitly better.
 4. Do not move deferred features into launch work.
 5. Do not apply migrations or production changes without David approval.
+6. Do not create `show_qr` verification tokens until David explicitly reopens Show QR scope, even though the v4 schema supports the token type.
 
 ## Launch-Critical Sequence
 
@@ -28,27 +30,28 @@ The sequence is designed to keep implementation moving while preserving the appr
 | 0.1 | PRD Sections 1-7 approved | David | Done |
 | 0.2 | Consolidated PRD created | Codex | Done |
 | 0.3 | MVP implementation backlog created | Codex | Done |
-| 0.4 | v4 migration SQL task created | Claude | Pending |
+| 0.4 | v4 migration SQL task created | Claude | Done |
 
 ### Phase 1 — Supabase Schema, RLS, and Storage Foundation
 
-| Order | Work | Owner | Depends On |
-|---|---|---|---|
-| 1.1 | Draft v4 Supabase migration SQL | Claude | TASK-0007 |
-| 1.2 | Draft RLS test plan | Claude | v4 SQL draft |
-| 1.3 | Codex QA review of v4 SQL/RLS | Codex | 1.1, 1.2 |
-| 1.4 | David migration approval | David | 1.3 |
-| 1.5 | Apply migration to approved Supabase project | Claude/Codex | 1.4 |
-| 1.6 | Create protected selfie Storage bucket/policies | Claude/Codex | 1.5 |
+| Order | Work | Owner | Depends On | Status |
+|---|---|---|---|---|
+| 1.1 | Draft v4 Supabase migration SQL | Claude | TASK-0007 | Done |
+| 1.2 | Draft RLS test plan | Claude | v4 SQL draft | Done |
+| 1.3 | Codex QA review of v4 SQL/RLS | Codex | 1.1, 1.2 | Done |
+| 1.4 | David migration approval | David | 1.3 | Done |
+| 1.5 | Apply migration to approved Supabase project | Claude/Codex | 1.4 | Done |
+| 1.6 | Create protected selfie Storage bucket/policies | Claude/Codex | 1.5 | Done — TASK-0020 |
+| 1.7 | Apply R4 `licenses.normalized_status` Pending remediation | Codex | TASK-0018 | Done — `v4_passto_mvp_remediation_r4` |
 
 ### Phase 2 — Account and Profile Foundation
 
-| Order | Work | Owner | Depends On |
-|---|---|---|---|
-| 2.1 | Wire Lovable auth to approved Supabase project | Claude/Codex | Phase 1 |
-| 2.2 | Profile creation/init flow | Claude/Codex | 2.1 |
-| 2.3 | Onboarding step routing baseline | Claude/Codex | 2.2 |
-| 2.4 | Account/auth QA | Codex | 2.1-2.3 |
+| Order | Work | Owner | Depends On | Status |
+|---|---|---|---|---|
+| 2.1 | Wire Lovable auth to approved Supabase project | Claude/Codex | Phase 1 | Ready |
+| 2.2 | Profile creation/init flow | Claude/Codex | 2.1 | Ready |
+| 2.3 | Onboarding step routing baseline | Claude/Codex | 2.2 | Ready |
+| 2.4 | Account/auth QA | Codex | 2.1-2.3 | Ready |
 
 ### Phase 3 — Trust Gate Flow
 
@@ -56,7 +59,7 @@ The sequence is designed to keep implementation moving while preserving the appr
 |---|---|---|---|
 | 3.1 | ID.me Edge Function and Lovable callback wiring | Claude/Codex | Phase 2 |
 | 3.2 | Twilio send/verify Edge Functions | Claude/Codex | Phase 2 |
-| 3.3 | License lookup Edge Function | Claude/Codex | 3.1, 3.2 |
+| 3.3 | License lookup Edge Function | Claude/Codex | 3.1, 3.2, R4 complete |
 | 3.4 | Data match Edge Function | Claude/Codex | 3.3 |
 | 3.5 | Selfie capture and Supabase Storage upload | Claude/Codex | 3.4, 1.6 |
 | 3.6 | Trust gate QA | Codex | 3.1-3.5 |
@@ -104,7 +107,7 @@ The sequence is designed to keep implementation moving while preserving the appr
 
 ## Deferred Work Not in Launch Sequence
 
-- Show QR.
+- Show QR. Schema supports `show_qr`, but no launch task may create or expose Show QR tokens until David reopens scope.
 - PDF export.
 - Scheduled automated refresh.
 - Additional license flow.
@@ -116,5 +119,5 @@ The sequence is designed to keep implementation moving while preserving the appr
 ## Current Next Action
 
 ```text
-Create/execute TASK-0011 — Draft v4 Supabase Migration SQL From TASK-0007 Decisions.
+Complete/review TASK-0021 — Phase 2 Profile Init and Onboarding Routing Spec.
 ```
