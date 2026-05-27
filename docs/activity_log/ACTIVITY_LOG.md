@@ -883,3 +883,34 @@ docs/tasks/TASK-0021.md
 docs/tasks/TASK-0020.md
 docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md
 ```
+---
+
+## Session Activity — 2026-05-27 — Claude
+
+**Task ID:** TASK-0022 — Implement Phase 2 Auth, Profile Init, and Onboarding Routing
+**Status:** Proposed — pending Codex QA of TASK-0021 and David execution approval
+**Role:** Claude / Engineer
+**Summary:** Created TASK-0022 implementation task. Defines all 14 ordered steps for David to execute in Lovable P1/P2/P3: ENV var wiring to wvzjfxacykgsaffskgtr, signUp flow with update_own_profile_basic() RPC, onboarding router, null-profile guard, Airtable/Make dead code removal, and Phase 2.4 QA checklist. No Supabase changes applied.
+
+### Work Completed
+
+- Read TASK-0021.md, V4_MIGRATION_SQL.md, and MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md from GitHub before writing.
+- Created docs/tasks/TASK-0022.md with full implementation scope, code reference, route map, error states, security boundaries, 28-item QA checklist, and acceptance criteria.
+- Pushed to GitHub (commit bda969e3bc9a69ca3525ebc93e261d4f3e0e86b1).
+
+### Files / Docs Changed
+
+- `docs/tasks/TASK-0022.md` — created
+
+### Decisions / Direction Captured
+
+- TASK-0022 blocked on TASK-0021 Codex QA approval (no P1/P2 findings) and David execution approval
+- Phase 2 requires no Supabase migrations — all work is Lovable config + code changes
+- R4 remediation remains a separate pre-Phase-3.3 gate, not blocking Phase 2
+
+### Next Recommended Actions
+
+```
+TASK-0021 Codex QA → David approval → TASK-0022 execution
+Pre-Phase-3.3: Apply v4_passto_mvp_remediation_r4
+```
