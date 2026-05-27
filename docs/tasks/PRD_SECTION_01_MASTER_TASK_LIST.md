@@ -1,7 +1,7 @@
 # PRD Section 1 Master Task List
 
 **PRD Section:** Section 1 — Product Summary, Technical Context, and Current Build State
-**Status:** Approved by David
+**Status:** ✅ COMPLETE — 2026-05-26
 **Created:** 2026-05-26
 **Owner:** David Bloom
 **Execution Support:** Codex and Claude
@@ -50,7 +50,7 @@ This task list translates PRD Section 1 into execution controls. It separates co
 | TASK-0014 | Apply v4 migration SQL to `wvzjfxacykgsaffskgtr`. | Done — 2026-05-26 | Claude | Migration `v4_passto_mvp_schema` applied. 15 tables live. 42 seed rows (post-R3). RLS enabled on all tables. |
 | TASK-0015 | Post-migration schema and RLS verification. | Done — 2026-05-26 | Claude | All checks passed. R1+R2+R3 remediations applied (Codex QA). Deliverable: `V4_MIGRATION_VERIFICATION.md` (SHA `c49f1718`). |
 | TASK-0016 | Update P1/P2/P3 Lovable projects to canonical Supabase (`wvzjfxacykgsaffskgtr`). | Done — 2026-05-26 | David + Claude | Dual-client pattern. 20 files switched across 3 projects. All smoke tests passed. SHA `860e3926`. |
-| TASK-0017 | Remove dead Airtable code from P1, P2, P3. | Not Started | David + Claude | Remove `sync-airtable` (P1), dead Airtable comment (P3). P2 `create-airtable-record` call already removed in TASK-0016. Delete deployed dead edge functions. Completes Section 1. |
+| TASK-0017 | Remove dead Airtable code from P1, P2, P3. | Done — 2026-05-26 | David + Claude | All calls, function directories, and deployed edge functions removed. Smoke tests passed. SHA `2ace2240`. |
 
 ## Not In Scope For Section 1
 
@@ -78,3 +78,7 @@ These belong in later PRD sections and their associated task lists.
 ## David Approval
 
 Approved — 2026-05-26.
+
+---
+
+**Section 1 completed — 2026-05-26. All 11 tasks done. Proceed to PRD Section 2.**
