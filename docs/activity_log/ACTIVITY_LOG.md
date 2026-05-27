@@ -38,6 +38,21 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Session Entry — 2026-05-27 — Claude
+
+**Task ID:** TASK-0023 / TASK-0024
+**Status:** TASK-0023 Complete; TASK-0024 Proposed
+**Role:** Claude
+**Summary:** Closed TASK-0023 (Phase 3 prep — all acceptance criteria met, Phase 2 blocker resolved). Created TASK-0024 — Phase 3.1 ID.me Edge Function and Callback Wiring Spec covering: idme-exchange Edge Function design, Lovable IdVerification.tsx and IdmeCallback.tsx changes, schema writes, audit event requirements, failure state routing, security boundaries, and open dependencies. TASK-0024 requires Codex QA before implementation.
+
+### Open Dependencies Before TASK-0024 Implementation
+- David must confirm sandbox vs production ID.me environment
+- David must provide IDME_CLIENT_SECRET
+- David must confirm redirect URI registered with ID.me
+
+---
+
+
 ## Session Closeout — 2026-05-23 — Codex
 
 **Task ID:** N/A — Operating Charter / Documentation System Setup  
