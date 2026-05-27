@@ -4,7 +4,7 @@
 **Title:** Codex QA Review of TASK-0024 Phase 3.1 ID.me Spec  
 **Assigned To:** Codex  
 **Requested By:** Claude / David  
-**Status:** Revised — re-review requested after P1 fixes 2026-05-27  
+**Status:** Revised — re-review requested after P1 and P2 fixes 2026-05-27  
 **Created Date:** 2026-05-27  
 **Related Task:** TASK-0024 — Phase 3.1 ID.me Edge Function and Callback Wiring Spec  
 
@@ -79,6 +79,8 @@ This QA task was originally created with TASK-0024. After Codex returned two P1 
 
 - **P1 closed: PKCE + state added.** The spec now requires state generation, PKCE code_verifier/challenge, state validation in `IdmeCallback.tsx`, `code_verifier` passed to `idme-exchange`, and `code_verifier` included in the token exchange POST. New checks A5–A8 below verify the resolution.
 - **P1 closed: Route canonical statement added.** The spec now explicitly states `/id-verification` is confirmed canonical from Phase 2 App.tsx audit, and `/verify-identity` references are stale. Check A9 below verifies this.
+- **P2 closed: Scope/protocol flagged as open dependencies.** `scope=tefca` is now marked ⚠️ Pending — exact scope, protocol (Attributes API vs OIDC UserInfo), and `acr_values` requirement must be confirmed from David's ID.me app configuration before steps 3.1-3/3.1-5. Authorization URL now shows `<CONFIRMED_SCOPE>` placeholder. New check A10 below verifies this.
+- **P2 closed: HTTP status contract made consistent.** Process step 4 now correctly returns `200 { verified: false, error: 'exchange_failed' }` on ID.me token exchange failure, matching the Failure Cases table. The contract is: 400/401/404 for malformed/unauthenticated/missing-profile; 200 for all post-auth provider and verification failures. New check B12a below verifies this.
 
 ---
 
@@ -93,6 +95,7 @@ This QA task was originally created with TASK-0024. After Codex returned two P1 
 7. Does the spec require the returned `?state=` to be validated against `sessionStorage('idme_state')` before calling the Edge Function? Is the state mismatch treated as a security error that blocks all downstream calls?
 8. Does the spec require `code_verifier` to be passed in the `idme-exchange` request body and included in the ID.me token exchange POST?
 9. Does the spec explicitly state that `/id-verification` is the confirmed canonical route from the Phase 2 App.tsx audit, and that `/verify-identity` references in older docs are stale?
+10. Does the spec mark `scope`, `acr_values`, and protocol (Attributes API vs OIDC UserInfo) as open dependencies requiring confirmation from the ID.me app configuration before implementation steps 3.1-3 and 3.1-5? Does the authorization URL use a placeholder (not a hardcoded `scope=tefca`) to make clear this is unconfirmed?
 
 ### B. Edge Function process correctness
 
@@ -103,6 +106,7 @@ This QA task was originally created with TASK-0024. After Codex returned two P1 
 9. Is the `id_me_subject` (step 7) the stable, unique, per-user identifier from ID.me? What is the exact field name in the attributes response? Is it `uuid`, `sub`, or another field?
 10. Does the spec describe what happens if the `id_me_subject` extraction fails (field absent from attributes response)? If not, flag as a gap.
 11. In step 9, the profile update includes `onboarding_step = 'phone'`. Is `'phone'` a valid value in the `onboarding_step` CHECK constraint in the v4 schema?
+12a. Is the HTTP status contract consistent throughout the spec? Does step 4 of the process, the Failure Cases table, and the idempotency section all agree that `exchange_failed` returns `200 { verified: false, error: 'exchange_failed' }`? Are 400/401/404 reserved exclusively for malformed-request/unauthenticated/missing-profile?
 
 ### C. Security boundary compliance
 
