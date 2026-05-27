@@ -649,3 +649,61 @@ Next Codex or Claude session should read:
 /docs/prd/PASS_TO_PRD.md
 /docs/tasks/MVP_TASK_BACKLOG.md
 ```
+
+---
+
+## Session Activity — 2026-05-27 — Claude
+
+**Task ID:** TASK-0018 — Claude QA Review: v4 Supabase Migration SQL and RLS
+**Status:** Done — 2026-05-27
+**Role:** Claude / QA Reviewer
+**Summary:** Performed an independent Claude QA review of the complete v4 migration chain (base + R1/R2/R3) against TASK-0007 decisions, PRD Sections 1–7, launch-critical MVP scope, and Supabase security best practices. Result: Pass with Required Fix.
+
+### Work Completed
+
+- Read all source artifacts from GitHub: `V4_MIGRATION_SQL.md`, `CODEX_RESPONSE_TASK_0007_SCHEMA_QA.md`, `PRD_SECTION_04_DATA_RLS_BACKEND.md`, `CODEX_REVIEW_V4_MIGRATION_SQL.md`, `CODEX_QA_V4_MIGRATION_REVIEW.md`, `V4_MIGRATION_VERIFICATION.md`, `DECISION-0016-V4-MIGRATION-DIRECT-APPROVAL.md`, `PRD_SECTION_07_LAUNCH_QA_DECISIONS.md`, all related task files.
+- Conducted fresh independent review of the complete final migration artifact.
+- Identified one new P1 finding not caught by prior Codex QA.
+- Documented all findings with file/table/policy references.
+- Created `docs/tasks/TASK-0018.md` and pushed to GitHub (commit 780d1fd).
+- No migration was applied.
+
+### Key Finding — P1
+
+`licenses.normalized_status` CHECK constraint was not updated by Remediation R3. `license_status_mappings.normalized_status` was expanded to 8 values including `'Pending'` (R3), but `licenses.normalized_status` still only allows 7 values. If the license lookup Edge Function reads `normalized_status = 'Pending'` from `license_status_mappings` and writes it to `licenses.normalized_status`, the database will throw a CHECK constraint violation. A new migration (`v4_passto_mvp_remediation_r4`) is required before Phase 3.3 (license lookup Edge Function) is built.
+
+### Files / Docs Changed
+
+- `docs/tasks/TASK-0018.md` — created
+
+### Decisions / Direction Captured
+
+- TASK-0018 QA verdict: Pass with Required Fix.
+- Phase 2 (account/profile foundation) is unblocked.
+- Pre-Phase-3 gate: apply `licenses.normalized_status` CHECK expansion before license lookup Edge Function is built.
+
+### Risks / Issues
+
+- P1: `licenses.normalized_status` CHECK mismatch with `license_status_mappings` — will cause runtime error in Phase 3.
+- P2: TASK-0007 OD-7 deviation (`stripe_customers` drop) not documented as ADR.
+- P2: PRD Section 4 inconsistencies (`stripe_customers` listed, `show_qr` marked deferred but in schema).
+- P2: `V4_MIGRATION_VERIFICATION.md` Section 5 still shows pre-R3 seed counts.
+- P3: Hard-delete cascade risk (accepted, documented in DECISION-0016).
+- P3: Supabase Storage selfie bucket not yet created.
+
+### Next Recommended Actions
+
+```text
+TASK-0019 — Phase 2: Profile Init and Onboarding Routing (Phase 2.2 + 2.3 + 2.4)
+Pre-Phase-3 gate — v4_passto_mvp_remediation_r4: expand licenses.normalized_status CHECK to 8 values
+```
+
+### Handoff Notes
+
+Next session should read:
+```text
+docs/tasks/TASK-0018.md
+docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md
+docs/prd/PRD_SECTION_04_DATA_RLS_BACKEND.md
+docs/architecture/V4_MIGRATION_SQL.md
+```
