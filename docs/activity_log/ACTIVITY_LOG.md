@@ -4,6 +4,40 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Session Closeout — 2026-05-27 — Claude
+
+**Task ID:** TASK-0022 — Implement Phase 2 Auth, Profile Init, and Onboarding Routing
+**Status:** Complete
+**Role:** Claude (QA support) + David (Lovable implementation)
+**Summary:** Executed Phase 2 auth wiring across the P2 enrollment Lovable project. Replaced CreateAccount.tsx with v4 Supabase Auth signup, implemented email-confirmation flow with sessionStorage.pendingName pattern, added post-login name completion via update_own_profile_basic() RPC, implemented routeByOnboardingStep() reading profiles.onboarding_step, stubbed /id-verification and IdmeCallback.tsx for Phase 3.1, removed Airtable/Make dead code, and ran Phase 2.4 QA. All QA checks passed.
+
+### Key Deviations from Spec
+- Route `/verify-identity` corrected to `/id-verification` throughout (actual App.tsx route)
+- IdmeCallback.tsx was already partially stubbed (null cast) — replaced with clean early return
+- Old P2 Supabase project `ofpxczstptysqxoruiox` not found (deleted or Lovable-managed) — EF deletion moot
+- profiles table cast required in routeByOnboardingStep() (generated types from old project; not regenerated in Phase 2)
+- EnrollmentContext license fields (licenseNumber, licenseType, licenseState) remain as empty defaults — Phase 3.3 scope
+
+### Phase 2.4 QA Results
+- signup → /confirm-email routing: PASS
+- handle_new_user() trigger fires, profiles row created: PASS
+- post-login name completion via RPC: PASS
+- routeByOnboardingStep() routes identity → /id-verification: PASS
+- RLS isolation (anonymous query returns empty): PASS
+- No enrollments insert, no sessionStorage.enrollmentId: PASS
+- No Make webhook fires: PASS
+- Direct UPDATE on profiles.onboarding_step/account_status blocked: PASS
+
+### Deferred to Later Phases
+- P1/P3 ENV var updates (2.2-1, 2.2-3): deferred — P2 active client already hardcoded to canonical project
+- P2 VITE_WEBHOOK_IDME_CALLBACK removal (2.2-4): deferred
+- Phase 3.1: ID.me OAuth wiring in IdVerification.tsx and IdmeCallback.tsx
+- Phase 3.2: Twilio OTP, phone collection and verification
+- Phase 3.3: Primary license collection page, license lookup Edge Function
+- Pre-Phase-3.3: v4_passto_mvp_remediation_r4 (licenses.normalized_status CHECK expansion)
+
+---
+
 ## Session Closeout — 2026-05-23 — Codex
 
 **Task ID:** N/A — Operating Charter / Documentation System Setup  
@@ -944,3 +978,4 @@ Pre-Phase-3.3: Apply v4_passto_mvp_remediation_r4
 ```
 David approval of TASK-0022 → execute 15 implementation steps in Lovable
 ```
+
