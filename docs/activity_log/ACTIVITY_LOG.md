@@ -6,6 +6,24 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ## Session Update — 2026-05-28 — Claude
 
+**Tasks:** TASK-0025 Codex Re-QA Remediation (Round 2) + `idme-exchange` v4 deployment
+**Status:** v4 deployed; TASK-0025 document updated on GitHub; Migration D pending David; sandbox run pending
+**Summary:** Addressed TASK-0025 Codex re-QA round 2 findings (verdict: Blocked — P2 audit non-atomic; P1 doc stale). Deployed `idme-exchange` v4 to Supabase project `wvzjfxacykgsaffskgtr` (function ID `bee0cbf5`, version 4, ACTIVE): Steps 9–11 replaced with single call to `complete_identity_verification()` RPC. Profile update and audit insert now execute in one Postgres transaction (Migration D). `writeAuditOrThrow()` removed; `audit_write_failed` error key no longer emitted; `exchange_failed` idempotency covers the profile-already-advanced case. Updated TASK-0025 document: v4 code block, Codex Re-QA Round 2 section, Migration D SQL + verify query, updated Deviations table. GitHub commit 04583025. Sandbox run (step 3.1-7) blocked by Migration D; email rate limit resolved via Supabase magic link + SQL reset of test account onboarding_step. Also confirmed: David applied 3.1-5a (openid tefca scope) and 3.1-6a (idempotency fallback expand + navigate fix) on 2026-05-28.
+
+### Architecture Decision
+- `complete_identity_verification(p_profile_id, p_subject)` — new SECURITY DEFINER Postgres function; atomically sets `id_verification_status = 'verified'`, `id_verification_level = 'IAL2'`, `id_me_subject = p_subject`, `onboarding_step = 'phone'`, and inserts `identity.verification_completed` audit event. Called only by `idme-exchange` Edge Function via service-role client.
+- This matches the same atomic pattern established in TASK-0026 Migration C (`complete_phone_verification`).
+
+### Open After This Session
+- **David must apply Migration D** — `complete_identity_verification()` RPC — in Supabase SQL Editor (SQL in TASK-0025.md Codex Re-QA Round 2 section)
+- After Migration D applied: David to run sandbox flow at `enroll.passtodigital.com/id-verification` using magic link sign-in + SQL-reset test account
+- After sandbox run: Claude to review Edge Function logs, pin IAL/subject field names, deploy v5 with exact fields + TEFCA policy validation
+- TASK-0026 implementation blocked until TASK-0025 sandbox run passes
+
+---
+
+## Session Update — 2026-05-28 — Claude
+
 **Tasks:** TASK-0026 Codex Re-QA Remediation (Round 2)
 **Status:** Spec updated with atomic DB function (Migration C); awaiting David migration approvals
 **Summary:** Addressed TASK-0026 re-QA findings (verdict: Approved with required fixes). P2 fix: replaced non-atomic "profile update then audit" pattern with Migration C — `complete_phone_verification()` Postgres function that atomically updates `profiles.phone + onboarding_step = 'license'` and inserts `audit_events` in a single transaction. If RPC fails, neither operation commits. `audit_write_failed` error key removed. Caller-impact check requirement added to Migration A notes. Duplicate failure table rows removed. Acceptance Criteria updated to require Migrations A, B, C (not optional). TASK-0026 updated on GitHub commit be878256.
