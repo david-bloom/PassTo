@@ -4,6 +4,25 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Session Update — 2026-05-28 — Claude
+
+**Tasks:** TASK-0026 Codex Re-QA Remediation (Round 2)
+**Status:** Spec updated with atomic DB function (Migration C); awaiting David migration approvals
+**Summary:** Addressed TASK-0026 re-QA findings (verdict: Approved with required fixes). P2 fix: replaced non-atomic "profile update then audit" pattern with Migration C — `complete_phone_verification()` Postgres function that atomically updates `profiles.phone + onboarding_step = 'license'` and inserts `audit_events` in a single transaction. If RPC fails, neither operation commits. `audit_write_failed` error key removed. Caller-impact check requirement added to Migration A notes. Duplicate failure table rows removed. Acceptance Criteria updated to require Migrations A, B, C (not optional). TASK-0026 updated on GitHub commit be878256.
+
+### Architecture Decision
+- `complete_phone_verification(p_profile_id, p_phone)` — new SECURITY DEFINER Postgres function; atomically sets phone + advances step + writes audit. Called only by `phone-verify-otp` Edge Function via service-role client.
+
+### Open After This Session
+- David must perform caller-impact check (grep Lovable for `p_phone` before Migration A)
+- David must apply Migration A (remove p_phone from RPC)
+- David must apply Migration B (add 'phone_verification' to notification_events CHECK)
+- David must apply Migration C (create complete_phone_verification() RPC)
+- TASK-0025 scope fix (3.1-5a), idempotency fix (3.1-6a), and sandbox run (3.1-7) still pending
+- TASK-0027 blocked until TASK-0025 complete AND Migrations A/B/C applied
+
+---
+
 ## Session Update — 2026-05-27 — Claude
 
 **Tasks:** TASK-0026 Codex QA Remediation
