@@ -4,6 +4,29 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Session Close — 2026-05-28 — Claude
+
+**Tasks:** TASK-0025 sandbox run attempt (step 3.1-7)
+**Status:** Sandbox run blocked — email rate limit; session issue diagnosed
+**Summary:** Attempted Phase 3.1 sandbox run after Migration D confirmed applied and test account SQL-reset. Run failed at callback: `IdmeCallback.tsx` redirected to `/create-account` because `supabase.auth.getSession()` returned null. Root cause: David navigated directly to `/id-verification` without first authenticating through the Lovable app. Session is only established when the user clicks the magic link from their email inside the Lovable auth flow — not by navigating to a URL directly. Second sign-in attempt hit email rate limit again. Session closed; will retry when rate limit resets.
+
+### To Resume (step 3.1-7)
+1. Wait for email rate limit to reset (Supabase default: 3 emails/hour/IP)
+2. Go to `https://enroll.passtodigital.com/create-account`
+3. Enter test email — request magic link **from the Lovable app**
+4. Click the link **in the email** (let it redirect — do not copy/paste the URL)
+5. From inside the app (authenticated), navigate to `/id-verification`
+6. Click Verify with ID.me → complete sandbox flow → share Edge Function logs
+
+### State at Close
+- Migration D: ✅ Applied and verified
+- `idme-exchange` v4: ✅ Deployed (function bee0cbf5, ACTIVE)
+- Test account: ✅ SQL-reset to `onboarding_step = 'identity'`
+- TASK-0025 document: ✅ Updated on GitHub (commit 04583025)
+- Sandbox run: ⬜ Pending — resume when rate limit clears
+
+---
+
 ## Session Update — 2026-05-28 — Claude
 
 **Tasks:** TASK-0025 Codex Re-QA Remediation (Round 2) + `idme-exchange` v4 deployment
