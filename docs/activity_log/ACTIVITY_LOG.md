@@ -6,6 +6,21 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ## Session Update — 2026-05-27 — Claude
 
+**Tasks:** TASK-0026 (Phase 3.2 Twilio Phone Verification Spec)
+**Status:** Pushed to GitHub — commit f6c52508
+**Summary:** Created TASK-0026 — full Phase 3.2 spec for Twilio OTP phone verification. Covers two Edge Functions (`phone-send-otp`, `phone-verify-otp`), Lovable `/verify-phone` two-step UI, schema alignment (no migrations required except optional Option B for `notification_events.related_entity_type`), security boundaries (phone written only after Twilio confirms OTP), audit events (`phone.otp_sent`, `phone.verified`, `phone.otp_failed`, `phone.otp_expired`), and all failure state routing. Open deps: three Twilio secrets (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_VERIFY_SERVICE_SID) not yet provided. Open decision for Codex: Option A (null) vs Option B ('phone_verification' migration) for notification_events type.
+
+### Open After This Session
+- TASK-0026: awaiting Codex QA
+- TASK-0025 Phase 3.1 QA (step 3.1-7): David to run sandbox flow at enroll.passtodigital.com/id-verification
+- TASK-0024-CODEX-QA: awaiting final Codex approval (all P1/P2/P3 findings addressed)
+- TASK-0022-CODEX-QA: awaiting final Codex approval (remediation submitted commit ea986581)
+- Twilio secrets: David to obtain from Twilio console before Phase 3.2 implementation
+
+---
+
+## Session Update — 2026-05-27 — Claude
+
 **Tasks:** TASK-0024 (Phase 3.1 spec), TASK-0024-CODEX-QA
 **Status:** Both pushed to GitHub
 **Summary:** Finalized TASK-0024 Phase 3.1 ID.me spec — marked all open dependencies resolved (sandbox confirmed, IDME_CLIENT_SECRET held by David, redirect URI whitelisted 2026-05-27, P2 deploy URL confirmed). Created TASK-0024-CODEX-QA with 39 verification checks across 9 areas: OAuth flow design, Edge Function process correctness, security boundary compliance, schema alignment, Lovable changes completeness, failure state coverage, audit event compliance, phase scope boundary, and implementation task completeness.
