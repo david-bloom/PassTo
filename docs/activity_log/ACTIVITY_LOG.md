@@ -6,6 +6,20 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ## Session Update — 2026-05-27 — Claude
 
+**Tasks:** TASK-0025 Codex QA Remediation
+**Status:** Edge Function v3 deployed; two Lovable actions pending David; sandbox run required for P1.2/P2.1
+**Summary:** Addressed TASK-0025 Codex QA findings (verdict: Blocked). P2 fixes deployed to `idme-exchange` v3: RFC 7636 PKCE verifier format validation (43–128 unreserved chars); `writeAuditOrThrow()` for success-path audit fail-closed; improved IAL/subject logic (OIDC-standard `sub` primary, `loa` string fallback, removed non-standard `attributes?.ial`); diagnostic UserInfo logging for sandbox run. Edge Function function ID bee0cbf5, now version 3, ACTIVE. TASK-0025 updated on GitHub commit 088951df. Two items require David Lovable action: 3.1-5a (scope `'openid tefca'`); 3.1-6a (expand idempotency fallback to `audit_write_failed`). Two items remain pending sandbox run (step 3.1-7): P1 IAL/subject field pin; P2 TEFCA policy claim validation.
+
+### Open After This Session
+- Step 3.1-5a: David must apply scope fix in Lovable (change scope to `'openid tefca'` in IdVerification.tsx)
+- Step 3.1-6a: David must apply idempotency fallback expansion in Lovable (IdmeCallback.tsx)
+- Step 3.1-7: David must run sandbox flow at enroll.passtodigital.com/id-verification and share Edge Function logs
+- After sandbox run: Claude to pin IAL/subject fields and add TEFCA policy claim validation; redeploy if needed
+
+---
+
+## Session Update — 2026-05-27 — Claude
+
 **Tasks:** TASK-0026 (Phase 3.2 Twilio Phone Verification Spec)
 **Status:** Pushed to GitHub — commit f6c52508
 **Summary:** Created TASK-0026 — full Phase 3.2 spec for Twilio OTP phone verification. Covers two Edge Functions (`phone-send-otp`, `phone-verify-otp`), Lovable `/verify-phone` two-step UI, schema alignment (no migrations required except optional Option B for `notification_events.related_entity_type`), security boundaries (phone written only after Twilio confirms OTP), audit events (`phone.otp_sent`, `phone.verified`, `phone.otp_failed`, `phone.otp_expired`), and all failure state routing. Open deps: three Twilio secrets (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_VERIFY_SERVICE_SID) not yet provided. Open decision for Codex: Option A (null) vs Option B ('phone_verification' migration) for notification_events type.
