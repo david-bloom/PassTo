@@ -58,19 +58,23 @@ Claude must execute these in order unless David or Codex records an approved seq
 
 | Sequence | Task ID | Task | Status | Depends On | Notes |
 |---:|---|---|---|---|---|
-| 1 | TASK-0018 | Implement Account Profile Foundation and Onboarding Routing | Spec Drafted — Awaiting David Approval | TASK-0016, TASK-0017 | Account creation, profile init, onboarding routing. |
-| 2 | TASK-0019 | Implement ID.me Identity Verification Backend Exchange and Callback Wiring | Spec Drafted — Awaiting David Approval | TASK-0018, TASK-0011 | Backend-owned ID.me exchange and IAL2 gate. |
-| 3 | TASK-0020 | Implement Twilio Phone Verification Journey | Spec Drafted — Awaiting David Approval | TASK-0018, TASK-0019 | SMS send/verify gate. |
-| 4 | TASK-0021 | Implement License Lookup Journey | Spec Drafted — Awaiting David Approval | TASK-0019, TASK-0020, FLOW-LICENSE-002 | Dedicated backend lookup function. |
-| 5 | TASK-0022 | Implement Data Matching Journey | Spec Drafted — Awaiting David Approval | TASK-0019, TASK-0021, FLOW-LICENSE-003 | Hard credential issuance gate. |
-| 6 | TASK-0023 | Implement Selfie Capture and Protected Supabase Storage Upload | Spec Drafted — Awaiting David Approval | TASK-0022 | Protected selfie storage and upload. |
-| 7 | TASK-0024 | Implement Credential Creation Gate | Spec Drafted — Awaiting David Approval | TASK-0019, TASK-0020, TASK-0021, TASK-0022, TASK-0023 | Credential created only after all gates pass. |
-| 8 | TASK-0025 | Implement Automatic Wallet Pass Issuance and PassReady Flow | Spec Drafted — Awaiting David Approval | TASK-0024, TASK-0011 | Automatic wallet issuance after credential creation. |
-| 9 | TASK-0026 | Implement Nurse Dashboard Launch-Critical Status and Actions | Spec Drafted — Awaiting David Approval | TASK-0025 | Status dashboard; no deferred Show QR/PDF blockers. |
-| 10 | TASK-0029 | Implement Stripe Subscription State and Entitlement Gating | Spec Drafted — Awaiting David Approval | TASK-0018 | Server-side paid action gating. |
-| 11 | TASK-0027 | Implement Share-Link Token Creation Journey | Spec Drafted — Awaiting David Approval | TASK-0026, TASK-0029 | Entitled token creation; raw token returned once. |
-| 12 | TASK-0028 | Implement Verifier Token Validation and Credential View | Spec Drafted — Awaiting David Approval | TASK-0027 | `/v/{token}` verifier flow. |
-| 13 | TASK-0030 | Implement Admin/Ops Visibility and Journey Failure-State Coverage | Spec Drafted — Awaiting David Approval | TASK-0018 through TASK-0029 | Supabase ops visibility and failure-state coverage. |
+| 1 | TASK-0031 | Implement Account Profile Foundation and Onboarding Routing | Spec Drafted — Awaiting David Approval | TASK-0016, TASK-0017 | Account creation, profile init, onboarding routing. |
+| 2 | TASK-0032 | Implement ID.me Identity Verification Backend Exchange and Callback Wiring | Spec Drafted — Awaiting David Approval | TASK-0031, TASK-0011 | Backend-owned ID.me exchange and IAL2 gate. |
+| 3 | TASK-0033 | Implement Twilio Phone Verification Journey | Spec Drafted — Awaiting David Approval | TASK-0031, TASK-0032 | SMS send/verify gate. |
+| 4 | TASK-0034 | Implement License Lookup Journey | Spec Drafted — Awaiting David Approval | TASK-0032, TASK-0033, FLOW-LICENSE-002 | Dedicated backend lookup function. |
+| 5 | TASK-0035 | Implement Data Matching Journey | Spec Drafted — Awaiting David Approval | TASK-0032, TASK-0034, FLOW-LICENSE-003 | Hard credential issuance gate. |
+| 6 | TASK-0036 | Implement Selfie Capture and Protected Supabase Storage Upload | Spec Drafted — Awaiting David Approval | TASK-0035 | Protected selfie storage and upload. |
+| 7 | TASK-0037 | Implement Credential Creation Gate | Spec Drafted — Awaiting David Approval | TASK-0032, TASK-0033, TASK-0034, TASK-0035, TASK-0036 | Credential created only after all gates pass. |
+| 8 | TASK-0038 | Implement Automatic Wallet Pass Issuance and PassReady Flow | Spec Drafted — Awaiting David Approval | TASK-0037, TASK-0011 | Automatic wallet issuance after credential creation. |
+| 9 | TASK-0039 | Implement Nurse Dashboard Launch-Critical Status and Actions | Spec Drafted — Awaiting David Approval | TASK-0038 | Status dashboard; no deferred Show QR/PDF blockers. |
+| 10 | TASK-0040 | Implement Stripe Subscription State and Entitlement Gating | Spec Drafted — Awaiting David Approval | TASK-0031 | Server-side paid action gating. |
+| 11 | TASK-0041 | Implement Share-Link Token Creation Journey | Spec Drafted — Awaiting David Approval | TASK-0039, TASK-0040 | Entitled token creation; raw token returned once. |
+| 12 | TASK-0042 | Implement Verifier Token Validation and Credential View | Spec Drafted — Awaiting David Approval | TASK-0041 | `/v/{token}` verifier flow. |
+| 13 | TASK-0043 | Implement Admin/Ops Visibility and Journey Failure-State Coverage | Spec Drafted — Awaiting David Approval | TASK-0031 through TASK-0042 | Supabase ops visibility and failure-state coverage. |
+
+## Numbering Correction — 2026-05-28
+
+The first draft of this sequence accidentally used `TASK-0018` through `TASK-0030`, which collided with existing confirmed tasks. The corrected Section 3 journey task range is `TASK-0031` through `TASK-0043`. Existing `TASK-0018` through `TASK-0026` must retain their original GitHub history and meaning.
 
 ## Not In Scope For Section 3
 
