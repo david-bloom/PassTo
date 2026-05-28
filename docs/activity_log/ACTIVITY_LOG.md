@@ -6,6 +6,24 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ## Session Update — 2026-05-27 — Claude
 
+**Tasks:** TASK-0026 Codex QA Remediation
+**Status:** Spec updated; two migration SQLs written; awaiting David action
+**Summary:** Addressed TASK-0026 Codex QA findings (verdict: Blocked). P1 trust model gap: `update_own_profile_basic()` accepts `p_phone` allowing nurses to self-write phone without Twilio. Resolution: Migration A removes `p_phone` from the RPC (SQL written; David must approve and apply). Codex selected Option B for `notification_events.related_entity_type`: Migration B adds `'phone_verification'` to CHECK (SQL written). Spec updated for all findings: IAL2 defensive checks in both Edge Functions; `phone-verify-otp` audit fail-closed (same `writeAuditOrThrow` pattern as `idme-exchange`); idempotency now requires phone match before returning `{ verified: true }`. TASK-0026 updated on GitHub commit f9c85ec5.
+
+### Architecture Decision
+- `profiles.phone` trust model: write only via service-role (`phone-verify-otp`). `update_own_profile_basic()` will no longer accept `p_phone` after Migration A.
+- `notification_events.related_entity_type`: Option B — `'phone_verification'` added via Migration B.
+
+### Open After This Session
+- David must review and apply Migration A (remove `p_phone` from RPC) in Supabase SQL Editor
+- David must apply Migration B (`'phone_verification'` to notification_events CHECK) in Supabase SQL Editor
+- TASK-0025 P1 scope fix (3.1-5a), idempotency fix (3.1-6a), and sandbox run (3.1-7) still pending
+- TASK-0026 implementation (TASK-0027) blocked until TASK-0025 complete AND both migrations applied
+
+---
+
+## Session Update — 2026-05-27 — Claude
+
 **Tasks:** TASK-0025 Codex QA Remediation
 **Status:** Edge Function v3 deployed; two Lovable actions pending David; sandbox run required for P1.2/P2.1
 **Summary:** Addressed TASK-0025 Codex QA findings (verdict: Blocked). P2 fixes deployed to `idme-exchange` v3: RFC 7636 PKCE verifier format validation (43–128 unreserved chars); `writeAuditOrThrow()` for success-path audit fail-closed; improved IAL/subject logic (OIDC-standard `sub` primary, `loa` string fallback, removed non-standard `attributes?.ial`); diagnostic UserInfo logging for sandbox run. Edge Function function ID bee0cbf5, now version 3, ACTIVE. TASK-0025 updated on GitHub commit 088951df. Two items require David Lovable action: 3.1-5a (scope `'openid tefca'`); 3.1-6a (expand idempotency fallback to `audit_write_failed`). Two items remain pending sandbox run (step 3.1-7): P1 IAL/subject field pin; P2 TEFCA policy claim validation.
