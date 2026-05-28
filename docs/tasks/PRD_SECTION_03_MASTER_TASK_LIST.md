@@ -1,7 +1,7 @@
 # PRD Section 3 Master Task List
 
 **PRD Section:** Section 3 — End-to-End MVP User Journeys  
-**Status:** Draft for David Review  
+**Status:** Execution Task Sequence Drafted — Awaiting David Approval  
 **Created:** 2026-05-26  
 **Owner:** David Bloom  
 **Execution Support:** Codex and Claude  
@@ -50,14 +50,27 @@ This task list translates PRD Section 3 user journeys into future implementation
 | Employer dashboard journey | Deferred | Post-MVP. |
 | Lovable admin UI journey | Deferred | Supabase dashboard/views first. |
 
-## Proposed Next Tasks From Section 3
+## Claude Execution Sequence From Section 3
 
-| Task ID | Task | Status | Notes |
-|---|---|---|---|
-| TASK-0014 | Create launch-critical MVP journey implementation sequence. | Proposed | Turns Section 3 journeys into ordered build tasks. |
-| TASK-0015 | Create account-to-wallet enrollment flow task bundle. | Proposed | Account, ID.me, phone, lookup, data match, selfie, credential, wallet. |
-| TASK-0016 | Create verifier share-link flow task bundle. | Proposed | Share token, verifier form, token validation, credential view, audit/event writes. |
-| TASK-0017 | Create dashboard launch-scope task bundle. | Proposed | Dashboard status/actions excluding deferred Show QR and PDF. |
+These task specs translate PRD Section 3 into an ordered Claude execution queue. Each task is Class A implementation work and remains `Spec Drafted — Awaiting David Approval` until David explicitly approves execution.
+
+Claude must execute these in order unless David or Codex records an approved sequencing change in GitHub.
+
+| Sequence | Task ID | Task | Status | Depends On | Notes |
+|---:|---|---|---|---|---|
+| 1 | TASK-0018 | Implement Account Profile Foundation and Onboarding Routing | Spec Drafted — Awaiting David Approval | TASK-0016, TASK-0017 | Account creation, profile init, onboarding routing. |
+| 2 | TASK-0019 | Implement ID.me Identity Verification Backend Exchange and Callback Wiring | Spec Drafted — Awaiting David Approval | TASK-0018, TASK-0011 | Backend-owned ID.me exchange and IAL2 gate. |
+| 3 | TASK-0020 | Implement Twilio Phone Verification Journey | Spec Drafted — Awaiting David Approval | TASK-0018, TASK-0019 | SMS send/verify gate. |
+| 4 | TASK-0021 | Implement License Lookup Journey | Spec Drafted — Awaiting David Approval | TASK-0019, TASK-0020, FLOW-LICENSE-002 | Dedicated backend lookup function. |
+| 5 | TASK-0022 | Implement Data Matching Journey | Spec Drafted — Awaiting David Approval | TASK-0019, TASK-0021, FLOW-LICENSE-003 | Hard credential issuance gate. |
+| 6 | TASK-0023 | Implement Selfie Capture and Protected Supabase Storage Upload | Spec Drafted — Awaiting David Approval | TASK-0022 | Protected selfie storage and upload. |
+| 7 | TASK-0024 | Implement Credential Creation Gate | Spec Drafted — Awaiting David Approval | TASK-0019, TASK-0020, TASK-0021, TASK-0022, TASK-0023 | Credential created only after all gates pass. |
+| 8 | TASK-0025 | Implement Automatic Wallet Pass Issuance and PassReady Flow | Spec Drafted — Awaiting David Approval | TASK-0024, TASK-0011 | Automatic wallet issuance after credential creation. |
+| 9 | TASK-0026 | Implement Nurse Dashboard Launch-Critical Status and Actions | Spec Drafted — Awaiting David Approval | TASK-0025 | Status dashboard; no deferred Show QR/PDF blockers. |
+| 10 | TASK-0029 | Implement Stripe Subscription State and Entitlement Gating | Spec Drafted — Awaiting David Approval | TASK-0018 | Server-side paid action gating. |
+| 11 | TASK-0027 | Implement Share-Link Token Creation Journey | Spec Drafted — Awaiting David Approval | TASK-0026, TASK-0029 | Entitled token creation; raw token returned once. |
+| 12 | TASK-0028 | Implement Verifier Token Validation and Credential View | Spec Drafted — Awaiting David Approval | TASK-0027 | `/v/{token}` verifier flow. |
+| 13 | TASK-0030 | Implement Admin/Ops Visibility and Journey Failure-State Coverage | Spec Drafted — Awaiting David Approval | TASK-0018 through TASK-0029 | Supabase ops visibility and failure-state coverage. |
 
 ## Not In Scope For Section 3
 
