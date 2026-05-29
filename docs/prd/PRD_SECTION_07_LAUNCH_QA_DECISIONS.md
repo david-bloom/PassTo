@@ -1,4 +1,4 @@
-# PRD Section 7 — Launch Readiness, QA, and Open Decisions
+# PRD Section 7 - Launch Readiness, QA, and Open Decisions
 
 **Status:** Draft for David Review  
 **Owner:** David Bloom  
@@ -24,6 +24,7 @@ PassTo is launch-ready only when:
 - Phone verification works or David has approved a fallback.
 - Critical failure states are handled safely.
 - Ops can inspect and recover stuck states.
+- Repeatable dev-only test personas and launch smoke-test data exist for QA.
 - David explicitly approves production launch.
 
 ## 7.3 Required Pre-Launch Gates
@@ -44,6 +45,7 @@ PassTo is launch-ready only when:
 | Wallet pass signing readiness | Yes |
 | Postmark critical alert readiness | Yes |
 | Terms/disclaimer readiness | Yes |
+| Dev-only test personas and seed/reset process created | Yes |
 | Launch smoke test passed | Yes |
 
 ## 7.4 QA Scope
@@ -65,6 +67,8 @@ QA must cover:
 - Verifier form and Terms acceptance.
 - Stripe checkout and webhook handling.
 - Subscription lapse behavior.
+- Account-status enforcement for active, suspended, and closed users.
+- Seeded dev test personas and repeatable seed/reset behavior.
 - RLS access boundaries.
 - Critical failure logging and ops visibility.
 
@@ -82,6 +86,7 @@ Security review must confirm:
 - Audit/event tables are not broadly client-writable.
 - Selfie storage is protected.
 - Temporary ID.me matching fields are minimized and cleared.
+- Dev seed credentials, service-role keys, and raw test tokens are not committed to GitHub or exposed to client code.
 
 ## 7.6 Production Configuration Scope
 
@@ -98,6 +103,7 @@ Production readiness must include:
 - Wallet signing certs/keys configured.
 - Domain routing confirmed.
 - Postmark sender/domain readiness confirmed.
+- Dev/test seed tooling guarded so it cannot run against production.
 
 ## 7.7 Launch Smoke Test
 
@@ -105,19 +111,21 @@ Before launch, PassTo must pass a smoke test:
 
 ```text
 create nurse account
-→ verify identity
-→ verify phone
-→ look up license
-→ pass data match
-→ upload selfie
-→ issue credential
-→ issue wallet pass
-→ view dashboard
-→ create share link
-→ verifier views credential
-→ subscription/payment state behaves correctly
-→ ops can inspect events
+-> verify identity
+-> verify phone
+-> look up license
+-> pass data match
+-> upload selfie
+-> issue credential
+-> issue wallet pass
+-> view dashboard
+-> create share link
+-> verifier views credential
+-> subscription/payment state behaves correctly
+-> ops can inspect events
 ```
+
+The smoke test must be repeatable against approved dev-only test personas before any production launch approval.
 
 ## 7.8 Open Decision Control
 
@@ -132,7 +140,7 @@ Current high-priority decision areas:
 - Wallet signing implementation details.
 - Twilio production readiness/fallback.
 - Terms of Use and verifier disclosure language.
-- Exact launch smoke-test data and test nurse.
+- Exact launch smoke-test data and test nurse. TASK-0044 now tracks the dev-only test personas and seed harness needed for this decision area.
 
 ## 7.9 Done Definition for PRD
 
