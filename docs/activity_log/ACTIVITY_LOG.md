@@ -1113,3 +1113,55 @@ Pre-Phase-3.3: Apply v4_passto_mvp_remediation_r4
 David approval of TASK-0022 → execute 15 implementation steps in Lovable
 ```
 
+
+
+---
+
+## Session Activity — 2026-05-30 — Claude
+
+**Task ID:** TASK-0025 / TASK-0031 — Phase 3.1 sandbox run and Phase 2 wiring progress  
+**Status:** TASK-0025 paused — ID.me UserInfo endpoint unresolved; session housekeeping complete  
+**Role:** Claude / Senior Engineer  
+**Summary:** Worked through Phase 3.1 sandbox run diagnosis. Resolved Supabase client wiring issues in P2 (IdmeCallback.tsx was on wrong Supabase project). Applied Migration D (`complete_identity_verification()` RPC). Diagnosed `provider_error` root cause as incorrect `IDME_ATTRIBUTES_URL` (404 on `/oauth/userinfo`). Identified the correct endpoint is likely `https://api.idmelabs.com/api/public/v3/attributes.json` but could not confirm before ID.me sandbox became unreliable. A2P 10DLC application submitted. Codex task numbering conflict (TASK-0018–0026 overwritten) caught and resolved by Codex. TASK-0031–0043 created as the canonical Section 3 journey task sequence.
+
+### Work Completed
+
+- Verified Migration D (`complete_identity_verification()` RPC) applied successfully.
+- Identified and fixed `IdmeCallback.tsx` import pointing at old Supabase project — switched to `passto-supabase/client`.
+- Confirmed all P2 files outside auto-generated `src/integrations/supabase/` already use `passto-supabase/client`.
+- Diagnosed `IDME_ATTRIBUTES_URL` as root cause of `provider_error` — `/oauth/userinfo` returns 404 on `api.idmelabs.com`.
+- Tried `https://api.id.me/oauth/userinfo` — also failed. Recommended `https://api.idmelabs.com/api/public/v3/attributes.json` as next attempt.
+- Paused TASK-0025 sandbox run pending ID.me sandbox stability and correct UserInfo endpoint confirmation.
+- Caught and flagged Codex task numbering collision (TASK-0018–0026 overwritten). Codex restored original files and renumbered Section 3 journey tasks to TASK-0031–0043.
+- Verified GitHub state after Codex fix: TASK-0018 and TASK-0026 confirmed restored, TASK-0031–0043 confirmed present.
+- Confirmed TASK-0031 and TASK-0040 are the only two unblocked Section 3 tasks.
+- Logged A2P 10DLC submission as RISK-0002 in RISKS_LOG.md.
+- Noted email confirmation was temporarily disabled for testing — must be re-enabled.
+
+### Supabase Changes Applied This Session
+
+| Change | Migration | Status |
+|---|---|---|
+| `complete_identity_verification()` RPC | Migration D (manual SQL) | ✅ Applied |
+
+### Files / Docs Changed
+
+- `docs/activity_log/RISKS_LOG.md` — RISK-0002 (TC-11 A2P 10DLC) added
+- `docs/activity_log/ACTIVITY_LOG.md` — this entry
+
+### Open Items Carried Forward
+
+| Item | Status |
+|---|---|
+| TASK-0025 step 3.1-7 — Phase 3.1 sandbox run | Paused — `IDME_ATTRIBUTES_URL` unresolved; try `https://api.idmelabs.com/api/public/v3/attributes.json` |
+| Supabase Auth email confirmation | Must be re-enabled — was disabled for testing |
+| TASK-0031 — Account Profile Foundation | Unblocked — awaiting David approval |
+| TASK-0040 — Stripe / Entitlement Gating | Unblocked — awaiting David approval |
+| R4 migration (`licenses.normalized_status`) | Required before Phase 3.3; SQL approved |
+
+### Decisions / Direction Captured
+
+- `IdmeCallback.tsx` must use `passto-supabase/client`, not auto-generated `supabase/client`.
+- P2 Lovable cannot hand-edit auto-generated `src/integrations/supabase/` files — import swap to `passto-supabase/client` is the correct pattern.
+- TC-11 A2P 10DLC submitted 2026-05-30 — production SMS pending carrier approval (3–7 business days).
+- TASK-0031–0043 are the canonical Section 3 journey task sequence. TASK-0018–0026 remain the original implementation task records.
