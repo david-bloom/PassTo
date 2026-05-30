@@ -65,3 +65,37 @@ Mitigated by TASK-0001 approval.
 ### Closeout Notes
 
 Foundational templates created as part of TASK-0001.
+
+---
+
+## RISK-0002 — Twilio A2P 10DLC Carrier Approval Pending
+
+**Date Opened:** 2026-05-30  
+**Status:** Submitted — Pending Carrier Approval  
+**Owner:** David  
+**Severity:** High  
+**Related Task:** TASK-0026 — Phase 3.2 Twilio Phone Verification  
+**Area:** Integration  
+
+### Risk
+
+Twilio A2P 10DLC registration is required for production SMS delivery in the US. Without approved registration, Twilio cannot deliver OTP messages to nurses on US numbers. This directly blocks Phase 3.2 end-to-end QA and production launch.
+
+### Impact
+
+Nurses cannot complete phone verification via SMS in production until the A2P 10DLC application is approved by carriers. TASK-0026 implementation can proceed and be tested in Twilio sandbox/trial mode, but production SMS is blocked until approval clears.
+
+### Mitigation / Recommendation
+
+- A2P 10DLC application submitted 2026-05-30.
+- TASK-0026 Edge Function implementation and Lovable wiring can proceed using Twilio sandbox mode.
+- Production SMS gate: do not enable live Twilio credentials in Edge Function secrets until A2P approval is confirmed.
+- Monitor Twilio dashboard for carrier approval status (typically 3–7 business days).
+
+### David Acceptance
+
+Accepted — A2P 10DLC application submitted 2026-05-30.
+
+### Closeout Notes
+
+Close this risk entry when Twilio dashboard confirms A2P 10DLC registration approved.
