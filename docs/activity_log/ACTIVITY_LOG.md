@@ -1207,3 +1207,57 @@ David approval of TASK-0022 → execute 15 implementation steps in Lovable
 - P2 Lovable cannot hand-edit auto-generated `src/integrations/supabase/` files — import swap to `passto-supabase/client` is the correct pattern.
 - TC-11 A2P 10DLC submitted 2026-05-30 — production SMS pending carrier approval (3–7 business days).
 - TASK-0031–0043 are the canonical Section 3 journey task sequence. TASK-0018–0026 remain the original implementation task records.
+
+
+---
+
+## Session Activity — 2026-05-30 (continued) — Claude
+
+**Task ID:** TASK-0033 — Implement Twilio Phone Verification Journey
+**Status:** In Progress — Edge Functions deployed; pending Codex QA and Phase 3.1 end-to-end test
+**Role:** Claude / Senior Engineer
+**Summary:** Deployed `phone-send-otp` and `phone-verify-otp` Edge Functions to `wvzjfxacykgsaffskgtr`. Implemented Lovable `/verify-phone` two-step page. Twilio secrets set by David. All Phase 3.2 pre-implementation migrations (A, B, C) confirmed applied. Codex QA required before Phase 3.2 QA run.
+
+### Work Completed
+
+- Wrote `phone-send-otp` Edge Function per TASK-0026 spec (E.164 validation, gate checks, Twilio Verify, notification_events, audit_events).
+- Wrote `phone-verify-otp` Edge Function per TASK-0026 spec (OTP check, idempotency, `complete_phone_verification()` atomic RPC).
+- Deployed both functions to `wvzjfxacykgsaffskgtr` — ACTIVE v1.
+- David set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_VERIFY_SERVICE_SID` secrets.
+- Lovable P2: `VerifyPhone.tsx` created and `/verify-phone` route registered in `App.tsx`.
+- Pushed Edge Function source to GitHub: `supabase/functions/phone-send-otp/index.ts`, `supabase/functions/phone-verify-otp/index.ts`.
+- Updated `docs/tasks/TASK-0033.md` with execution results.
+- A2P 10DLC application submitted — logged as RISK-0002.
+
+### Files Changed
+
+- `supabase/functions/phone-send-otp/index.ts` — created
+- `supabase/functions/phone-verify-otp/index.ts` — created
+- `docs/tasks/TASK-0033.md` — updated with execution results
+- `docs/activity_log/ACTIVITY_LOG.md` — this entry
+- `docs/activity_log/RISKS_LOG.md` — RISK-0002 added (earlier in session)
+
+### Deviations
+
+- TASK-0026 spec gated Phase 3.2 on TASK-0025 completion. David approved early execution. End-to-end QA deferred to Phase 3.1 completion.
+- CORS restricted to `enroll.passtodigital.com` (tighter than `idme-exchange` which uses `*`).
+
+### Needs Codex QA
+
+Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 spec before Phase 3.2 QA is run. Key review areas:
+- Gate logic (IAL2 + onboarding_step checks)
+- Twilio Verify API call pattern
+- `complete_phone_verification()` RPC usage (atomic)
+- `notification_events` and `audit_events` write correctness
+- Idempotency logic in `phone-verify-otp`
+- CORS policy
+
+### Open Items
+
+| Item | Status |
+|---|---|
+| TASK-0025 Phase 3.1 sandbox run | Paused — try `IDME_ATTRIBUTES_URL = https://api.idmelabs.com/api/public/v3/attributes.json` |
+| Codex QA of TASK-0033 Edge Functions | Required before Phase 3.2 QA |
+| Phase 3.2 end-to-end QA | Blocked on Phase 3.1 completion |
+| Twilio A2P 10DLC carrier approval | Submitted 2026-05-30 — pending (3–7 days) |
+| Supabase Auth email confirmation | Must be re-enabled if still off |
