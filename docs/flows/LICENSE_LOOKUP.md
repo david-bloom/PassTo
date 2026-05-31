@@ -1,8 +1,8 @@
 # PassTo License Lookup Flow
 
-**Status:** Baseline  
+**Status:** Baseline - Updated for proposed ID.me-first onboarding  
 **Owner:** Codex  
-**Last Updated:** 2026-05-25  
+**Last Updated:** 2026-05-31  
 
 ---
 
@@ -25,7 +25,11 @@ Nurse
 ## High-Level Flow
 
 ```text
-Nurse starts license lookup
+Nurse completes ID.me-first verification
+        ↓
+Nurse confirms profile/contact info
+        ↓
+Nurse starts license lookup at /license-info
         ↓
 Nurse enters license lookup inputs
         ↓
@@ -34,6 +38,8 @@ PassTo queries source licensing authority / lookup provider
 PassTo stores source result
         ↓
 PassTo translates source status into normalized status and wallet treatment
+        ↓
+PassTo binds lookup result to verified ID.me identity through data matching
         ↓
 If eligible, PassTo creates or updates license and credential records
         ↓
@@ -54,6 +60,16 @@ nurse name or identity-matching information, if needed
 ```
 
 Input requirements may vary by licensing source.
+
+In the proposed ID.me-first flow, Lovable collects:
+
+```text
+license_number
+license_state
+license_type
+```
+
+The backend uses verified ID.me identity fields for matching. Lovable should not ask the nurse to manually re-enter identity fields for matching unless a later approved provider limitation requires it.
 
 ---
 
@@ -133,6 +149,8 @@ Handle:
 
 Do not silently issue credentials when lookup confidence is insufficient.
 
+Do not ask for plan/payment before a blocking license lookup or identity/license match failure is resolved.
+
 ---
 
 ## Refresh Relationship
@@ -182,6 +200,7 @@ audit_events
 ```text
 /docs/flows/ACCOUNT_CREATION.md
 /docs/flows/ID_VERIFICATION.md
+/docs/flows/IDME_FIRST_ONBOARDING.md
 /docs/features/REFRESH.md
 /docs/features/PASS_MANAGEMENT.md
 /docs/architecture/DATA_MODEL.md

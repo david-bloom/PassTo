@@ -1,8 +1,8 @@
 # PassTo Account Creation Flow
 
-**Status:** Baseline  
+**Status:** Baseline - Superseded for proposed MVP enrollment by ID.me-first flow  
 **Owner:** Codex  
-**Last Updated:** 2026-05-25  
+**Last Updated:** 2026-05-31  
 
 ---
 
@@ -10,7 +10,15 @@
 
 This document defines the MVP account creation flow for a nurse creating a PassTo account.
 
-Account creation is the entry point into identity verification, license lookup, tier selection, and credential/pass creation.
+Account creation was the original entry point into identity verification, license lookup, tier selection, and credential/pass creation.
+
+As of the proposed 2026-05-31 onboarding revision, MVP nurse enrollment should move toward an ID.me-first entry point documented in:
+
+```text
+/docs/flows/IDME_FIRST_ONBOARDING.md
+```
+
+Under that proposed flow, account creation/profile linking happens after ID.me returns safe identity/contact fields and the nurse confirms them.
 
 This flow is a product/architecture baseline and does not approve implementation or production deployment.
 
@@ -55,6 +63,9 @@ Shared/verifier-driven nurse acquisition CTA, if later approved
 ## High-Level Flow
 
 ```text
+Original account-first flow:
+
+```text
 Nurse starts sign-up
         ↓
 Creates authenticated account
@@ -76,6 +87,30 @@ Nurse lands on dashboard
 Nurse may add wallet pass, share, refresh, export PDF, or upgrade based on tier
 ```
 
+Proposed ID.me-first enrollment flow:
+
+```text
+Nurse starts ID.me verification
+        ↓
+PassTo receives verified identity/contact fields
+        ↓
+Nurse confirms first name, last name, email, and phone
+        ↓
+PassTo creates or links authenticated account/profile
+        ↓
+Nurse enters license info
+        ↓
+PassTo performs license lookup and data match
+        ↓
+Nurse verifies phone possession
+        ↓
+Nurse chooses plan and pays only if needed
+        ↓
+Nurse adds selfie if required/desired
+        ↓
+Nurse reaches success/wallet state
+```
+
 ---
 
 ## Required Account Data
@@ -95,7 +130,7 @@ created_at
 updated_at
 ```
 
-Additional identity/license fields may be collected in the ID verification and license lookup flows, not directly overloaded into the initial account form unless needed.
+In the proposed ID.me-first flow, `first_name`, `last_name`, `email`, and `phone` may be returned or prefilled from ID.me. The nurse should still confirm contact data, and phone must still pass Twilio possession verification before being treated as verified.
 
 ---
 
@@ -146,7 +181,7 @@ A successful account creation flow results in:
 - Authenticated nurse account.
 - `profiles` record.
 - Terms acceptance recorded.
-- Nurse routed to ID verification and/or license lookup if not complete.
+- Nurse routed to license info, phone verification, plan selection, payment, selfie, or success depending on the ID.me-first onboarding state.
 - Nurse routed to dashboard if required onboarding is complete.
 
 ---
@@ -199,7 +234,7 @@ audit_events
 
 ## Open Items
 
-- Final account creation screen sequence.
+- Final account creation/linking screen sequence for ID.me-first onboarding.
 - Final Terms of Use language.
 - Exact auth provider configuration.
-- Whether ID verification is mandatory before license lookup or may run after initial lookup.
+- Whether `/success` fully replaces `/pass-ready` or both are supported during migration.

@@ -1,6 +1,6 @@
 # PassTo Product Requirements Document
 
-**Status:** Approved Consolidated PRD  
+**Status:** Approved Consolidated PRD - Section 3 ID.me-first revision proposed 2026-05-31  
 **Owner:** David Bloom  
 **Drafting Support:** Codex and Claude  
 **Created:** 2026-05-26  
@@ -21,7 +21,7 @@ The MVP must prove that a nurse can create a trustworthy digital credential and 
 
 At minimum, the MVP must show that PassTo can:
 
-- Create a nurse account and credential profile.
+- Create or link a nurse account and credential profile after secure onboarding.
 - Verify identity through ID.me at the required assurance level.
 - Verify phone possession through Twilio SMS.
 - Look up nursing license data through the approved license source.
@@ -44,7 +44,7 @@ Airtable and Make are no longer the target MVP architecture. Prior business rule
 
 ### MVP Users
 
-- **Nurse credential holder:** creates account, verifies identity and phone, connects a license, passes data matching, captures a selfie, receives a wallet credential, and manages credential actions.
+- **Nurse credential holder:** starts secure onboarding, verifies identity, confirms contact/profile info, connects a license, passes data matching, verifies phone, captures a selfie, receives a wallet credential, and manages credential actions.
 - **Verifier / employer / reviewer:** inspects credential status through controlled tokenized access. No PassTo account required for MVP.
 - **PassTo admin / operations user:** David or approved support operator using Supabase dashboard/views and logs.
 
@@ -54,7 +54,7 @@ Institutional buyers, employer accounts, employer dashboards, multi-user teams, 
 
 The MVP must:
 
-- Let a nurse create a PassTo account and profile.
+- Let a nurse create or link a PassTo account and profile through secure onboarding.
 - Verify identity through ID.me at the required assurance level.
 - Verify phone possession through Twilio SMS.
 - Look up a nursing license through the approved license source.
@@ -69,7 +69,7 @@ The MVP must:
 
 ### Launch-Critical Capabilities
 
-- Account creation and Supabase Auth.
+- ID.me-first onboarding, account/profile linking, and Supabase Auth.
 - ID.me identity verification.
 - Twilio phone verification.
 - License lookup.
@@ -112,12 +112,14 @@ The launch-critical MVP journey is:
 
 ```text
 Nurse discovers PassTo
--> creates account
--> verifies identity
--> verifies phone
+-> starts ID.me verification
+-> confirms identity/contact info
 -> enters license details
 -> license lookup runs
 -> data match runs
+-> verifies phone
+-> chooses plan
+-> pays if needed
 -> selfie is captured and stored
 -> credential record is created
 -> wallet pass is issued
@@ -128,21 +130,21 @@ Nurse discovers PassTo
 -> verifier views credential status
 ```
 
-### Account Creation
+### ID.me-First Onboarding and Account/Profile Linking
 
-The nurse creates an account through Lovable. Supabase Auth creates the authenticated user. A PassTo profile is created or initialized. Account creation does not itself authorize credential issuance.
+The nurse starts onboarding with ID.me rather than password-first account creation. ID.me verification happens through a trusted backend flow. The nurse then confirms safe profile/contact fields such as first name, last name, email, and phone where available. Supabase Auth/profile state is created or linked after backend verification. Account/profile linking does not itself authorize credential issuance.
 
 ### Identity Verification
 
-The nurse completes ID.me verification. Lovable starts or displays the flow, but token exchange, assurance-level validation, identity result handling, and audit writes happen in a trusted backend context. IAL2 is required for credential issuance.
+The nurse completes ID.me verification as the first substantive enrollment step. Lovable starts or displays the flow, but token exchange, assurance-level validation, identity result handling, and audit writes happen in a trusted backend context. IAL2 is required for credential issuance.
 
 ### Phone Verification
 
-After identity verification, the nurse verifies phone possession through Twilio SMS. Backend code sends and verifies the code. Credential issuance remains blocked until phone verification passes.
+After license lookup and ID.me/license binding pass, the nurse verifies phone possession through Twilio SMS. Backend code sends and verifies the code. Credential issuance remains blocked until phone verification passes.
 
 ### License Lookup
 
-The nurse enters required license details. Lovable invokes a dedicated backend license lookup function. License lookup remains separate from ID.me exchange so audit, retry, and failure handling stay clear.
+After ID.me verification and contact confirmation, the nurse enters required license details. Lovable invokes a dedicated backend license lookup function. License lookup remains separate from ID.me exchange so audit, retry, and failure handling stay clear. Plan selection and payment should not be requested until lookup and identity/license binding pass.
 
 ### Data Matching
 
@@ -150,7 +152,7 @@ Backend code compares normalized ID.me identity data against license source data
 
 ### Selfie Capture
 
-After successful data matching, the nurse captures a selfie. Lovable owns the UI. The selfie is stored in protected Supabase Storage. Credential issuance remains blocked until selfie capture succeeds.
+After successful data matching, phone verification, and plan/payment handling where required, the nurse captures a selfie. Lovable owns the UI. The selfie is stored in protected Supabase Storage. Credential issuance remains blocked until selfie capture succeeds if selfie is required for launch.
 
 ### Credential Creation and Wallet Issuance
 

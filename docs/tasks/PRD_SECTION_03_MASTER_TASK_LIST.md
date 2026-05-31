@@ -1,7 +1,7 @@
 # PRD Section 3 Master Task List
 
 **PRD Section:** Section 3 — End-to-End MVP User Journeys  
-**Status:** Execution Task Sequence Drafted — Awaiting David Approval  
+**Status:** Execution Task Sequence Drafted — ID.me-first revision pending David approval  
 **Created:** 2026-05-26  
 **Owner:** David Bloom  
 **Execution Support:** Codex and Claude  
@@ -20,6 +20,7 @@ This task list translates PRD Section 3 user journeys into future implementation
 | Show QR journey is deferred. | Done | Do not include as launch-critical implementation. |
 | PDF export journey is deferred. | Done | Do not include as launch-critical implementation. |
 | Verifier MVP flow uses minimal name/email + Terms acceptance. | Done | No verifier account required. |
+| ID.me-first onboarding proposal. | Proposed | See `/docs/flows/IDME_FIRST_ONBOARDING.md`; backend update tasks TASK-0045 through TASK-0047. |
 
 ## Launch-Critical Journey Work Blocks
 
@@ -71,6 +72,16 @@ Claude must execute these in order unless David or Codex records an approved seq
 | 11 | TASK-0041 | Implement Share-Link Token Creation Journey | Spec Drafted — Awaiting David Approval | TASK-0039, TASK-0040 | Entitled token creation; raw token returned once. |
 | 12 | TASK-0042 | Implement Verifier Token Validation and Credential View | Spec Drafted — Awaiting David Approval | TASK-0041 | `/v/{token}` verifier flow. |
 | 13 | TASK-0043 | Implement Admin/Ops Visibility and Journey Failure-State Coverage | Spec Drafted — Awaiting David Approval | TASK-0031 through TASK-0042 | Supabase ops visibility and failure-state coverage. |
+
+## ID.me-First Revision Tasks — 2026-05-31
+
+The following tasks supersede the account-first assumptions in TASK-0031 through TASK-0035 where they conflict. They remain Class A implementation work and require David approval before Claude executes.
+
+| Sequence | Task ID | Task | Status | Depends On | Notes |
+|---:|---|---|---|---|---|
+| R1 | TASK-0045 | Implement ID.me-First Onboarding Attempt and Account/Profile Linking Backend | Spec Drafted — Awaiting David Approval | TASK-0025 completion, canonical Supabase project | Creates or reuses safe pre-account state and links identity result to profile/account. |
+| R2 | TASK-0046 | Implement License Info Lookup and ID.me/License Binding Backend | Spec Drafted — Awaiting David Approval | TASK-0045, license lookup provider decision | Adds `/license-info` backend workflow, lookup, normalization, data match, and failure states before plan/payment. |
+| R3 | TASK-0047 | Reorder Phone, Plan, Payment, Selfie, and Success Backend Routing | Spec Drafted — Awaiting David Approval | TASK-0045, TASK-0046, Twilio/Stripe readiness | Makes `/phone-check`, `/account-select`, `/payment`, `/upload-selfie`, and `/success` align to new flow. |
 
 ## Numbering Correction — 2026-05-28
 

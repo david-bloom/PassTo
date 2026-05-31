@@ -1,9 +1,10 @@
 # PRD Section 3 — End-to-End MVP User Journeys
 
-**Status:** Draft for David Review  
+**Status:** Draft for David Review - ID.me-first revision proposed  
 **Owner:** David Bloom  
 **Drafting Support:** Codex and Claude  
 **Created:** 2026-05-26  
+**Last Updated:** 2026-05-31  
 **Associated Task List:** `/docs/tasks/PRD_SECTION_03_MASTER_TASK_LIST.md`  
 
 ## 3.1 Purpose
@@ -18,12 +19,14 @@ The MVP launch-critical journey is:
 
 ```text
 Nurse discovers PassTo
-→ creates account
-→ verifies identity
-→ verifies phone
+→ starts ID.me verification
+→ confirms identity/contact info
 → enters license details
 → license lookup runs
 → data match runs
+→ verifies phone
+→ chooses plan
+→ pays if needed
 → selfie is captured and stored
 → credential record is created
 → wallet pass is issued
@@ -38,21 +41,23 @@ The MVP must support this path before first production launch.
 
 ## 3.3 Nurse Account Creation Journey
 
-The nurse starts from the PassTo website or enrollment entry point and creates an account.
+The nurse starts from the PassTo website or enrollment entry point and begins ID.me-first onboarding.
 
 Expected behavior:
 
-- Nurse enters required account information.
-- Supabase Auth creates the authenticated user.
-- A PassTo profile is created or initialized.
-- The nurse is routed into the verification sequence.
+- Nurse clicks a clear ID.me-first CTA.
+- ID.me verification happens before password-first account creation.
+- PassTo receives safe identity/contact fields such as first name, last name, email, and phone where available.
+- The nurse confirms contact/profile information.
+- Supabase Auth/profile state is created or linked safely after backend verification.
+- The nurse is routed into license info.
 - The system writes required account/audit events.
 
 The account creation flow must not create a credential or license record until the required trust gates are completed.
 
 ## 3.4 Identity Verification Journey
 
-The nurse completes identity verification through ID.me.
+The nurse completes identity verification through ID.me as the first substantive enrollment step.
 
 Expected behavior:
 
@@ -62,12 +67,13 @@ Expected behavior:
 - IAL2 is required for credential issuance.
 - IAL1 or failed verification routes to retry/support and blocks issuance.
 - The backend writes identity status and audit events.
+- The backend creates or resumes a safe onboarding attempt before profile/account linking.
 
 Lovable must not handle ID.me secrets or make trust decisions.
 
 ## 3.5 Phone Verification Journey
 
-After identity verification, the nurse verifies phone possession through Twilio SMS.
+After license lookup/data match, the nurse verifies phone possession through Twilio SMS.
 
 Expected behavior:
 
@@ -82,7 +88,7 @@ If Twilio A2P 10DLC is not ready for production, David must approve a launch fal
 
 ## 3.6 License Lookup Journey
 
-After identity and phone verification, the nurse enters license details.
+After identity verification and contact confirmation, the nurse enters license details.
 
 Expected behavior:
 
@@ -92,12 +98,13 @@ Expected behavior:
 - Backend stores license source data and normalized status fields.
 - Lookup failure routes the nurse to retry/support and blocks credential issuance.
 - Lookup success proceeds to data matching.
+- Plan/payment should not be requested until license lookup and identity/license binding have succeeded.
 
 License lookup should be a separate backend operation from ID.me exchange. Keeping it separate preserves clearer audit, retry, and failure handling.
 
 ## 3.7 Data Matching Journey
 
-After license lookup succeeds, PassTo confirms that the verified identity matches the license record.
+After license lookup succeeds, PassTo confirms that the verified ID.me identity matches the license record.
 
 Expected behavior:
 
@@ -112,7 +119,7 @@ Data matching is a hard credential issuance gate.
 
 ## 3.8 Selfie Capture Journey
 
-After successful data matching, the nurse captures a selfie.
+After successful data matching, phone verification, and plan/payment handling where needed, the nurse captures a selfie.
 
 Expected behavior:
 
@@ -126,7 +133,7 @@ PassTo owns selfie storage. ID.me does not own this MVP selfie asset.
 
 ## 3.9 Credential Creation and Wallet Issuance Journey
 
-After identity, phone, license lookup, data matching, and selfie gates pass, PassTo creates the credential and issues the wallet pass.
+After identity, license lookup, data matching, phone verification, plan/payment where needed, and selfie gates pass, PassTo creates the credential and issues the wallet pass.
 
 Expected behavior:
 

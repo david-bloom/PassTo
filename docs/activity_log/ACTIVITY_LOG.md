@@ -4,6 +4,48 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Session Update — 2026-05-31 — Codex
+
+**Tasks:** ID.me-first onboarding flow proposal; backend task specs TASK-0045 through TASK-0047; Lovable prompt  
+**Status:** Documentation updated; implementation tasks drafted awaiting David approval  
+**Summary:** David asked Codex to evaluate and document a revised nurse onboarding workflow that starts with ID.me instead of password-first account creation. Codex documented the proposed ID.me-first flow, updated the relevant flow and PRD docs, created Claude backend implementation task specs, and wrote a Lovable prompt for the new pages/UX.
+
+### Proposed Route Sequence
+
+```text
+/id-verification
+/confirm-info
+/license-info
+/phone-check
+/account-select
+/payment
+/upload-selfie
+/success
+```
+
+### Files Updated
+
+- `/docs/flows/IDME_FIRST_ONBOARDING.md`
+- `/docs/flows/README.md`
+- `/docs/flows/ACCOUNT_CREATION.md`
+- `/docs/flows/ID_VERIFICATION.md`
+- `/docs/flows/LICENSE_LOOKUP.md`
+- `/docs/prd/PRD_SECTION_03_USER_JOURNEYS.md`
+- `/docs/prd/PASS_TO_PRD.md`
+- `/docs/tasks/PRD_SECTION_03_MASTER_TASK_LIST.md`
+- `/docs/tasks/TASK-0045.md`
+- `/docs/tasks/TASK-0046.md`
+- `/docs/tasks/TASK-0047.md`
+- `/docs/tasks/LOVABLE_PROMPT_2026-05-31_IDME_FIRST_ONBOARDING.md`
+
+### Open / Approval Needed
+
+- David approval is required before Claude executes TASK-0045, TASK-0046, or TASK-0047.
+- Codex security review is required before implementation because ID.me-first onboarding changes identity/account-linking order.
+- Open decisions remain: exact pre-account state model, selfie optional/required status, `/success` vs `/pass-ready` migration path, and support copy for ID.me/license mismatch.
+
+---
+
 ## Session Close — 2026-05-28 — Claude
 
 **Tasks:** TASK-0025 sandbox run attempt (step 3.1-7)

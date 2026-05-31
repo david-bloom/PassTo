@@ -11,6 +11,7 @@ Flows describe multi-step user/business processes. Feature docs describe product
 ```text
 /docs/flows/ACCOUNT_CREATION.md
 /docs/flows/ID_VERIFICATION.md
+/docs/flows/IDME_FIRST_ONBOARDING.md
 /docs/flows/LICENSE_LOOKUP.md
 /docs/flows/PAYMENTS.md
 /docs/flows/VERIFIER_CREDENTIAL_VIEW.md
