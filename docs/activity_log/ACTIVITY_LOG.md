@@ -4,6 +4,27 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Security Review — 2026-05-31 — Codex
+
+**Task:** TASK-0045 ID.me-first onboarding backend  
+**Status:** Security direction approved with constraints; execution still awaiting David approval  
+**Summary:** David requested Codex security review for the unauthenticated `idme-exchange-v2` callback, proposed `onboarding_attempts` schema, and Supabase Auth account creation mechanism. Codex recorded the review in TASK-0045.
+
+### Decisions
+
+- `verify_jwt = false` is acceptable only for the pre-account ID.me callback if the function validates an onboarding attempt server-side before any token exchange or write.
+- Approved callback validation pattern: server-created `onboarding_attempt`, high-entropy `state`, stored `state_hash`, server-held encrypted/sealed PKCE verifier, S256 PKCE, expiry, single-use consumption, and exact redirect allowlist.
+- `onboarding_attempts` is approved directionally but needs constraints beyond a partial active-attempt index, including unique `state_hash`, status checks, expiry/consumption constraints, ID.me subject uniqueness, and service-role-only access.
+- `supabase.auth.admin.createUser()` is approved for this flow after ID.me validation and contact confirmation, with service-role-only use and no automatic phone confirmation from ID.me phone.
+
+### Open / Approval Needed
+
+- David approval is still required before Claude executes TASK-0045.
+- Claude must provide SQL and Edge Function implementation details before applying migrations or deploying.
+- Codex recommends a server-only/private table for onboarding attempts if compatible with project conventions.
+
+---
+
 ## C Handshake Result — 2026-05-31 — Codex
 
 **GitHub Checked:** Yes  
