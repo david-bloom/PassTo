@@ -145,19 +145,32 @@ serve(async (req) => {
     return json({ verified: true }, 200);
   }
 
-  if (verificationStatus === "canceled") {
-    // Max attempts exceeded or OTP expired
+  // Terminal states: OTP expired, max attempts exceeded, or cancelled
+  if (
+    verificationStatus === "canceled" ||
+    verificationStatus === "expired" ||
+    verificationStatus === "max_attempts_reached"
+  ) {
     await writeAudit(supabaseAdmin, profile.id, "phone.otp_expired", {
       error_key: "code_expired",
     });
     return json({ verified: false, error: "code_expired" }, 200);
   }
 
-  // status = 'pending' — wrong code, attempts remain
+  // Wrong code, attempts still remain
+  if (verificationStatus === "pending") {
+    await writeAudit(supabaseAdmin, profile.id, "phone.otp_failed", {
+      error_key: "invalid_code",
+    });
+    return json({ verified: false, error: "invalid_code" }, 200);
+  }
+
+  // Unexpected/unknown Twilio status (failed, deleted, etc.)
+  console.error("Unexpected Twilio verification status:", verificationStatus);
   await writeAudit(supabaseAdmin, profile.id, "phone.otp_failed", {
-    error_key: "invalid_code",
+    error_key: "provider_error",
   });
-  return json({ verified: false, error: "invalid_code" }, 200);
+  return json({ verified: false, error: "provider_error" }, 200);
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -175,15 +188,14 @@ async function writeAudit(
   action: string,
   changeAfter: Record<string, unknown>,
 ): Promise<void> {
-  try {
-    await supabase.from("audit_events").insert({
-      actor_id: actorId,
-      action,
-      resource_type: "profile",
-      resource_id: actorId,
-      change_after: changeAfter,
-    });
-  } catch (e) {
-    console.error("audit_events write failed:", e);
+  const { error } = await supabase.from("audit_events").insert({
+    actor_id: actorId,
+    action,
+    resource_type: "profile",
+    resource_id: actorId,
+    change_after: changeAfter,
+  });
+  if (error) {
+    console.error("audit_events write failed (non-blocking):", error);
   }
 }
