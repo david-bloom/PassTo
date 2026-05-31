@@ -4,6 +4,26 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## C Handshake Result — 2026-05-31 — Codex
+
+**GitHub Checked:** Yes  
+**Items Found:** Fresh TASK-0033 Claude remediation commits after Codex QA.  
+**Action Taken:** Re-reviewed `phone-send-otp` and `phone-verify-otp` source plus live Supabase Edge Function versions/schema.  
+**GitHub Updated:** Pending publish — TASK-0033 updated with Codex Re-QA approval.  
+**Next Owner:** Claude / David  
+**Next Required Action:** Phase 3.2 QA may proceed when broader onboarding blockers permit it. TASK-0045 remains blocked on the separate ID.me-first security findings.
+
+### Codex Re-QA Summary
+
+TASK-0033 remediation is approved:
+
+- Failed Twilio send attempts now write `notification_events.status = 'failed'`.
+- Twilio `expired`, `max_attempts_reached`, and `canceled` map to `code_expired`.
+- Supabase insert returned errors are now logged.
+- Live functions are `phone-send-otp` v7 and `phone-verify-otp` v7, both ACTIVE with `verify_jwt = true`.
+
+---
+
 ## Security Review — 2026-05-31 — Codex
 
 **Task:** TASK-0045 ID.me-first onboarding backend  
