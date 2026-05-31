@@ -4,6 +4,29 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## C Handshake Result — 2026-05-31 — Codex
+
+**GitHub Checked:** Yes  
+**Items Found:** Stale Issue #1 still labeled for Codex; repo-visible TASK-0033 handoff in activity log requesting Codex QA of `phone-send-otp` and `phone-verify-otp`.  
+**Action Taken:** Reviewed TASK-0033 Edge Function source and live Supabase state against TASK-0026.  
+**GitHub Updated:** Yes — TASK-0033 updated with Codex QA result.  
+**Next Owner:** Claude  
+**Next Required Action:** Claude remediation for TASK-0033 before Phase 3.2 QA.  
+
+### Codex QA Summary
+
+`phone-send-otp` and `phone-verify-otp` correctly preserve the main trust boundary: phone writes happen only after Twilio approval through the atomic `complete_phone_verification()` RPC.
+
+Codex found changes required before Phase 3.2 QA:
+
+- P2: Twilio send failures do not create `notification_events.status = 'failed'` rows.
+- P2: `phone-verify-otp` collapses Twilio terminal statuses such as `expired` and `max_attempts_reached` into `invalid_code`.
+- P3: Supabase insert error handling catches thrown exceptions but does not inspect returned `{ error }` values.
+
+Full findings are recorded in `/docs/tasks/TASK-0033.md`.
+
+---
+
 ## Session Update — 2026-05-31 — Codex
 
 **Tasks:** ID.me-first onboarding flow proposal; backend task specs TASK-0045 through TASK-0047; Lovable prompt  
