@@ -100,12 +100,14 @@ serve(async (req) => {
 
       // Twilio 429 = rate limit
       if (twilioRes.status === 429) {
+        await writeFailedNotification(supabaseAdmin, profile.id);
         await writeAudit(supabaseAdmin, profile.id, "phone.otp_failed", {
           error_key: "rate_limited",
         });
         return json({ sent: false, error: "rate_limited" }, 200);
       }
 
+      await writeFailedNotification(supabaseAdmin, profile.id);
       await writeAudit(supabaseAdmin, profile.id, "phone.otp_failed", {
         error_key: "provider_error",
       });
@@ -117,26 +119,25 @@ serve(async (req) => {
     verificationSid = twilioData?.sid;
   } catch (e) {
     console.error("Twilio Verify send threw:", e);
+    await writeFailedNotification(supabaseAdmin, profile.id);
     await writeAudit(supabaseAdmin, profile.id, "phone.otp_failed", {
       error_key: "provider_error",
     });
     return json({ sent: false, error: "provider_error" }, 200);
   }
 
-  // ── 6. Write notification_events ────────────────────────────────────────────
-  try {
-    await supabaseAdmin.from("notification_events").insert({
-      profile_id: profile.id,
-      related_entity_type: "phone_verification",
-      channel: "sms",
-      provider: "twilio",
-      direction: "outbound",
-      status: "sent",
-      external_message_id: verificationSid ?? null,
-    });
-  } catch (e) {
-    console.error("notification_events write failed:", e);
-    // Non-blocking — OTP was sent; do not fail the request
+  // ── 6. Write notification_events (success) ─────────────────────────────────
+  const { error: notifErr } = await supabaseAdmin.from("notification_events").insert({
+    profile_id: profile.id,
+    related_entity_type: "phone_verification",
+    channel: "sms",
+    provider: "twilio",
+    direction: "outbound",
+    status: "sent",
+    external_message_id: verificationSid ?? null,
+  });
+  if (notifErr) {
+    console.error("notification_events write failed (non-blocking):", notifErr);
   }
 
   // ── 7. Write audit event ────────────────────────────────────────────────────
@@ -157,21 +158,37 @@ function json(body: unknown, status: number): Response {
   });
 }
 
+async function writeFailedNotification(
+  supabase: ReturnType<typeof createClient>,
+  profileId: string,
+): Promise<void> {
+  const { error } = await supabase.from("notification_events").insert({
+    profile_id: profileId,
+    related_entity_type: "phone_verification",
+    channel: "sms",
+    provider: "twilio",
+    direction: "outbound",
+    status: "failed",
+  });
+  if (error) {
+    console.error("notification_events failed-row write failed (non-blocking):", error);
+  }
+}
+
 async function writeAudit(
   supabase: ReturnType<typeof createClient>,
   actorId: string,
   action: string,
   changeAfter: Record<string, unknown>,
 ): Promise<void> {
-  try {
-    await supabase.from("audit_events").insert({
-      actor_id: actorId,
-      action,
-      resource_type: "profile",
-      resource_id: actorId,
-      change_after: changeAfter,
-    });
-  } catch (e) {
-    console.error("audit_events write failed:", e);
+  const { error } = await supabase.from("audit_events").insert({
+    actor_id: actorId,
+    action,
+    resource_type: "profile",
+    resource_id: actorId,
+    change_after: changeAfter,
+  });
+  if (error) {
+    console.error("audit_events write failed (non-blocking):", error);
   }
 }
