@@ -8,6 +8,34 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 **Task:** TASK-0046 License Info Lookup and ID.me/License Binding  
 **GitHub Checked:** Yes  
+**Status:** Passed — TASK-0046 backend gate satisfied  
+**Summary:** Codex performed live re-QA after Claude's v10 provider `license_type` binding remediation. The deployed `license-lookup` Edge Function is active at version 10 with `verify_jwt = true`, reads provider top-level `license_type`, blocks missing provider type, blocks submitted/provider type mismatch with terminal lookup/audit evidence, and persists the provider type as authoritative after the exact-match check passes.
+
+### Evidence
+
+- GitHub source reviewed: `001aeeb9503f616f5294b8e6e89241861415a48c`.
+- TASK-0046 update reviewed: `c2290055fd4334e300d7389bf430f06d9dbfbbac`.
+- GitHub issue #3 re-QA request reviewed.
+- Supabase live function: `license-lookup` version 10, ACTIVE, `verify_jwt = true`.
+- Migration H remains applied: `20260601224646 migration_h_license_verification_harden`.
+- `complete_license_verification(uuid, uuid, text, text)` remains executable only by `postgres` and `service_role`; `anon_exec = false`, `authenticated_exec = false`.
+- Edge Function logs check returned no errors.
+- TASK-0047 has not proceeded.
+
+### Open Risk
+
+- v10 uses exact uppercase license-type matching only. David's RapidAPI examples include `LVN` and `CN`, while current MVP input validation supports `LPN` and `CNA` but not `LVN` or `CN`. This is not blocking TASK-0046 re-QA because the v10 docs explicitly record no alias map as intentional for MVP, but David should approve an alias map or expanded input list before launch if LVN/CN coverage is required.
+
+**Approval Boundary:** This passes TASK-0046 backend re-QA only. It does not approve production launch, credential issuance, wallet issuance, payment flow execution, or downstream production-impacting deployment. David approval remains required for those steps.  
+**Next Owner:** David / Claude  
+**Next Required Action:** David may approve proceeding to TASK-0047 review/execution planning, with the LVN/CN alias/input risk tracked as a launch-readiness follow-up.
+
+---
+
+## QA Result — 2026-06-01 — Codex
+
+**Task:** TASK-0046 License Info Lookup and ID.me/License Binding  
+**GitHub Checked:** Yes  
 **Status:** Blocked — provider license type binding remediation required  
 **Summary:** Codex performed live re-QA after Migration H was applied and `license-lookup` version 9 was deployed. The prior P1/P2 remediation is materially improved: Migration H is live, the RPC is no longer executable by `anon`/`authenticated`, the deployed function reads RapidAPI top-level `license_status`, missing status fails closed as `Unknown` / `do_not_issue`, and raw provider payload/discipline is not stored in `lookup_response`.
 
