@@ -210,22 +210,6 @@ serve(async (req) => {
     }
 
     attributesData = await attrRes.json();
-
-    // Diagnostic — remove before production
-    console.log("ID.me attributes top-level keys:", Object.keys(attributesData ?? {}));
-    console.log("ID.me attributes (sanitized):", JSON.stringify({
-      sub: attributesData?.sub,
-      uuid: attributesData?.uuid,
-      ial: attributesData?.ial,
-      loa: attributesData?.loa,
-      vot: attributesData?.vot,
-      verified: attributesData?.verified,
-      status: attributesData?.status,
-      hasAttributesArray: Array.isArray(attributesData?.attributes),
-      attributeHandles: Array.isArray(attributesData?.attributes)
-        ? (attributesData.attributes as Array<{ handle: string }>).map((a) => a.handle)
-        : [],
-    }));
   } catch (e) {
     console.error("ID.me attributes fetch threw:", e);
     await markAbandoned(supabaseAdmin, attemptId, "provider_error");
@@ -250,12 +234,6 @@ serve(async (req) => {
   const phone =
     extractField(attributesData, ["phone", "phone_number"]) ??
     extractAttribute(attributesData, ["phone", "phone_number", "mobile"]);
-
-  console.log(
-    "Parsed: subject_present:", !!subject, "ial:", ialLevel,
-    "first_name_present:", !!firstName, "last_name_present:", !!lastName,
-    "email_present:", !!email, "phone_present:", !!phone,
-  );
 
   // ── 9. Validate subject and IAL ────────────────────────────────────────────
   if (!subject) {
