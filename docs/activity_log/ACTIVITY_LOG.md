@@ -4,6 +4,31 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Approval / TASK-0040 Stripe — 2026-06-01 — David / Codex
+
+**Task:** TASK-0040 Implement Stripe Subscription State and Entitlement Gating  
+**GitHub Checked:** Yes  
+**Status:** Approved for execution — Stripe test-mode/MVP implementation scope  
+**Summary:** David approved TASK-0040. Codex recorded the approval in `APPROVAL-0011` and updated TASK-0040 from awaiting approval to approved for execution within the documented Stripe subscription/payment state and entitlement gating scope.
+
+### Approval Boundary
+
+- Approved: checkout/session creation or approved subscription start flow, webhook idempotency, `subscriptions`/`payments` persistence, server-side entitlement checks, subscription lapse handling, and audit/event records.
+- Not approved by this note: Stripe live-mode cutover, live product/pricing changes, production launch, credential/wallet issuance launch, annual plans, coupons, institutional billing, employer billing, additional license purchase flow, or any undocumented production-impacting configuration.
+- Any concrete migration, secret change, Edge Function deployment, or production-impacting Stripe configuration must still be documented with files changed, tests run, deviations, and risks for review.
+
+### Required Direction
+
+- Stripe secrets must stay server-side and out of Lovable.
+- Webhooks must verify Stripe signatures and be idempotent through `stripe_events`.
+- Paid entitlements must activate only from server-confirmed Stripe payment/subscription state, not from client navigation or Stripe return URLs.
+- TASK-0047 may depend on TASK-0040 server-derived payment/entitlement facts and must not create a parallel payment model.
+
+**Next Owner:** Claude  
+**Next Required Action:** Implement TASK-0040 within the approved scope, identify any migration/secret/deployment steps, and request Codex QA before downstream payment-dependent gates are treated as complete.
+
+---
+
 ## Approval / TASK-0047 Proceed — 2026-06-01 — David / Codex
 
 **Task:** TASK-0047 Reorder Phone, Plan, Payment, Selfie, and Success Backend Routing  
