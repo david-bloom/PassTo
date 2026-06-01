@@ -1,6 +1,6 @@
 # PassTo Supabase Schema and RLS Plan
 
-**Status:** Draft — Ready for Codex QA  
+**Status:** Historical Planning Baseline — TASK-0006 Codex Approved; Superseded by v4 Migration SQL  
 **Owner:** Claude  
 **Created:** 2026-05-26  
 **Related Task:** TASK-0006  
@@ -10,11 +10,17 @@
 
 ## Purpose
 
-This document is the consolidated, authoritative Supabase Schema and RLS Plan for PassTo MVP.
+This document was the consolidated Supabase Schema and RLS Plan for PassTo MVP planning.
 
 It reconciles the v3 remediation artifact (Claude Task 001-R) with canonical naming conventions, defines the RLS model per table, lists required Edge Functions, and states all remaining decisions that must be resolved before a migration is applied.
 
-**This document does not approve migration execution.**
+**This document does not approve migration execution and is no longer the implementation source of truth.**
+
+Current implementation references:
+
+- `/docs/architecture/V4_MIGRATION_SQL.md`
+- Live Supabase schema for `wvzjfxacykgsaffskgtr`
+- Current task specs and Codex QA notes
 
 Migration requires:
 1. Codex QA re-review of this plan
