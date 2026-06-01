@@ -4,6 +4,17 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Product Decision — 2026-06-01 — David / Codex
+
+**Task:** TASK-0046 License Binding  
+**Decision:** Approved MVP DOB mode: `dob_match_mode = name_only`  
+**Summary:** Claude asked whether to proceed with name-only matching because FLOW-LICENSE-003 originally specified ID.me DOB vs. license DOB matching, but the live v4 `licenses` table has no DOB column. David/Codex approved the conservative MVP path: do not store or compare DOB for MVP; use ID.me-verified first/last name and server-returned license holder first/last name, persist `dob_match_mode = name_only`, and audit that DOB was not matched.
+
+**Next Owner:** Claude  
+**Next Required Action:** Document the schema mapping and implement TASK-0046 using conservative deterministic name-only matching. Do not store ID.me DOB or license DOB unless separately approved.
+
+---
+
 ## Task Review / Closure — 2026-06-01 — David / Codex
 
 **Tasks:** TASK-0002, TASK-0003, TASK-0006, TASK-0024  

@@ -1,6 +1,6 @@
 # FLOW-LICENSE-003 — License Data Matching Service
 
-**Status:** Proposed  
+**Status:** Proposed — MVP DOB Decision Applied 2026-06-01  
 **Owner:** Codex  
 **Executor:** Claude  
 **Approver:** David  
@@ -34,6 +34,17 @@ The old Make/Airtable design performed this inside Make S4. The updated architec
 
 This service must be deterministic, testable, conservative, and explicitly auditable.
 
+### MVP DOB Decision — 2026-06-01
+
+David approved the MVP path `dob_match_mode = name_only`.
+
+The live v4 `licenses` table does not contain a DOB column. For MVP, do not store ID.me DOB or license DOB unless a separate schema/privacy decision is approved. The matching service should bind identity to license through conservative deterministic name matching only, using:
+
+- ID.me-verified `profiles.first_name` and `profiles.last_name`
+- License holder `licenses.first_name` and `licenses.last_name` from the server-side lookup result
+
+Audit and persisted match metadata must record `dob_match_mode = 'name_only'` so support and future QA can see that DOB was not used.
+
 ---
 
 ## 3. Scope
@@ -42,12 +53,12 @@ This service must be deterministic, testable, conservative, and explicitly audit
 
 - Implement reusable backend data-matching utility/service.
 - Compare ID.me full name against license holder name.
-- Compare ID.me DOB against license DOB when available.
-- Support name-only fallback when license DOB is unavailable.
+- Do not compare DOB for MVP.
+- Support conservative name-only matching and persist `dob_match_mode = 'name_only'`.
 - Store match result on the nurse record or approved verification state table.
 - Write audit event for match pass/fail.
 - Return structured result to license lookup/onboarding flow.
-- Include unit tests for expected name and DOB cases.
+- Include unit tests for expected name cases and `dob_match_mode = name_only` metadata behavior.
 
 ### Out of scope
 
@@ -64,20 +75,21 @@ This service must be deterministic, testable, conservative, and explicitly audit
 
 The service requires:
 
-### From ID.me / `nurses`
+### From ID.me / `profiles`
 
-- `idme_full_name_temp` or equivalent verified full-name field.
-- `idme_dob_temp` or equivalent verified DOB field.
-- `idme_assurance_level`.
-- `idme_verification_status`.
+- `profiles.first_name` from ID.me verified identity.
+- `profiles.last_name` from ID.me verified identity.
+- `profiles.id_verification_level`.
+- `profiles.id_verification_status`.
+- `profiles.id_me_subject`.
 
 ### From `licenses`
 
-- `holder_name`.
-- `holder_dob` when available.
-- `source_type`.
-- `source_name` or `provider_key`.
-- `license_id`.
+- `licenses.first_name`.
+- `licenses.last_name`.
+- `licenses.lookup_source`.
+- `licenses.id`.
+- Current normalized status fields used by TASK-0046.
 
 ### From caller
 
@@ -95,8 +107,8 @@ The service must not return `passed` unless:
 - License exists and belongs to nurse.
 - ID.me verification status is verified.
 - ID.me assurance level is IAL2 or approved equivalent.
-- ID.me full name is present.
-- License holder name is present.
+- ID.me verified first and last name are present.
+- License holder first and last name are present.
 
 If any precondition fails, return structured failure and do not mark match as passed.
 
@@ -144,20 +156,16 @@ Codex decision: do not introduce broad fuzzy matching libraries or loose similar
 
 ## 6.3 DOB comparison
 
-If license DOB is available:
+MVP behavior:
 
-- DOB must match ID.me DOB exactly after date normalization.
-- If DOB differs, match fails even if name matches.
-
-If license DOB is unavailable:
-
-- Match may pass on conservative name match alone.
-- Result metadata must record `dob_match_mode = unavailable_name_only`.
+- DOB is not stored or compared.
+- Match may pass only on conservative deterministic name match plus all license/status/identity preconditions.
+- Result metadata must record `dob_match_mode = name_only`.
 - Audit log must show that the match was name-only.
 
-If ID.me DOB is missing:
+Future behavior:
 
-- Do not pass the match unless David/Codex later approve an exception path.
+- If David later approves DOB storage/comparison, specify where ID.me DOB and license DOB are stored, how they are minimized/encrypted, retention/clearance rules, and exact comparison behavior before implementing.
 
 ---
 
@@ -183,15 +191,15 @@ Do not overload null/empty states to mean a match decision.
 On match pass:
 
 - Set nurse match result to `passed` or write equivalent verification-state row.
-- Preserve enough metadata to understand whether DOB was matched or unavailable.
-- Write `audit_log.event_type = data_matched` with `new_value = passed`.
+- Preserve enough metadata to show `dob_match_mode = name_only`.
+- Write `audit_events` with the match result.
 
 On match fail:
 
 - Set nurse match result to `failed` or equivalent.
-- Set nurse account status to `flagged` if this matches existing schema rules.
+- Do not change `profiles.account_status` unless a separate support/manual-review workflow is approved.
 - Block credential issuance.
-- Write `audit_log.event_type = data_matched` with failure value.
+- Write `audit_events` with the failure value.
 
 After matching:
 
@@ -209,8 +217,8 @@ Internal service return shape:
   "success": true,
   "match_result": "passed",
   "name_match": true,
-  "dob_match": true,
-  "dob_match_mode": "exact",
+  "dob_match": null,
+  "dob_match_mode": "name_only",
   "manual_review_required": false,
   "reason_code": null
 }
@@ -224,9 +232,9 @@ Name-only pass example:
   "match_result": "passed",
   "name_match": true,
   "dob_match": null,
-  "dob_match_mode": "unavailable_name_only",
+  "dob_match_mode": "name_only",
   "manual_review_required": false,
-  "reason_code": "license_dob_unavailable"
+  "reason_code": "mvp_name_only_approved"
 }
 ```
 
@@ -280,9 +288,9 @@ If match fails:
 
 ## 11. Security and Privacy
 
-- Do not expose ID.me DOB or license DOB to the frontend unless explicitly required.
-- Do not log sensitive DOB values in plaintext application logs.
-- Audit metadata may record whether DOB matched, not necessarily the DOB itself.
+- Do not expose ID.me DOB or license DOB to the frontend.
+- Do not store or log DOB values for MVP.
+- Audit metadata must record `dob_match_mode = name_only`.
 - Avoid storing excessive raw identity payloads.
 - If temporary ID.me fields are cleared, ensure match result and audit evidence remain durable.
 
@@ -312,19 +320,18 @@ Required test cases:
 - Missing holder name.
 - Missing ID.me name.
 
-### DOB cases
+### DOB mode cases
 
-- DOB exact match passes when name passes.
-- DOB mismatch fails even when name passes.
-- License DOB unavailable allows conservative name-only pass.
-- ID.me DOB missing blocks pass.
+- DOB is not required, stored, logged, or compared for MVP.
+- Conservative name-only pass records `dob_match_mode = name_only`.
+- Name mismatch fails even though DOB is not evaluated.
 
 ### Integration behavior
 
 - Low assurance level blocks pass.
-- Failed match flags nurse/account according to schema.
+- Failed match persists failure state and blocks progression without changing `profiles.account_status`.
 - Passed match writes audit event.
-- Name-only pass writes metadata indicating DOB unavailable.
+- Name-only pass writes metadata indicating `dob_match_mode = name_only`.
 
 ---
 
@@ -337,15 +344,15 @@ Required test cases:
 - [ ] Service allows conservative middle-name/middle-initial differences.
 - [ ] Service handles hyphen/punctuation variation safely.
 - [ ] Service does not allow broad unsafe fuzzy matches.
-- [ ] DOB must match exactly when license DOB is available.
-- [ ] Name-only match is allowed only when license DOB is unavailable.
+- [ ] DOB is not required, stored, logged, or compared for MVP.
+- [ ] Name-only match is allowed only under the approved MVP `dob_match_mode = name_only` path.
 - [ ] Name-only match is marked in metadata/audit.
-- [ ] Missing ID.me DOB blocks pass unless license DOB is unavailable and a documented exception is approved.
+- [ ] Missing DOB does not block MVP matching because DOB is out of scope for MVP storage/comparison.
 - [ ] Match pass writes durable match result.
 - [ ] Match fail writes durable failed result and blocks issuance.
 - [ ] Audit event is written for pass and fail.
-- [ ] Sensitive DOB values are not leaked to frontend or logs.
-- [ ] Unit tests cover required name and DOB cases.
+- [ ] DOB values are not stored, exposed to frontend, or logged.
+- [ ] Unit tests cover required name cases and `dob_match_mode = name_only` metadata behavior.
 
 ---
 
@@ -355,7 +362,7 @@ This task is done when:
 
 1. Data-matching service is implemented and callable by backend flows.
 2. Match result values are explicit and not ambiguous.
-3. Name and DOB matching rules are covered by tests.
+3. Name matching rules and `dob_match_mode = name_only` metadata behavior are covered by tests.
 4. Match results persist to Supabase according to approved schema.
 5. Audit event is written for pass/fail.
 6. Credential issuance can use the match result as a hard gate.
