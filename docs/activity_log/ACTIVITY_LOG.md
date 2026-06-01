@@ -4,6 +4,49 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Approval / Provider Contract Update — 2026-06-01 — David / Codex
+
+**Task:** TASK-0046 License Info Lookup and ID.me/License Binding  
+**Status:** Migration H approved; `license-lookup` source revision required before redeploy  
+**Summary:** David approved Migration H. David also corrected the RapidAPI provider contract: RapidAPI does return license status via a structured `POST /verify` response, including `license_status`, issue date, expiration date, and discipline data when exposed by the state board.
+
+### David Approval
+
+```text
+I approve Migration H
+```
+
+### David-Provided RapidAPI Contract
+
+RapidAPI documentation says `POST /verify` verifies by license number and state and returns the full structured license record, including license number, full name, license type, status, issue/expiration dates, and discipline data when exposed.
+
+Example response provided by David:
+
+```json
+{
+  "state": "TX",
+  "license_number": "751234",
+  "full_name": "JANE A SMITH",
+  "license_type": "RN",
+  "license_status": "Active",
+  "issue_date": "2015-06-12",
+  "expiration_date": "2026-08-31",
+  "discipline": [],
+  "source_url": "https://www.bon.texas.gov/..."
+}
+```
+
+### Codex Interpretation
+
+- Migration H is approved for David/Claude application.
+- The current checked-in `license-lookup` source should not be redeployed as-is because it expects a `{ results: [...] }` response shape and reads `match.status`, while David's provider contract is a top-level structured record with `license_status`.
+- Claude should revise `license-lookup` before redeploy so it submits the documented `POST /verify` request, reads `license_status`, persists only allowlisted non-sensitive fields, strips `discipline`/unneeded PII from `lookup_response`, and then requests Codex review/re-QA after deployment.
+
+**Next Owner:** Claude / David  
+**Next Required Action:** Apply approved Migration H when ready, revise `license-lookup` to the documented RapidAPI contract before redeploy, then tag Codex for live TASK-0046 re-QA. TASK-0047 remains blocked.
+
+---
+
 ## C Handshake Result — 2026-06-01 — Codex
 
 **GitHub Checked:** Yes  
