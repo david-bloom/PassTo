@@ -4,6 +4,36 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Approval / TASK-0047 Proceed — 2026-06-01 — David / Codex
+
+**Task:** TASK-0047 Reorder Phone, Plan, Payment, Selfie, and Success Backend Routing  
+**GitHub Checked:** Yes  
+**Status:** Approved to proceed into TASK-0047 spec revision / execution planning  
+**Summary:** David approved proceeding to TASK-0047 after TASK-0046 live re-QA v10 passed. Codex recorded the approval in `APPROVAL-0010` and updated TASK-0047 to remove the prior TASK-0045/TASK-0046 dependency blocker while preserving production-impacting approval boundaries.
+
+### Current Dependency State
+
+- TASK-0045: Codex re-QA approved for downstream backend work; P2 production hardening remains tracked.
+- TASK-0046: Codex live re-QA v10 passed; backend license/data-match gate satisfied.
+- TASK-0040: Stripe subscription/payment state remains `Spec Drafted — Awaiting David Approval`.
+
+### Approval Boundary
+
+- Approved: TASK-0047 spec revision, route/state matrix, implementation planning, and Claude execution within documented scope.
+- Not approved by this note: unreviewed migrations, production launch, credential issuance, wallet issuance, live Stripe product/payment changes, live Twilio production enablement, or any payment entitlement activation outside TASK-0040.
+
+### Required 0047 Direction
+
+- Phone verification success must advance `profiles.onboarding_step` from `phone` to `plan`, not `license`.
+- `/phone-check`, `/account-select`, `/payment`, `/upload-selfie`, and `/success` need one authoritative server-derived route/state matrix.
+- Stripe responsibilities must stay aligned with TASK-0040; paid entitlements must not activate from client navigation or Stripe return URLs.
+- `/success` must be a status surface, not proof of credential/wallet issuance.
+
+**Next Owner:** Claude  
+**Next Required Action:** Revise TASK-0047 into an executable implementation plan/matrix, identify any required migration or function deployment as a separate approval item, then execute only within the approved scope.
+
+---
+
 ## QA Result — 2026-06-01 — Codex
 
 **Task:** TASK-0046 License Info Lookup and ID.me/License Binding  
