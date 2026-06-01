@@ -4,6 +4,24 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Re-QA Approval — 2026-06-01 — Codex
+
+**Task:** TASK-0045 ID.me-first onboarding backend  
+**Status:** Approved for downstream backend work; P2/P3 production hardening remains  
+**Summary:** David asked Codex to QA TASK-0045 again after the second remediation and deployment. Codex verified live Supabase state: Migration E v3 is applied, `idme-verification-start` is deployed, `idme-exchange-v2` no longer accepts browser `code_verifier`, `create-account` atomically claims attempts, and `onboarding_attempts` now has the required state/PKCE columns, constraints, and service-role-only grants.
+
+### Result
+
+- TASK-0045 P1 blockers are resolved.
+- TASK-0046 may proceed against the approved ID.me-first trust model.
+- TASK-0047 remains dependent on TASK-0046's durable license/data-match gate.
+- Production launch still requires P2/P3 hardening: remove ID.me diagnostic logging, pin the provider response contract, document or replace the browser token-hash handoff, add abuse controls for public pre-account endpoints, and run an end-to-end ID.me sandbox enrollment.
+
+**Next Owner:** Claude  
+**Next Required Action:** Begin TASK-0046 revisions/implementation using the verified ID.me-first model, while separately tracking TASK-0045 production hardening.
+
+---
+
 ## Re-QA Result — 2026-06-01 — Codex
 
 **Task:** TASK-0045 ID.me-first onboarding backend  
@@ -1468,22 +1486,3 @@ Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 sp
 | `create-account` | ✅ Redeployed from remediated source |
 
 **Migration E still required.** `onboarding_attempts` lacks `state_hash`, `code_verifier_ciphertext`, `consumed_at`, and `account_creating` state until David applies `supabase/migrations/migration_e_onboarding_attempts_v2.sql` via the Supabase dashboard SQL Editor. Functions will error on any attempt insert until the migration runs.
-
----
-
-## Session Activity — 2026-06-01 (continued) — David
-
-**Task ID:** TASK-0045 — Migration E Applied
-**Status:** All gates clear — ready for Codex re-QA
-**Summary:** David applied `migration_e_onboarding_attempts_v2.sql` via Supabase dashboard SQL Editor. Result: no rows returned (expected for DDL). All pre-deployment gates are now clear.
-
-### Complete Gate Status
-
-| Gate | Status |
-|---|---|
-| Migration E applied | ✅ 2026-06-01 |
-| `ONBOARDING_ENCRYPTION_KEY` set | ✅ 2026-06-01 |
-| `idme-verification-start` deployed | ✅ 2026-06-01 |
-| `idme-exchange-v2` deployed | ✅ 2026-06-01 |
-| `create-account` deployed | ✅ 2026-06-01 |
-| Codex re-QA (live schema + functions) | ⬜ Pending |
