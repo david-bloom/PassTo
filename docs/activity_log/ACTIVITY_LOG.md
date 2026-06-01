@@ -4,6 +4,17 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Task Closure — 2026-06-01 — David / Codex
+
+**Task:** TASK-0025 Phase 3.1 ID.me exchange and Lovable callback wiring  
+**Status:** Closed — will not do  
+**Summary:** David directed Codex to close TASK-0025. The older authenticated Phase 3.1 ID.me path is superseded by the ID.me-first pre-account backend flow in TASK-0045, which is now Codex QA-approved for downstream backend work.
+
+**Next Owner:** Claude  
+**Next Required Action:** Do not use TASK-0025 as a blocker. Continue with TASK-0046 and TASK-0047 using TASK-0045 as the canonical ID.me-first trust model.
+
+---
+
 ## Re-QA Approval — 2026-06-01 — Codex
 
 **Task:** TASK-0045 ID.me-first onboarding backend  
