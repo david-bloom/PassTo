@@ -75,8 +75,9 @@ serve(async (req) => {
     return json({ error: "identity_not_verified" }, 400);
   }
 
-  // Idempotency: already at 'license' step
-  if (profile.onboarding_step === "license") {
+  // Idempotency: already past phone step (plan or later in ID.me-first flow)
+  const POST_PHONE_STEPS = new Set(["plan", "payment", "selfie", "pass", "complete"]);
+  if (POST_PHONE_STEPS.has(profile.onboarding_step)) {
     if (profile.phone === phone) {
       return json({ verified: true }, 200);
     }
@@ -85,6 +86,23 @@ serve(async (req) => {
 
   if (profile.onboarding_step !== "phone") {
     return json({ error: "invalid_step" }, 400);
+  }
+
+  // ── 4b. License match gate ─────────────────────────────────────────────────
+  // Require data_match_passed = true on the primary license before verifying OTP.
+  const { data: primaryLicense } = await supabaseAdmin
+    .from("licenses")
+    .select("data_match_passed")
+    .eq("profile_id", profile.id)
+    .eq("is_primary", true)
+    .eq("data_match_passed", true)
+    .maybeSingle();
+
+  if (!primaryLicense) {
+    await writeAudit(supabaseAdmin, profile.id, "phone.otp_blocked", {
+      error_key: "license_not_verified",
+    });
+    return json({ error: "license_not_verified" }, 403);
   }
 
   // ── 5. Check code with Twilio Verify ───────────────────────────────────────
