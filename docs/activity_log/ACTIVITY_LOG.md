@@ -1526,3 +1526,38 @@ Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 sp
 | `create-account` | ✅ Redeployed from remediated source |
 
 **Migration E still required.** `onboarding_attempts` lacks `state_hash`, `code_verifier_ciphertext`, `consumed_at`, and `account_creating` state until David applies `supabase/migrations/migration_e_onboarding_attempts_v2.sql` via the Supabase dashboard SQL Editor. Functions will error on any attempt insert until the migration runs.
+
+---
+
+## Session Activity — 2026-06-01 (continued) — Claude
+
+**Task ID:** TASK-0046 — License Info Lookup and ID.me/License Binding — Implementation
+**Status:** Implementation complete — pending Migration G approval + deployment + Codex QA
+**Role:** Claude / Senior Engineer
+**Summary:** Built TASK-0046 after David confirmed RapidAPI as provider and approved name-only DOB matching. Resolved all Codex spec gaps (schema mapping, state transition, match gate). Wrote Migration G (data_match_passed + complete_license_verification RPC) and license-lookup Edge Function (RapidAPI adapter, conservative name matching, atomic RPC, verify_jwt=true).
+
+### Files Committed
+
+| File | Commit |
+|---|---|
+| `supabase/migrations/migration_g_license_match_fields.sql` | bb410bace824 |
+| `supabase/functions/license-lookup/index.ts` | c60dfcf77d70 |
+| `docs/tasks/TASK-0046.md` | 951917d5a024 |
+
+### Decisions Resolved This Session
+
+| Item | Resolution |
+|---|---|
+| Provider | RapidAPI — David confirmed |
+| DOB matching | `dob_match_mode = name_only` — David approved in commit b778849 |
+| Schema mapping | FLOW-LICENSE table names reconciled to live v4 |
+| State transition | `complete_license_verification()` RPC atomically advances `onboarding_step = 'phone'` on match pass |
+| Durable match gate | `licenses.data_match_passed` boolean — credential creation reads this field |
+
+### Next Steps (David)
+
+1. Approve Migration G SQL (`supabase/migrations/migration_g_license_match_fields.sql`)
+2. Apply via Supabase dashboard SQL Editor
+3. Set Supabase secrets: `RAPIDAPI_KEY`, `RAPIDAPI_HOST`, `RAPIDAPI_LICENSE_URL`
+4. Deploy: `npx supabase functions deploy license-lookup --project-ref wvzjfxacykgsaffskgtr`
+5. Tag Codex for QA
