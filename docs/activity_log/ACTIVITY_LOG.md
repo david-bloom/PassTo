@@ -1389,3 +1389,39 @@ Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 sp
 | TASK-0025 IDME_ATTRIBUTES_URL | Unresolved — try `https://api.idmelabs.com/api/public/v3/attributes.json` |
 | D-3: Abandon TASK-0022 Lovable Phase 2 work? | Pending David decision |
 | TASK-0046, TASK-0047 | Blocked on TASK-0045 completion |
+
+---
+
+## Session Activity — 2026-06-01 (continued) — Claude
+
+**Task IDs:** TASK-0044, TASK-0045, TASK-0046 — David Approvals
+**Status:** Approvals recorded; TASK-0044 implementation complete; TASK-0046 blocked pending TASK-0045 re-QA
+**Role:** Claude / Senior Engineer
+**Summary:** Recorded David approvals for TASK-0044, TASK-0045, TASK-0046. Applied Codex spec revisions to TASK-0044 via implementation. Built and pushed `scripts/seed-dev-test-personas.ts` — 13-persona ID.me-first flow seed harness with all Codex P1 safety requirements. TASK-0046 approved by David but blocked on TASK-0045 Codex re-QA and schema mapping.
+
+### Work Completed
+
+- Updated TASK-0044 Approved Date: 2026-06-01; Status: David Approved — Executing
+- Updated TASK-0045 Approved Date: 2026-06-01
+- Updated TASK-0046 Approved Date: 2026-06-01; Status: David Approved — Blocked: TASK-0045 Codex Re-QA + Schema Mapping Required
+- Implemented `scripts/seed-dev-test-personas.ts` with 13 ID.me-first flow personas
+- Applied all Codex P1 safety revisions: PASSTO_ALLOW_DEV_SEED guard, dev project ref hard-fail, production signal detection, --dry-run default, @passtodigital.test domain, seed-marker-only cleanup
+
+### GitHub Files Changed
+
+| File | Commit |
+|---|---|
+| `docs/tasks/TASK-0044.md` | 04992976a211 |
+| `docs/tasks/TASK-0045.md` | 81e0704bd6cb |
+| `docs/tasks/TASK-0046.md` | 90ca45c47f4b |
+| `scripts/seed-dev-test-personas.ts` | 7aa83d1cb99b |
+
+### Open Items Carried Forward
+
+| Item | Status |
+|---|---|
+| TASK-0044: Codex QA of seed harness | Required before David runs --apply |
+| TASK-0045: David apply Migration E + set ONBOARDING_ENCRYPTION_KEY + deploy | Required before Codex re-QA |
+| TASK-0045: Codex re-QA (P1 remediation) | Required before TASK-0046 execution |
+| TASK-0046: Schema mapping + provider decision + state transition spec | Required before Claude can execute |
+| D-3: Abandon TASK-0022 Phase 2 Lovable work? | Pending David decision |
