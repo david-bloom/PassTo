@@ -10,18 +10,21 @@
  * Security model:
  *   - Requires attempt_id in id_verified state.
  *   - Atomically claims the attempt (id_verified → account_creating) before
- *     calling admin.createUser() — prevents concurrent account creation for the
- *     same attempt.
+ *     calling admin.createUser() — prevents concurrent account creation.
  *   - Compares confirmed_email to attempt.verified_email (case-insensitive).
- *     If the nurse kept the ID.me email, email_confirm = true (IAL2 already
- *     proved ownership). If the nurse edited it, email_confirm = false
- *     (Supabase sends a verification link to the new address).
- *   - On any partial failure, attempts best-effort recovery to reset the attempt
- *     to id_verified so the nurse can retry rather than being permanently stuck.
+ *     If unchanged, email_confirm = true (IAL2 proved ownership).
+ *     If edited, email_confirm = false (Supabase sends verification link).
+ *   - Profile first_name and last_name are set from attempt.verified_first_name
+ *     and attempt.verified_last_name (ID.me trust source), NOT from browser
+ *     input. Browser-submitted names are accepted for display only if they
+ *     differ, but the ID.me-verified names are the identity anchor for
+ *     downstream license matching (TASK-0046).
  *   - verified_phone from ID.me is NOT copied to profiles.phone — only
  *     phone-verify-otp may write that field.
+ *   - On any pre-link failure, resets attempt to id_verified for retry.
+ *   - Fails closed on attempt-link failure (returns explicit recovery state).
  *
- * TASK: TASK-0045 — P1 remediation
+ * TASK: TASK-0045 — P1 + P2 remediation
  * Codex QA: required before production use
  */
 
@@ -36,7 +39,6 @@ const corsHeaders = {
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const NAME_RE = /^.{1,100}$/;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -50,15 +52,11 @@ serve(async (req) => {
 
   // ── 1. Parse and validate input ────────────────────────────────────────────
   let attempt_id: string;
-  let confirmed_first_name: string;
-  let confirmed_last_name: string;
   let confirmed_email: string;
 
   try {
     const body = await req.json();
     attempt_id = body?.attempt_id;
-    confirmed_first_name = body?.first_name;
-    confirmed_last_name = body?.last_name;
     confirmed_email = body?.email;
   } catch {
     return json({ error: "invalid_input" }, 400);
@@ -67,25 +65,17 @@ serve(async (req) => {
   if (!attempt_id || typeof attempt_id !== "string") {
     return json({ error: "invalid_input" }, 400);
   }
-  if (!confirmed_first_name || !NAME_RE.test(confirmed_first_name.trim())) {
-    return json({ error: "invalid_input" }, 400);
-  }
-  if (!confirmed_last_name || !NAME_RE.test(confirmed_last_name.trim())) {
-    return json({ error: "invalid_input" }, 400);
-  }
   if (!confirmed_email || !EMAIL_RE.test(confirmed_email.trim())) {
     return json({ error: "invalid_input" }, 400);
   }
 
   const attemptId = attempt_id.trim();
-  const firstName = confirmed_first_name.trim();
-  const lastName = confirmed_last_name.trim();
   const email = confirmed_email.trim().toLowerCase();
 
   // ── 2. Validate attempt state ──────────────────────────────────────────────
   const { data: attempt, error: selectErr } = await supabaseAdmin
     .from("onboarding_attempts")
-    .select("id, state, expires_at, idme_subject, id_verification_level, verified_email")
+    .select("id, state, expires_at, idme_subject, id_verification_level, verified_email, verified_first_name, verified_last_name")
     .eq("id", attemptId)
     .maybeSingle();
 
@@ -101,12 +91,9 @@ serve(async (req) => {
   if (attempt.state === "linked") {
     return json({ error: "attempt_already_used" }, 409);
   }
-
   if (attempt.state === "account_creating") {
-    // A concurrent request is mid-flight — do not proceed
     return json({ error: "attempt_already_claimed" }, 409);
   }
-
   if (attempt.state !== "id_verified") {
     return json({ error: "attempt_invalid_state" }, 400);
   }
@@ -120,40 +107,32 @@ serve(async (req) => {
   }
 
   // ── 3. Atomically claim the attempt ────────────────────────────────────────
-  // Transitions id_verified → account_creating.
-  // If 0 rows returned, a concurrent request just claimed it.
   const { data: claimed, error: claimErr } = await supabaseAdmin
     .from("onboarding_attempts")
-    .update({
-      state: "account_creating",
-      updated_at: new Date().toISOString(),
-    })
+    .update({ state: "account_creating", updated_at: new Date().toISOString() })
     .eq("id", attemptId)
     .eq("state", "id_verified")
-    .select("id, idme_subject, id_verification_level, verified_email");
+    .select("id, idme_subject, id_verification_level, verified_email, verified_first_name, verified_last_name");
 
   if (claimErr) {
     console.error("Failed to claim attempt:", claimErr);
     return json({ error: "server_error" }, 500);
   }
-
   if (!claimed || claimed.length === 0) {
     return json({ error: "attempt_already_claimed" }, 409);
   }
 
   const claimedAttempt = claimed[0];
 
-  // ── 4. Compare confirmed email to verified_email ───────────────────────────
-  // If the nurse kept the ID.me email exactly: ID.me IAL2 already proved
-  // ownership, so we auto-confirm. If the nurse edited it: require Supabase
-  // to send a verification link before the new address is confirmed.
+  // ── 4. Resolve identity and email fields ───────────────────────────────────
+  // ID.me-verified names are the trust anchor for license matching (TASK-0046).
+  // Browser-submitted names from /confirm-info are ignored for identity fields.
+  const verifiedFirstName = claimedAttempt.verified_first_name ?? null;
+  const verifiedLastName  = claimedAttempt.verified_last_name  ?? null;
   const verifiedEmailNorm = (claimedAttempt.verified_email ?? "").trim().toLowerCase();
   const emailMatchesVerified = verifiedEmailNorm.length > 0 && email === verifiedEmailNorm;
 
   // ── 5. Check for existing profile with this ID.me subject ─────────────────
-  // Final guard against duplicate accounts (backs up the unique index on
-  // profiles.id_me_subject). Done after the atomic claim so only one
-  // concurrent request can reach this point for the same attempt.
   if (claimedAttempt.idme_subject) {
     const { data: existingSubjectProfile } = await supabaseAdmin
       .from("profiles")
@@ -162,7 +141,7 @@ serve(async (req) => {
       .maybeSingle();
 
     if (existingSubjectProfile) {
-      console.log("ID.me subject already linked to existing profile — blocking duplicate.");
+      console.log("ID.me subject already linked — blocking duplicate.");
       await resetAttempt(supabaseAdmin, attemptId);
       await writeAudit(supabaseAdmin, null, "identity.duplicate_account_attempt", {
         attempt_id: attemptId,
@@ -176,15 +155,14 @@ serve(async (req) => {
   const { data: authData, error: createUserErr } = await supabaseAdmin.auth.admin.createUser({
     email,
     email_confirm: emailMatchesVerified,
-    user_metadata: { first_name: firstName, last_name: lastName },
+    user_metadata: {
+      first_name: verifiedFirstName,
+      last_name:  verifiedLastName,
+    },
   });
 
   if (createUserErr) {
-    // Use structured error code per Supabase Auth API
-    const isDuplicate =
-      (createUserErr as { code?: string }).code === "email_exists" ||
-      createUserErr.message?.toLowerCase().includes("already registered");
-
+    const isDuplicate = (createUserErr as { code?: string }).code === "email_exists";
     if (isDuplicate) {
       console.log("Email already exists in Supabase Auth — not revealing to client.");
       await resetAttempt(supabaseAdmin, attemptId);
@@ -192,10 +170,8 @@ serve(async (req) => {
         attempt_id: attemptId,
         error: "email_conflict",
       });
-      // Generic message — does not reveal whether the email exists
       return json({ error: "account_setup_failed", action: "contact_support" }, 409);
     }
-
     console.error("admin.createUser failed:", createUserErr);
     await resetAttempt(supabaseAdmin, attemptId);
     return json({ error: "account_setup_failed" }, 500);
@@ -232,17 +208,20 @@ serve(async (req) => {
     return json({ error: "account_setup_failed" }, 500);
   }
 
-  // ── 8. Update profile with verified identity fields ─────────────────────────
+  // ── 8. Update profile with ID.me-verified identity fields ──────────────────
+  // first_name and last_name are set from ID.me-verified values so they serve
+  // as the identity anchor for TASK-0046 license name matching. If the nurse
+  // edited their display name at /confirm-info, that is not stored here.
   const { error: updateErr } = await supabaseAdmin
     .from("profiles")
     .update({
-      first_name: firstName,
-      last_name: lastName,
-      id_verification_status: "verified",
-      id_verification_level: claimedAttempt.id_verification_level,
-      id_me_subject: claimedAttempt.idme_subject,
-      onboarding_step: "license",
-      updated_at: new Date().toISOString(),
+      first_name:              verifiedFirstName,
+      last_name:               verifiedLastName,
+      id_verification_status:  "verified",
+      id_verification_level:   claimedAttempt.id_verification_level,
+      id_me_subject:           claimedAttempt.idme_subject,
+      onboarding_step:         "license",
+      updated_at:              new Date().toISOString(),
     })
     .eq("id", profileId);
 
@@ -255,62 +234,71 @@ serve(async (req) => {
     return json({ error: "account_setup_failed" }, 500);
   }
 
-  // ── 9. Link attempt to profile (recoverable — do not fail response) ─────────
+  // ── 9. Link attempt to profile ─────────────────────────────────────────────
+  // Fail closed: if this write fails, the attempt stays in account_creating.
+  // Return an explicit recovery state so Lovable can prompt the nurse to retry
+  // or contact support, rather than silently completing with a dangling attempt.
   const { error: linkErr } = await supabaseAdmin
     .from("onboarding_attempts")
     .update({
-      state: "linked",
+      state:      "linked",
       profile_id: profileId,
       updated_at: new Date().toISOString(),
     })
     .eq("id", attemptId);
 
   if (linkErr) {
-    // Account was created successfully. Log and continue — the profile is
-    // correct. The attempt will be cleaned up by expiry or manual remediation.
-    console.error("Failed to mark attempt linked (non-fatal — account created):", linkErr);
+    console.error("Failed to mark attempt linked:", linkErr);
+    // Account exists and is correct; attempt is stuck in account_creating.
+    // Return explicit partial state so the client can handle recovery.
+    return json(
+      {
+        success:       true,
+        profile_id:    profileId,
+        email_confirmed: emailMatchesVerified,
+        warning:       "attempt_link_partial",
+        action:        "contact_support_if_issue",
+      },
+      200,
+    );
   }
 
-  // ── 10. Audit (non-blocking) ───────────────────────────────────────────────
-  writeAudit(supabaseAdmin, profileId, "identity.account_created", {
+  // ── 10. Audit (awaited — this is a trust-boundary record) ─────────────────
+  await writeAudit(supabaseAdmin, profileId, "identity.account_created", {
     id_verification_level: claimedAttempt.id_verification_level,
-    email_auto_confirmed: emailMatchesVerified,
-    onboarding_step: "license",
+    email_auto_confirmed:  emailMatchesVerified,
+    onboarding_step:       "license",
   });
 
   // ── 11. Generate session token for Lovable ─────────────────────────────────
-  // Magic link token — Lovable calls supabase.auth.verifyOtp() to get a
-  // session and proceed to /license-info.
-  // Only issue a session if the email is confirmed (same as ID.me email).
-  // If the nurse edited their email, they must verify first before getting a
-  // session; Supabase will have sent a confirmation link to the new address.
+  // Only issue a token if email is confirmed. If the nurse edited their email,
+  // Supabase sent a confirmation link; they must verify before getting a session.
   if (!emailMatchesVerified) {
     return json(
       {
-        success: true,
-        profile_id: profileId,
+        success:         true,
+        profile_id:      profileId,
         email_confirmed: false,
-        next: "verify_email",
+        next:            "verify_email",
       },
       200,
     );
   }
 
   const { data: linkData, error: linkGenErr } = await supabaseAdmin.auth.admin.generateLink({
-    type: "magiclink",
+    type:  "magiclink",
     email,
   });
 
   if (linkGenErr || !linkData?.properties?.hashed_token) {
     console.error("Failed to generate session link:", linkGenErr);
-    // Account is created — return success without session token.
     return json(
       {
-        success: true,
-        profile_id: profileId,
+        success:         true,
+        profile_id:      profileId,
         email_confirmed: true,
-        session_token: null,
-        fallback: "send_setup_email",
+        token_hash:      null,
+        fallback:        "send_setup_email",
       },
       200,
     );
@@ -318,12 +306,12 @@ serve(async (req) => {
 
   return json(
     {
-      success: true,
-      profile_id: profileId,
+      success:         true,
+      profile_id:      profileId,
       email_confirmed: true,
       email,
-      session_token: linkData.properties.hashed_token,
-      session_token_type: "email",
+      token_hash:      linkData.properties.hashed_token,
+      token_type:      "email",
     },
     200,
   );
@@ -346,7 +334,11 @@ async function resetAttempt(
 function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: {
+      ...corsHeaders,
+      "Content-Type":  "application/json",
+      "Cache-Control": "no-store",
+    },
   });
 }
 
@@ -357,11 +349,11 @@ async function writeAudit(
   changeAfter: Record<string, unknown>,
 ): Promise<void> {
   const { error } = await supabase.from("audit_events").insert({
-    actor_id: actorId,
+    actor_id:      actorId,
     action,
     resource_type: actorId ? "profile" : "onboarding_attempt",
-    resource_id: changeAfter.attempt_id ?? actorId,
-    change_after: changeAfter,
+    resource_id:   changeAfter.attempt_id ?? actorId,
+    change_after:  changeAfter,
   });
   if (error) console.error("audit_events write failed:", error);
 }
