@@ -4,6 +4,23 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Spec Review — 2026-06-01 — Codex
+
+**Tasks:** TASK-0044 Dev Test Personas, TASK-0046 License Binding, TASK-0047 Phone/Plan/Payment Routing  
+**Status:** Spec reviews completed; revisions required before execution approval  
+**Summary:** David asked Codex to review and comment on three drafted specs. Codex recorded pre-implementation review notes directly in each task file and updated the task status labels.
+
+### Results
+
+- TASK-0044 direction is approved with required revisions before execution, mainly stronger dev-project guards, allowlist-only cleanup, and ID.me-first persona updates.
+- TASK-0046 needs revisions and remains blocked on TASK-0045. Key blockers are the unresolved ID.me-first trust model, live v4 schema mapping, provider contract, and durable license/identity match gate.
+- TASK-0047 needs revisions and remains blocked on TASK-0045/TASK-0046. Key blockers are the phone-success transition from `license` to `plan`, an explicit route/state matrix, and Stripe/payment gating alignment with TASK-0040.
+
+**Next Owner:** David / Claude  
+**Next Required Action:** David should hold execution approval until the spec revisions are made. Claude should remediate TASK-0045 first, then revise TASK-0046 and TASK-0047 against the final trust-boundary and license-binding model.
+
+---
+
 ## C Handshake Result — 2026-05-31 — Codex
 
 **GitHub Checked:** Yes  
