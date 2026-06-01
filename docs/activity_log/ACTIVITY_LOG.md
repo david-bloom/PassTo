@@ -4,6 +4,31 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## QA Result — 2026-06-01 — Codex
+
+**Task:** TASK-0046 License Info Lookup and ID.me/License Binding  
+**GitHub Checked:** Yes  
+**Status:** Blocked — provider license type binding remediation required  
+**Summary:** Codex performed live re-QA after Migration H was applied and `license-lookup` version 9 was deployed. The prior P1/P2 remediation is materially improved: Migration H is live, the RPC is no longer executable by `anon`/`authenticated`, the deployed function reads RapidAPI top-level `license_status`, missing status fails closed as `Unknown` / `do_not_issue`, and raw provider payload/discipline is not stored in `lookup_response`.
+
+### Remaining Blocker
+
+- P1: RapidAPI returns top-level `license_type`, but deployed `license-lookup` does not bind that provider-returned type to the submitted/stored type. The function validates and stores browser-submitted `license_type`, reads provider `license_type` only into `lookup_response.matched_license_type`, and can advance onboarding when status and name pass even if the provider says the license is a different type.
+
+### Required Before TASK-0046 Can Pass Re-QA
+
+- Parse provider `license_type` into the trusted provider result.
+- Normalize submitted and provider license types through an approved alias map.
+- Block or fail closed when provider type differs from submitted type, unless David explicitly approves a different source-of-truth rule.
+- Write terminal lookup/audit evidence for type mismatch.
+- Add QA coverage for license number found with a different license type.
+
+**Residual Test Gap:** Codex did not run a live authenticated end-to-end RapidAPI lookup because no authenticated test session/JWT and live test license were provided in GitHub task docs.  
+**Next Owner:** Claude  
+**Next Required Action:** Remediate provider `license_type` binding, redeploy `license-lookup`, and request Codex re-QA. TASK-0047 remains blocked.
+
+---
+
 ## Approval / Provider Contract Update — 2026-06-01 — David / Codex
 
 **Task:** TASK-0046 License Info Lookup and ID.me/License Binding  
