@@ -63,6 +63,8 @@ const STATUS_FALLBACK: Record<string, {
   intent: string;
   treatment: string;
 }> = {
+  // Synthetic — API returns no status; treat found license as Registered/Active for MVP
+  "Registered":          { normalized: "Active",    intent: "credential_valid",    treatment: "valid" },
   "Active":              { normalized: "Active",    intent: "credential_valid",    treatment: "valid" },
   "ACTIVE":              { normalized: "Active",    intent: "credential_valid",    treatment: "valid" },
   "Current":             { normalized: "Active",    intent: "credential_valid",    treatment: "valid" },
@@ -171,11 +173,14 @@ serve(async (req) => {
     return json({ error: "source_unavailable", message_code: "license_source_unavailable" }, 200);
   }
 
+  // Search by nurse's ID.me-verified last name; filter results by submitted license number.
+  // The API is a name-search endpoint — querying by last name and filtering by license number
+  // confirms that this license exists under this person's verified identity.
   let providerResult: ProviderResult;
 
   try {
     const providerResponse = await callRapidApi(rapidApiKey,
-      { state: license_state, licenseNumber: license_number },
+      { state: license_state, licenseNumber: license_number, nurseLastName: profile.last_name },
     );
     providerResult = providerResponse;
   } catch (e) {
@@ -399,9 +404,17 @@ interface ProviderResult {
 const RAPIDAPI_URL  = "https://nurse-license-verification.p.rapidapi.com/verify";
 const RAPIDAPI_HOST = "nurse-license-verification.p.rapidapi.com";
 
+// API contract (confirmed from live response):
+//   Request:  POST { state, query } where query = nurse's verified last name
+//   Response: { state, query, results: [{ license_number, full_name, license_type }], result_count }
+//   full_name format: "LAST, FIRST MIDDLE"  (e.g. "SMITH, JANE A")
+//   No status field — API confirms license existence under a name only.
+//   MVP deviation: treat a found + license-number-matched result as 'Registered' (mapped to Active).
+//   Pre-production: confirm whether this API or an alternative returns license status.
+
 async function callRapidApi(
   apiKey: string,
-  input: { state: string; licenseNumber: string },
+  input: { state: string; licenseNumber: string; nurseLastName: string },
 ): Promise<ProviderResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10_000);
@@ -416,8 +429,8 @@ async function callRapidApi(
         "X-RapidAPI-Host": RAPIDAPI_HOST,
       },
       body: JSON.stringify({
-        state:          input.state,
-        license_number: input.licenseNumber,
+        state: input.state,
+        query: input.nurseLastName,
       }),
       signal: controller.signal,
     });
@@ -425,53 +438,58 @@ async function callRapidApi(
     clearTimeout(timeout);
   }
 
-  if (res.status === 429) {
-    throw new Error("provider_rate_limited");
-  }
-  if (res.status === 401 || res.status === 403) {
-    throw new Error("provider_auth_error");
-  }
-  if (!res.ok) {
-    throw new Error(`provider_http_${res.status}`);
-  }
+  if (res.status === 429) throw new Error("provider_rate_limited");
+  if (res.status === 401 || res.status === 403) throw new Error("provider_auth_error");
+  if (!res.ok) throw new Error(`provider_http_${res.status}`);
 
   const data = await res.json() as Record<string, unknown>;
+  const results = Array.isArray(data.results) ? data.results as Array<Record<string, unknown>> : [];
 
-  // Flexible field extraction — handles multiple RapidAPI response shapes.
-  // After first sandbox run, pin the exact field names and remove alternatives.
-  const found = extractBool(data, ["found", "success", "verified", "exists"]) ?? false;
-
-  if (!found) {
+  if (!results.length) {
     return { found: false, licenseNumber: null, holderFirstName: null,
              holderLastName: null, rawStatus: null, expirationDate: null, rawPayload: data };
   }
 
-  const licenseNumber   = extractStr(data, ["licenseNumber","license_number","number","licNumber"]);
-  const rawStatus       = extractStr(data, ["status","rawStatus","raw_status","licenseStatus","license_status"]);
-  const expirationDate  = extractStr(data, ["expirationDate","expiration_date","expDate","exp_date","expiryDate"]);
+  // Filter to the result whose license_number matches the submitted number
+  const submittedNorm = normalizeLicenseNumber(input.licenseNumber);
+  const match = results.find((r) =>
+    normalizeLicenseNumber(String(r.license_number ?? "")) === submittedNorm
+  );
 
-  // Name: try flat fields first, then compound full_name split
-  let holderFirstName = extractStr(data, ["firstName","first_name","holderFirstName","holder_first_name","givenName"]);
-  let holderLastName  = extractStr(data, ["lastName","last_name","holderLastName","holder_last_name","familyName","surname"]);
+  if (!match) {
+    return { found: false, licenseNumber: null, holderFirstName: null,
+             holderLastName: null, rawStatus: null, expirationDate: null, rawPayload: data };
+  }
 
-  if (!holderFirstName || !holderLastName) {
-    const fullName = extractStr(data, ["fullName","full_name","holderName","holder_name","name"]);
-    if (fullName) {
-      const parts = fullName.trim().split(/\s+/);
-      if (parts.length >= 2) {
-        holderFirstName = holderFirstName ?? parts[0];
-        holderLastName  = holderLastName  ?? parts[parts.length - 1];
-      }
+  // Parse "LAST, FIRST MIDDLE" full_name format
+  const fullName = String(match.full_name ?? "").trim();
+  let holderFirstName: string | null = null;
+  let holderLastName:  string | null = null;
+
+  const commaIdx = fullName.indexOf(",");
+  if (commaIdx >= 0) {
+    holderLastName  = fullName.slice(0, commaIdx).trim() || null;
+    const firstPart = fullName.slice(commaIdx + 1).trim().split(/\s+/);
+    holderFirstName = firstPart[0] || null;
+  } else if (fullName) {
+    // Fallback: space-separated FIRST LAST
+    const parts = fullName.split(/\s+/);
+    if (parts.length >= 2) {
+      holderFirstName = parts[0];
+      holderLastName  = parts[parts.length - 1];
     }
   }
 
+  // API returns no status field — synthetic value so downstream normalization passes
+  const rawStatus = String(match.status ?? "Registered");
+
   return {
     found:           true,
-    licenseNumber:   licenseNumber   ?? null,
-    holderFirstName: holderFirstName ?? null,
-    holderLastName:  holderLastName  ?? null,
-    rawStatus:       rawStatus       ?? null,
-    expirationDate:  expirationDate  ?? null,
+    licenseNumber:   String(match.license_number ?? ""),
+    holderFirstName,
+    holderLastName,
+    rawStatus,
+    expirationDate:  null,
     rawPayload:      data,
   };
 }
