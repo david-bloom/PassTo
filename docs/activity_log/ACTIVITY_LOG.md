@@ -1342,3 +1342,50 @@ Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 sp
 | Phase 3.2 end-to-end QA | Blocked on Phase 3.1 completion |
 | Twilio A2P 10DLC carrier approval | Submitted 2026-05-30 — pending (3–7 days) |
 | Supabase Auth email confirmation | Must be re-enabled if still off |
+
+---
+
+## Session Activity — 2026-06-01 — Claude
+
+**Task ID:** TASK-0045 — ID.me-First Onboarding Backend — P1 Remediation
+**Status:** Remediation Complete — Pending Migration E + Deployment + Codex Re-QA
+**Role:** Claude / Senior Engineer
+**Summary:** Addressed all three P1 findings from Codex QA security review of 2026-05-31. Rewrote `idme-exchange-v2` to validate server-side state/PKCE from a pre-created attempt. Created new `idme-verification-start` function that generates state and code_verifier server-side and stores encrypted verifier in DB. Updated `create-account` with atomic attempt claim, email verification comparison, and conditional email confirmation. Revised Migration E as ALTER TABLE (not CREATE TABLE — Codex confirmed table exists). Could not deploy — no Supabase access token available; deployment instructions added to TASK-0045.
+
+### Work Completed
+
+- Wrote `idme-verification-start` Edge Function — generates server-side state + PKCE, stores state_hash + AES-GCM encrypted code_verifier, creates onboarding_attempt before ID.me redirect.
+- Rewrote `idme-exchange-v2` — input changed from `{ code, code_verifier }` to `{ attempt_id, code, state }`; validates state_hash via `constantTimeEqual()`; atomically sets `consumed_at` before calling ID.me; decrypts code_verifier from DB; marks attempt abandoned on any failure.
+- Updated `create-account` — atomically claims attempt (`id_verified → account_creating`); compares confirmed_email to `attempt.verified_email`; sets `email_confirm` only when email unchanged; uses `error.code === "email_exists"` for duplicate detection; resets attempt to `id_verified` on any pre-link failure.
+- Wrote Migration E (revised) as ALTER TABLE — adds `state_hash`, `code_verifier_ciphertext`, `consumed_at`, adds `account_creating` to state CHECK, drops/recreates unique index with `expires_at > now()` guard, adds `cleanup_expired_onboarding_attempts()`.
+- Pushed all four files to GitHub, updated TASK-0045 status.
+
+### GitHub Files Changed
+
+| File | Commit |
+|---|---|
+| `supabase/functions/idme-verification-start/index.ts` | 0bb5e67e21ef |
+| `supabase/functions/idme-exchange-v2/index.ts` | 554dad0d9fb3 |
+| `supabase/functions/create-account/index.ts` | 3876717175 |
+| `supabase/migrations/migration_e_onboarding_attempts_v2.sql` | c3ca7b4029a4 |
+| `docs/tasks/TASK-0045.md` | 92b2991b0c6c |
+
+### Supabase Changes Required (David)
+
+| Action | Status |
+|---|---|
+| Apply `migration_e_onboarding_attempts_v2.sql` via Supabase dashboard | ⬜ Pending David |
+| Set `ONBOARDING_ENCRYPTION_KEY` secret on both `idme-verification-start` and `idme-exchange-v2` | ⬜ Pending David |
+| Deploy `idme-verification-start` (`--no-verify-jwt`) | ⬜ Pending David — see TASK-0045 for commands |
+| Deploy `idme-exchange-v2` (`--no-verify-jwt`) | ⬜ Pending David — see TASK-0045 for commands |
+| Deploy `create-account` (`--no-verify-jwt`) | ⬜ Pending David — see TASK-0045 for commands |
+
+### Open Items Carried Forward
+
+| Item | Status |
+|---|---|
+| Migration E application + deployment | Pending David (steps above) |
+| TASK-0045 Codex re-QA | Pending — after deployment |
+| TASK-0025 IDME_ATTRIBUTES_URL | Unresolved — try `https://api.idmelabs.com/api/public/v3/attributes.json` |
+| D-3: Abandon TASK-0022 Lovable Phase 2 work? | Pending David decision |
+| TASK-0046, TASK-0047 | Blocked on TASK-0045 completion |
