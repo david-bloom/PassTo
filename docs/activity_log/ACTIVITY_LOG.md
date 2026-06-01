@@ -1602,3 +1602,34 @@ Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 sp
 3. Set Supabase secrets: `RAPIDAPI_KEY`, `RAPIDAPI_HOST`, `RAPIDAPI_LICENSE_URL`
 4. Deploy: `npx supabase functions deploy license-lookup --project-ref wvzjfxacykgsaffskgtr`
 5. Tag Codex for QA
+
+---
+
+## Session Activity — 2026-06-02 — Claude
+
+**Task ID:** TASK-0046 — P1/P2 Remediation
+**Status:** Remediation complete — pending David approval + Migration H + redeployment + Codex re-QA
+**Role:** Claude / Senior Engineer
+**Summary:** Addressed all Codex P1/P2 findings. Migration H hardens `complete_license_verification()` RPC with locked search_path, full server-side validation, and revoked public execute. Edge Function removes synthetic "Registered"→Active status mapping, treats missing status as Unknown/do_not_issue, stores allowlisted payload, clears stale match state on every refresh, and makes terminal outcome writes fail-closed.
+
+### Files Pushed
+
+| File | Commit |
+|---|---|
+| `supabase/migrations/migration_h_license_verification_harden.sql` | 9178a4baa354 |
+| `supabase/functions/license-lookup/index.ts` | dfb9810f3e90 |
+| `docs/tasks/TASK-0046.md` | 49e1cfcf6422 |
+
+### Production-Impacting Actions Required (David approval needed before each)
+
+1. Apply `migration_h_license_verification_harden.sql` via Supabase SQL Editor
+2. Deploy `license-lookup`: `npx supabase functions deploy license-lookup --project-ref wvzjfxacykgsaffskgtr`
+3. Tag Codex for re-QA
+
+### Known Implications of P1 Status Fix
+
+With the `"Registered"` → Active mapping removed and the provider returning no status field, the current RapidAPI endpoint will return `normalized_status = 'Unknown'` for every lookup. This means no nurse can currently advance past the license step. This is the correct fail-safe behavior per Codex's finding. Advancing onboarding requires either:
+- A provider that returns current active/inactive/expired status; or
+- David approval to accept a different MVP stance (e.g., treat existence as Active with documented risk acceptance)
+
+Claude is not proposing a provider switch or a risk acceptance. This is a David decision before TASK-0047 can proceed.
