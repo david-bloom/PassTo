@@ -26,17 +26,19 @@
  *   These are not read from secrets; update source and redeploy if the
  *   provider endpoint changes.
  *
- * Confirmed provider response contract (from live sandbox response):
- *   Request:  POST { state, query } where query = nurse's verified last name
- *   Response: { state, query, results: [{ license_number, full_name, license_type }], result_count }
+ * Confirmed provider response contract (David-corrected 2026-06-01):
+ *   Request:  POST { license_number, state }
+ *   Response: top-level structured record —
+ *     { state, license_number, full_name, license_type, license_status,
+ *       issue_date, expiration_date, discipline, source_url }
  *   full_name format: "LAST, FIRST MIDDLE" (e.g. "SMITH, JANE A")
- *   Status field: not returned by this endpoint.
- *   Missing status → rawStatus = "Unknown" → normalized "Unknown" → do_not_issue → blocked.
+ *   license_status: present — e.g. "Active", "Expired", "Revoked", etc.
+ *   discipline: excluded from lookup_response (not stored per TASK-0046)
+ *   Not-found: provider returns 404 or empty/null response body.
  *
  * Deviations from FLOW-LICENSE-002:
  *   - Vercel route → Supabase Edge Function (consistent with TASK-0045 architecture).
  *   - state_license_routes table not consulted for MVP; all states call RapidAPI directly.
- *   - Provider does not return license status; missing status treated as Unknown/do_not_issue.
  *   - lookup_response stores an allowlisted payload only (not raw provider response).
  *
  * TASK: TASK-0046
@@ -194,7 +196,7 @@ serve(async (req) => {
 
   try {
     providerResult = await callRapidApi(rapidApiKey,
-      { state: license_state, licenseNumber: licenseNumberNorm, nurseLastName: profile.last_name },
+      { state: license_state, licenseNumber: licenseNumberNorm },
     );
   } catch (e) {
     console.error("RapidAPI call failed:", (e as Error).message);
@@ -438,7 +440,7 @@ serve(async (req) => {
 
 async function callRapidApi(
   apiKey: string,
-  input: { state: string; licenseNumber: string; nurseLastName: string },
+  input: { state: string; licenseNumber: string },
 ): Promise<ProviderResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10_000);
@@ -452,7 +454,7 @@ async function callRapidApi(
         "X-RapidAPI-Key":  apiKey,
         "X-RapidAPI-Host": RAPIDAPI_HOST,
       },
-      body: JSON.stringify({ state: input.state, query: input.nurseLastName }),
+      body: JSON.stringify({ license_number: input.licenseNumber, state: input.state }),
       signal: controller.signal,
     });
   } finally {
@@ -461,38 +463,47 @@ async function callRapidApi(
 
   if (res.status === 429) throw new Error("provider_rate_limited");
   if (res.status === 401 || res.status === 403) throw new Error("provider_auth_error");
-  if (!res.ok) throw new Error(`provider_http_${res.status}`);
 
-  const data = await res.json() as Record<string, unknown>;
-  const results = Array.isArray(data.results)
-    ? data.results as Array<Record<string, unknown>>
-    : [];
-
-  if (!results.length) {
+  // 404 = license not found by provider
+  if (res.status === 404) {
     return {
       found: false, notFoundReason: "no_results",
       licenseNumber: null, holderFirstName: null, holderLastName: null,
       rawStatus: "Unknown", expirationDate: null,
-      allowlistedPayload: buildAllowlistedPayload(data, null, input.state),
+      allowlistedPayload: buildAllowlistedPayload(null, input.state, false),
     };
   }
 
-  // Filter to the result whose license_number matches the submitted number
-  const match = results.find((r) =>
-    normalizeLicenseNumber(String(r.license_number ?? "")) === input.licenseNumber
-  );
+  if (!res.ok) throw new Error(`provider_http_${res.status}`);
 
-  if (!match) {
+  // Provider returns a top-level structured record, not a results array.
+  const data = await res.json() as Record<string, unknown>;
+
+  // Guard: empty or non-object body treated as not found
+  if (!data || typeof data !== "object") {
+    return {
+      found: false, notFoundReason: "no_results",
+      licenseNumber: null, holderFirstName: null, holderLastName: null,
+      rawStatus: "Unknown", expirationDate: null,
+      allowlistedPayload: buildAllowlistedPayload(null, input.state, false),
+    };
+  }
+
+  // Safety check: confirm the returned license_number matches what we submitted.
+  // The POST /verify endpoint queries by license_number, so a mismatch is unexpected
+  // but we guard it as a safety net.
+  const returnedNumber = normalizeLicenseNumber(String(data.license_number ?? ""));
+  if (returnedNumber !== input.licenseNumber) {
     return {
       found: false, notFoundReason: "number_mismatch",
       licenseNumber: null, holderFirstName: null, holderLastName: null,
       rawStatus: "Unknown", expirationDate: null,
-      allowlistedPayload: buildAllowlistedPayload(data, null, input.state),
+      allowlistedPayload: buildAllowlistedPayload(data, input.state, false),
     };
   }
 
-  // Parse "LAST, FIRST MIDDLE" full_name format confirmed from live response
-  const fullName = String(match.full_name ?? "").trim();
+  // Parse "LAST, FIRST MIDDLE" full_name format per provider contract
+  const fullName = String(data.full_name ?? "").trim();
   let holderFirstName: string | null = null;
   let holderLastName:  string | null = null;
 
@@ -509,42 +520,39 @@ async function callRapidApi(
     }
   }
 
-  // Provider does not return a status field.
-  // rawStatus = "Unknown" triggers do_not_issue path.
-  // If a future provider version adds a status field, it will be used here.
-  const rawStatus = match.status ? String(match.status) : "Unknown";
+  // Read top-level license_status per the documented POST /verify contract.
+  // Missing or empty status defaults to "Unknown" → do_not_issue.
+  const rawStatus = data.license_status ? String(data.license_status) : "Unknown";
 
   return {
     found:           true,
     notFoundReason:  null,
-    licenseNumber:   String(match.license_number ?? ""),
+    licenseNumber:   String(data.license_number ?? ""),
     holderFirstName,
     holderLastName,
     rawStatus,
-    expirationDate:  match.expiration_date ? String(match.expiration_date) : null,
-    allowlistedPayload: buildAllowlistedPayload(data, match, input.state),
+    expirationDate:  data.expiration_date ? String(data.expiration_date) : null,
+    allowlistedPayload: buildAllowlistedPayload(data, input.state, true),
   };
 }
 
 // ── Allowlisted payload builder ───────────────────────────────────────────────
-// Only audit-necessary fields are stored. Raw PII (full_name), the results
-// array, DOB, address, and disciplinary fields are explicitly excluded.
-// Retained fields are documented here per TASK-0046 / FLOW-LICENSE-002.
+// Only audit-necessary fields are stored. full_name (PII, stored in licenses),
+// discipline details, and source_url are excluded per TASK-0046.
 
 function buildAllowlistedPayload(
-  data: Record<string, unknown>,
-  match: Record<string, unknown> | null,
+  data: Record<string, unknown> | null,
   queryState: string,
+  matched: boolean,
 ): Record<string, unknown> {
   return {
     provider:             "rapidapi",
     endpoint:             "nurse-license-verification.p.rapidapi.com/verify",
     query_state:          queryState,
-    result_count:         typeof data.result_count === "number" ? data.result_count : null,
-    matched:              match !== null,
-    matched_license_type: match ? String(match.license_type ?? "") : null,
-    // Excluded: full_name (PII stored in licenses.first_name/last_name),
-    //           results array, any DOB/address/disciplinary data.
+    matched,
+    matched_license_type: matched && data ? String(data.license_type ?? "") : null,
+    // Excluded: full_name (PII — stored in licenses.first_name/last_name),
+    //           discipline, source_url, issue_date (not needed for audit).
   };
 }
 
