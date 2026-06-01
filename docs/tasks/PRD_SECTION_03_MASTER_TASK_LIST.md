@@ -80,7 +80,7 @@ The following tasks supersede the account-first assumptions in TASK-0031 through
 | Sequence | Task ID | Task | Status | Depends On | Notes |
 |---:|---|---|---|---|---|
 | R1 | TASK-0045 | Implement ID.me-First Onboarding Attempt and Account/Profile Linking Backend | Spec Drafted — Awaiting David Approval | TASK-0025 completion, canonical Supabase project | Creates or reuses safe pre-account state and links identity result to profile/account. |
-| R2 | TASK-0046 | Implement License Info Lookup and ID.me/License Binding Backend | Spec Drafted — Awaiting David Approval | TASK-0045, license lookup provider decision | Adds `/license-info` backend workflow, lookup, normalization, data match, and failure states before plan/payment. |
+| R2 | TASK-0046 | Implement License Info Lookup and ID.me/License Binding Backend | Codex QA Blocked — P1 remediation required | TASK-0045, license lookup provider decision | Live deployment has P1 RPC exposure and provider-status blockers before `/account-select`, payment, or credential issuance may depend on it. |
 | R3 | TASK-0047 | Reorder Phone, Plan, Payment, Selfie, and Success Backend Routing | Spec Drafted — Awaiting David Approval | TASK-0045, TASK-0046, Twilio/Stripe readiness | Makes `/phone-check`, `/account-select`, `/payment`, `/upload-selfie`, and `/success` align to new flow. |
 
 ## Numbering Correction — 2026-05-28

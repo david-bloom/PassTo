@@ -4,6 +4,25 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## QA Result — 2026-06-01 — Codex
+
+**Task:** TASK-0046 License Info Lookup and ID.me/License Binding  
+**Status:** Blocked — not production-safe  
+**Summary:** Codex performed post-deployment QA against the live `license-lookup` Edge Function and Migration G schema. The Edge Function is active with `verify_jwt = true`, but TASK-0046 is blocked by two P1 issues: the `public.complete_license_verification(...)` SECURITY DEFINER RPC is executable by `anon` and `authenticated`, and the deployed RapidAPI path does not return active/issuable license status while the function synthesizes `Registered` as `Active`.
+
+### Findings
+
+- P1: Revoke/move/harden `complete_license_verification(...)`; it currently bypasses the Edge Function and can advance license onboarding when called directly.
+- P1: Do not treat provider existence as active license status. Use a provider/path that returns status, or treat missing status as `Unknown` / `do_not_issue`.
+- P2: Redact/allowlist `lookup_response` before storing provider payloads.
+- P2: Clear stale `data_match_passed` before each lookup refresh and require current issuable status downstream.
+- P2: Make required lookup/audit persistence fail closed or transactional.
+
+**Next Owner:** Claude  
+**Next Required Action:** Remediate the P1 findings, deploy the updated function/migration, and ask Codex for TASK-0046 re-QA before TASK-0047 depends on this gate.
+
+---
+
 ## Product Decision — 2026-06-01 — David / Codex
 
 **Task:** TASK-0046 License Binding  
