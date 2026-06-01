@@ -102,15 +102,18 @@ const STATUS_FALLBACK: Record<string, {
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface ProviderResult {
-  found:            boolean;
-  notFoundReason:   "no_results" | "number_mismatch" | null;
-  licenseNumber:    string | null;
-  holderFirstName:  string | null;
-  holderLastName:   string | null;
+  found:               boolean;
+  notFoundReason:      "no_results" | "number_mismatch" | null;
+  licenseNumber:       string | null;
+  holderFirstName:     string | null;
+  holderLastName:      string | null;
   // rawStatus = "Unknown" when provider returns no status field — do NOT treat as issuable
-  rawStatus:        string;
-  expirationDate:   string | null;
-  allowlistedPayload: Record<string, unknown>;
+  rawStatus:           string;
+  // providerLicenseType: authoritative license type from provider, normalized to uppercase.
+  // null if provider omits the field — treated as missing_required_field.
+  providerLicenseType: string | null;
+  expirationDate:      string | null;
+  allowlistedPayload:  Record<string, unknown>;
 }
 
 // ── Main handler ──────────────────────────────────────────────────────────────
@@ -246,6 +249,40 @@ serve(async (req) => {
     return json({ success: false, error: "missing_required_field", message_code: "license_lookup_incomplete" }, 200);
   }
 
+  // ── 5b. Validate provider license_type against submitted type ─────────────
+  // The provider is the authoritative source for license_type.
+  // No alias map is approved for MVP — exact normalized match required.
+  // Mismatch (e.g. submitted RN, provider returns NP) blocks progression.
+
+  if (!providerResult.providerLicenseType) {
+    try {
+      await writeTerminalOutcome(supabaseAdmin, profile.id, null,
+        "failed", "missing_required_field:license_type",
+        "license.lookup_failed", { error: "missing_license_type", state: license_state });
+    } catch (e) {
+      console.error("Terminal write failed:", (e as Error).message);
+      return json({ error: "server_error" }, 500);
+    }
+    return json({ success: false, error: "missing_required_field", message_code: "license_lookup_incomplete" }, 200);
+  }
+
+  if (providerResult.providerLicenseType !== license_type) {
+    try {
+      await writeTerminalOutcome(supabaseAdmin, profile.id, null,
+        "failed", "license_type_mismatch",
+        "license.lookup_failed", {
+          error:                  "license_type_mismatch",
+          submitted_license_type: license_type,
+          provider_license_type:  providerResult.providerLicenseType,
+          state:                  license_state,
+        });
+    } catch (e) {
+      console.error("Terminal write failed:", (e as Error).message);
+      return json({ error: "server_error" }, 500);
+    }
+    return json({ success: false, error: "license_type_mismatch", message_code: "license_type_mismatch" }, 200);
+  }
+
   // ── 6. Normalize status ────────────────────────────────────────────────────
   // rawStatus = "Unknown" when provider returned no status — always do_not_issue.
   // STATUS_FALLBACK["Unknown"] maps to verification_failure / do_not_issue.
@@ -319,7 +356,7 @@ serve(async (req) => {
       .insert({
         profile_id:            profile.id,
         state:                 license_state,
-        license_type:          license_type,
+        license_type:          providerResult.providerLicenseType,
         license_number:        license_number,
         first_name:            providerResult.holderFirstName,
         last_name:             providerResult.holderLastName,
@@ -469,7 +506,7 @@ async function callRapidApi(
     return {
       found: false, notFoundReason: "no_results",
       licenseNumber: null, holderFirstName: null, holderLastName: null,
-      rawStatus: "Unknown", expirationDate: null,
+      rawStatus: "Unknown", providerLicenseType: null, expirationDate: null,
       allowlistedPayload: buildAllowlistedPayload(null, input.state, false),
     };
   }
@@ -484,20 +521,18 @@ async function callRapidApi(
     return {
       found: false, notFoundReason: "no_results",
       licenseNumber: null, holderFirstName: null, holderLastName: null,
-      rawStatus: "Unknown", expirationDate: null,
+      rawStatus: "Unknown", providerLicenseType: null, expirationDate: null,
       allowlistedPayload: buildAllowlistedPayload(null, input.state, false),
     };
   }
 
   // Safety check: confirm the returned license_number matches what we submitted.
-  // The POST /verify endpoint queries by license_number, so a mismatch is unexpected
-  // but we guard it as a safety net.
   const returnedNumber = normalizeLicenseNumber(String(data.license_number ?? ""));
   if (returnedNumber !== input.licenseNumber) {
     return {
       found: false, notFoundReason: "number_mismatch",
       licenseNumber: null, holderFirstName: null, holderLastName: null,
-      rawStatus: "Unknown", expirationDate: null,
+      rawStatus: "Unknown", providerLicenseType: null, expirationDate: null,
       allowlistedPayload: buildAllowlistedPayload(data, input.state, false),
     };
   }
@@ -524,15 +559,22 @@ async function callRapidApi(
   // Missing or empty status defaults to "Unknown" → do_not_issue.
   const rawStatus = data.license_status ? String(data.license_status) : "Unknown";
 
+  // Read provider-authoritative license_type. Normalized to uppercase.
+  // null if provider omits it — checked as missing_required_field in main handler.
+  const providerLicenseType = data.license_type
+    ? String(data.license_type).trim().toUpperCase()
+    : null;
+
   return {
-    found:           true,
-    notFoundReason:  null,
-    licenseNumber:   String(data.license_number ?? ""),
+    found:               true,
+    notFoundReason:      null,
+    licenseNumber:       String(data.license_number ?? ""),
     holderFirstName,
     holderLastName,
     rawStatus,
-    expirationDate:  data.expiration_date ? String(data.expiration_date) : null,
-    allowlistedPayload: buildAllowlistedPayload(data, input.state, true),
+    providerLicenseType,
+    expirationDate:      data.expiration_date ? String(data.expiration_date) : null,
+    allowlistedPayload:  buildAllowlistedPayload(data, input.state, true),
   };
 }
 
