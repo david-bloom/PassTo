@@ -30,6 +30,40 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0010 — TASK-0047 Approved to Proceed
+
+**Date:** 2026-06-01  
+**Approved By:** David  
+**Related Task:** TASK-0047  
+**Decision:** Approved with Notes  
+
+### Summary
+
+David approved proceeding to TASK-0047 after TASK-0046 live re-QA v10 passed:
+
+```text
+approved proceeding to 0047
+```
+
+This approval clears the prior "pending David approval" blocker for TASK-0047 review/execution planning.
+
+### Approval Checklist
+
+- [x] I approve proceeding to TASK-0047.
+- [x] I understand TASK-0045 has passed Codex re-QA for downstream backend work.
+- [x] I understand TASK-0046 live re-QA v10 has passed for the backend gate.
+- [x] I understand TASK-0040 Stripe subscription/payment state remains pending separate approval.
+- [x] I understand any concrete migration, production-impacting deployment, live Stripe setup, or live Twilio production enablement still requires its own documented approval path.
+
+### Notes
+
+- Claude may revise TASK-0047 into an executable route/state matrix and implementation plan.
+- TASK-0047 must update the phone-success transition to advance to `plan`, not `license`.
+- TASK-0047 must keep Stripe responsibilities aligned to TASK-0040 and must not activate paid entitlements from client navigation or Stripe return URLs.
+- This approval does not approve production launch, credential issuance, wallet issuance, live Stripe product/payment changes, live Twilio production enablement, or any unreviewed migration.
+
+---
+
 ## APPROVAL-0009 — TASK-0046 Migration H Approved
 
 **Date:** 2026-06-01  
