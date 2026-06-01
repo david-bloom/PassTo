@@ -1,24 +1,28 @@
 /**
  * create-account
  *
- * ID.me-first onboarding: creates the Supabase Auth user and profile after
- * the nurse confirms their contact details at /confirm-info.
+ * Step 3 of the ID.me-first onboarding flow.
+ * Called when the nurse submits /confirm-info after reviewing their ID.me
+ * verified name and email.
  *
  * verify_jwt: false — no Supabase Auth user exists yet at this point.
  *
- * Flow:
- *   1. Receive attempt_id + nurse-confirmed fields from Lovable
- *   2. Validate the onboarding_attempt (exists, id_verified state, not expired)
- *   3. Detect duplicate id_me_subject without leaking existing account emails
- *   4. Create Supabase Auth user (admin API, email pre-confirmed, no password)
- *   5. handle_new_user() trigger fires → profiles row created automatically
- *   6. Update profile with verified identity fields
- *   7. Mark onboarding_attempt as linked
- *   8. Return a one-time session token so Lovable can authenticate the nurse
- *      and proceed to /license-info
+ * Security model:
+ *   - Requires attempt_id in id_verified state.
+ *   - Atomically claims the attempt (id_verified → account_creating) before
+ *     calling admin.createUser() — prevents concurrent account creation for the
+ *     same attempt.
+ *   - Compares confirmed_email to attempt.verified_email (case-insensitive).
+ *     If the nurse kept the ID.me email, email_confirm = true (IAL2 already
+ *     proved ownership). If the nurse edited it, email_confirm = false
+ *     (Supabase sends a verification link to the new address).
+ *   - On any partial failure, attempts best-effort recovery to reset the attempt
+ *     to id_verified so the nurse can retry rather than being permanently stuck.
+ *   - verified_phone from ID.me is NOT copied to profiles.phone — only
+ *     phone-verify-otp may write that field.
  *
- * TASK: TASK-0045
- * Codex QA: pending — security review required before production use.
+ * TASK: TASK-0045 — P1 remediation
+ * Codex QA: required before production use
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -28,6 +32,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "https://enroll.passtodigital.com",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -62,118 +67,148 @@ serve(async (req) => {
   if (!attempt_id || typeof attempt_id !== "string") {
     return json({ error: "invalid_input" }, 400);
   }
-  if (
-    !confirmed_first_name ||
-    !NAME_RE.test(confirmed_first_name.trim())
-  ) {
+  if (!confirmed_first_name || !NAME_RE.test(confirmed_first_name.trim())) {
     return json({ error: "invalid_input" }, 400);
   }
-  if (
-    !confirmed_last_name ||
-    !NAME_RE.test(confirmed_last_name.trim())
-  ) {
+  if (!confirmed_last_name || !NAME_RE.test(confirmed_last_name.trim())) {
     return json({ error: "invalid_input" }, 400);
   }
   if (!confirmed_email || !EMAIL_RE.test(confirmed_email.trim())) {
     return json({ error: "invalid_input" }, 400);
   }
 
+  const attemptId = attempt_id.trim();
   const firstName = confirmed_first_name.trim();
   const lastName = confirmed_last_name.trim();
   const email = confirmed_email.trim().toLowerCase();
 
-  // ── 2. Look up and validate onboarding_attempt ──────────────────────────────
-  const { data: attempt, error: attemptErr } = await supabaseAdmin
+  // ── 2. Validate attempt state ──────────────────────────────────────────────
+  const { data: attempt, error: selectErr } = await supabaseAdmin
     .from("onboarding_attempts")
-    .select("id, idme_subject, id_verification_level, state, expires_at, profile_id")
-    .eq("id", attempt_id)
+    .select("id, state, expires_at, idme_subject, id_verification_level, verified_email")
+    .eq("id", attemptId)
     .maybeSingle();
 
-  if (attemptErr || !attempt) {
+  if (selectErr) {
+    console.error("onboarding_attempts select error:", selectErr);
+    return json({ error: "server_error" }, 500);
+  }
+
+  if (!attempt) {
     return json({ error: "attempt_not_found" }, 404);
   }
 
+  if (attempt.state === "linked") {
+    return json({ error: "attempt_already_used" }, 409);
+  }
+
+  if (attempt.state === "account_creating") {
+    // A concurrent request is mid-flight — do not proceed
+    return json({ error: "attempt_already_claimed" }, 409);
+  }
+
   if (attempt.state !== "id_verified") {
-    // Already linked — return conflict without leaking details
-    if (attempt.state === "linked") {
-      return json({ error: "attempt_already_used" }, 409);
-    }
     return json({ error: "attempt_invalid_state" }, 400);
   }
 
   if (new Date(attempt.expires_at) < new Date()) {
-    // Mark expired
     await supabaseAdmin
       .from("onboarding_attempts")
       .update({ state: "expired", updated_at: new Date().toISOString() })
-      .eq("id", attempt_id);
+      .eq("id", attemptId);
     return json({ error: "attempt_expired" }, 400);
   }
 
-  // ── 3. Check for existing profile with this ID.me subject ───────────────────
-  // Prevents a second account from being created for the same identity.
-  // Does not reveal what email the existing profile uses.
-  const { data: existingSubjectProfile } = await supabaseAdmin
-    .from("profiles")
-    .select("id")
-    .eq("id_me_subject", attempt.idme_subject)
-    .maybeSingle();
+  // ── 3. Atomically claim the attempt ────────────────────────────────────────
+  // Transitions id_verified → account_creating.
+  // If 0 rows returned, a concurrent request just claimed it.
+  const { data: claimed, error: claimErr } = await supabaseAdmin
+    .from("onboarding_attempts")
+    .update({
+      state: "account_creating",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", attemptId)
+    .eq("state", "id_verified")
+    .select("id, idme_subject, id_verification_level, verified_email");
 
-  if (existingSubjectProfile) {
-    console.log("ID.me subject already linked to existing profile. Blocking duplicate.");
-    await writeAudit(supabaseAdmin, null, "identity.duplicate_account_attempt", {
-      attempt_id,
-      error: "identity_already_registered",
-    });
-    return json({
-      error: "identity_already_registered",
-      action: "sign_in",
-    }, 409);
+  if (claimErr) {
+    console.error("Failed to claim attempt:", claimErr);
+    return json({ error: "server_error" }, 500);
   }
 
-  // ── 4. Create Supabase Auth user (admin API, no password, email pre-confirmed) ─
-  // email_confirm: true skips the email confirmation requirement.
-  // The nurse's identity is already proven by IAL2 ID.me.
-  // A "set your password" Postmark email is sent after /success (async, non-blocking).
+  if (!claimed || claimed.length === 0) {
+    return json({ error: "attempt_already_claimed" }, 409);
+  }
+
+  const claimedAttempt = claimed[0];
+
+  // ── 4. Compare confirmed email to verified_email ───────────────────────────
+  // If the nurse kept the ID.me email exactly: ID.me IAL2 already proved
+  // ownership, so we auto-confirm. If the nurse edited it: require Supabase
+  // to send a verification link before the new address is confirmed.
+  const verifiedEmailNorm = (claimedAttempt.verified_email ?? "").trim().toLowerCase();
+  const emailMatchesVerified = verifiedEmailNorm.length > 0 && email === verifiedEmailNorm;
+
+  // ── 5. Check for existing profile with this ID.me subject ─────────────────
+  // Final guard against duplicate accounts (backs up the unique index on
+  // profiles.id_me_subject). Done after the atomic claim so only one
+  // concurrent request can reach this point for the same attempt.
+  if (claimedAttempt.idme_subject) {
+    const { data: existingSubjectProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("id")
+      .eq("id_me_subject", claimedAttempt.idme_subject)
+      .maybeSingle();
+
+    if (existingSubjectProfile) {
+      console.log("ID.me subject already linked to existing profile — blocking duplicate.");
+      await resetAttempt(supabaseAdmin, attemptId);
+      await writeAudit(supabaseAdmin, null, "identity.duplicate_account_attempt", {
+        attempt_id: attemptId,
+        error: "identity_already_registered",
+      });
+      return json({ error: "identity_already_registered", action: "sign_in" }, 409);
+    }
+  }
+
+  // ── 6. Create Supabase Auth user ───────────────────────────────────────────
   const { data: authData, error: createUserErr } = await supabaseAdmin.auth.admin.createUser({
     email,
-    email_confirm: true,
-    user_metadata: {
-      first_name: firstName,
-      last_name: lastName,
-    },
+    email_confirm: emailMatchesVerified,
+    user_metadata: { first_name: firstName, last_name: lastName },
   });
 
   if (createUserErr) {
-    // Handle duplicate email without leaking account existence
+    // Use structured error code per Supabase Auth API
     const isDuplicate =
-      createUserErr.message?.toLowerCase().includes("already") ||
-      createUserErr.message?.toLowerCase().includes("exists") ||
-      (createUserErr as { status?: number }).status === 422;
+      (createUserErr as { code?: string }).code === "email_exists" ||
+      createUserErr.message?.toLowerCase().includes("already registered");
 
     if (isDuplicate) {
-      console.log("Email already exists in Supabase Auth. Not revealing to client.");
+      console.log("Email already exists in Supabase Auth — not revealing to client.");
+      await resetAttempt(supabaseAdmin, attemptId);
       await writeAudit(supabaseAdmin, null, "identity.email_conflict_attempt", {
-        attempt_id,
+        attempt_id: attemptId,
         error: "email_conflict",
       });
-      // Generic message — does not reveal whether email exists
+      // Generic message — does not reveal whether the email exists
       return json({ error: "account_setup_failed", action: "contact_support" }, 409);
     }
 
     console.error("admin.createUser failed:", createUserErr);
+    await resetAttempt(supabaseAdmin, attemptId);
     return json({ error: "account_setup_failed" }, 500);
   }
 
   const newUser = authData?.user;
   if (!newUser?.id) {
     console.error("admin.createUser returned no user");
+    await resetAttempt(supabaseAdmin, attemptId);
     return json({ error: "account_setup_failed" }, 500);
   }
 
-  // ── 5. Wait briefly for handle_new_user() trigger to fire ──────────────────
-  // The trigger is synchronous in Postgres but we may need a brief settle.
-  // Poll for the profiles row (max 3 attempts, 500ms apart).
+  // ── 7. Wait for handle_new_user() trigger to create the profile row ────────
   let profileId: string | null = null;
   for (let i = 0; i < 3; i++) {
     const { data: profile } = await supabaseAdmin
@@ -190,80 +225,123 @@ serve(async (req) => {
 
   if (!profileId) {
     console.error("profiles row not found after createUser. auth_user_id:", newUser.id);
-    // Attempt cleanup
-    await supabaseAdmin.auth.admin.deleteUser(newUser.id).catch(() => {});
+    await supabaseAdmin.auth.admin.deleteUser(newUser.id).catch((e) =>
+      console.error("deleteUser cleanup failed:", e),
+    );
+    await resetAttempt(supabaseAdmin, attemptId);
     return json({ error: "account_setup_failed" }, 500);
   }
 
-  // ── 6. Update profile with verified identity fields ─────────────────────────
-  // These are trust-gate fields — written via service-role only.
+  // ── 8. Update profile with verified identity fields ─────────────────────────
   const { error: updateErr } = await supabaseAdmin
     .from("profiles")
     .update({
       first_name: firstName,
       last_name: lastName,
       id_verification_status: "verified",
-      id_verification_level: attempt.id_verification_level,
-      id_me_subject: attempt.idme_subject,
-      onboarding_step: "license",  // skip 'identity' and 'confirm' — already done
+      id_verification_level: claimedAttempt.id_verification_level,
+      id_me_subject: claimedAttempt.idme_subject,
+      onboarding_step: "license",
       updated_at: new Date().toISOString(),
     })
     .eq("id", profileId);
 
   if (updateErr) {
     console.error("Failed to update profile with verified fields:", updateErr);
-    // Attempt cleanup
-    await supabaseAdmin.auth.admin.deleteUser(newUser.id).catch(() => {});
+    await supabaseAdmin.auth.admin.deleteUser(newUser.id).catch((e) =>
+      console.error("deleteUser cleanup failed:", e),
+    );
+    await resetAttempt(supabaseAdmin, attemptId);
     return json({ error: "account_setup_failed" }, 500);
   }
 
-  // ── 7. Mark onboarding_attempt as linked ────────────────────────────────────
-  await supabaseAdmin
+  // ── 9. Link attempt to profile (recoverable — do not fail response) ─────────
+  const { error: linkErr } = await supabaseAdmin
     .from("onboarding_attempts")
     .update({
       state: "linked",
       profile_id: profileId,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", attempt_id);
+    .eq("id", attemptId);
 
-  // ── 8. Write audit event ────────────────────────────────────────────────────
-  await writeAudit(supabaseAdmin, profileId, "identity.account_created", {
-    id_verification_level: attempt.id_verification_level,
+  if (linkErr) {
+    // Account was created successfully. Log and continue — the profile is
+    // correct. The attempt will be cleaned up by expiry or manual remediation.
+    console.error("Failed to mark attempt linked (non-fatal — account created):", linkErr);
+  }
+
+  // ── 10. Audit (non-blocking) ───────────────────────────────────────────────
+  writeAudit(supabaseAdmin, profileId, "identity.account_created", {
+    id_verification_level: claimedAttempt.id_verification_level,
+    email_auto_confirmed: emailMatchesVerified,
     onboarding_step: "license",
   });
 
-  // ── 9. Generate a one-time session token for Lovable ────────────────────────
-  // Uses a magic link token — programmatic session establishment, not user-visible.
-  // Lovable calls supabase.auth.verifyOtp({ email, token_hash, type: 'email' })
-  // to get a session and proceed to /license-info without a password.
-  const { data: linkData, error: linkErr } = await supabaseAdmin.auth.admin.generateLink({
+  // ── 11. Generate session token for Lovable ─────────────────────────────────
+  // Magic link token — Lovable calls supabase.auth.verifyOtp() to get a
+  // session and proceed to /license-info.
+  // Only issue a session if the email is confirmed (same as ID.me email).
+  // If the nurse edited their email, they must verify first before getting a
+  // session; Supabase will have sent a confirmation link to the new address.
+  if (!emailMatchesVerified) {
+    return json(
+      {
+        success: true,
+        profile_id: profileId,
+        email_confirmed: false,
+        next: "verify_email",
+      },
+      200,
+    );
+  }
+
+  const { data: linkData, error: linkGenErr } = await supabaseAdmin.auth.admin.generateLink({
     type: "magiclink",
     email,
   });
 
-  if (linkErr || !linkData?.properties?.hashed_token) {
-    console.error("Failed to generate session link:", linkErr);
+  if (linkGenErr || !linkData?.properties?.hashed_token) {
+    console.error("Failed to generate session link:", linkGenErr);
     // Account is created — return success without session token.
-    // Lovable must send a "set your password" email path instead.
-    return json({
-      success: true,
-      profile_id: profileId,
-      session_token: null,
-      fallback: "send_setup_email",
-    }, 200);
+    return json(
+      {
+        success: true,
+        profile_id: profileId,
+        email_confirmed: true,
+        session_token: null,
+        fallback: "send_setup_email",
+      },
+      200,
+    );
   }
 
-  return json({
-    success: true,
-    profile_id: profileId,
-    email,
-    session_token: linkData.properties.hashed_token,
-    session_token_type: "email",
-  }, 200);
+  return json(
+    {
+      success: true,
+      profile_id: profileId,
+      email_confirmed: true,
+      email,
+      session_token: linkData.properties.hashed_token,
+      session_token_type: "email",
+    },
+    200,
+  );
 });
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+async function resetAttempt(
+  supabase: ReturnType<typeof createClient>,
+  attemptId: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from("onboarding_attempts")
+    .update({ state: "id_verified", updated_at: new Date().toISOString() })
+    .eq("id", attemptId)
+    .eq("state", "account_creating");
+  if (error) console.error("Failed to reset attempt to id_verified:", error);
+}
 
 function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
@@ -278,15 +356,12 @@ async function writeAudit(
   action: string,
   changeAfter: Record<string, unknown>,
 ): Promise<void> {
-  try {
-    await supabase.from("audit_events").insert({
-      actor_id: actorId,
-      action,
-      resource_type: "profile",
-      resource_id: actorId,
-      change_after: changeAfter,
-    });
-  } catch (e) {
-    console.error("audit_events write failed:", e);
-  }
+  const { error } = await supabase.from("audit_events").insert({
+    actor_id: actorId,
+    action,
+    resource_type: actorId ? "profile" : "onboarding_attempt",
+    resource_id: changeAfter.attempt_id ?? actorId,
+    change_after: changeAfter,
+  });
+  if (error) console.error("audit_events write failed:", error);
 }
