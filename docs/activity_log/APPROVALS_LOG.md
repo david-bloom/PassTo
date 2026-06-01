@@ -30,6 +30,54 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0009 — TASK-0046 Migration H Approved
+
+**Date:** 2026-06-01  
+**Approved By:** David  
+**Related Task:** TASK-0046  
+**Decision:** Approved with Notes  
+
+### Summary
+
+David approved applying Migration H for TASK-0046:
+
+```text
+I approve Migration H
+```
+
+Migration H hardens `public.complete_license_verification(...)` by recreating the RPC with locked `search_path`, server-side validation, revoked public/anon/authenticated execute grants, and `service_role`-only execute.
+
+David also corrected the RapidAPI provider contract: RapidAPI documentation says `POST /verify` returns a full structured license record with `status`, issue date, expiration date, and discipline data when exposed by the state board. David provided this example response:
+
+```json
+{
+  "state": "TX",
+  "license_number": "751234",
+  "full_name": "JANE A SMITH",
+  "license_type": "RN",
+  "license_status": "Active",
+  "issue_date": "2015-06-12",
+  "expiration_date": "2026-08-31",
+  "discipline": [],
+  "source_url": "https://www.bon.texas.gov/..."
+}
+```
+
+### Approval Checklist
+
+- [x] I approve applying `supabase/migrations/migration_h_license_verification_harden.sql`.
+- [x] I understand Migration H changes live RPC privileges and validation.
+- [x] I understand `license-lookup` still requires a source update before redeploy because the current checked-in function expects a `results[]` response shape and does not read top-level `license_status`.
+- [x] I understand live Codex re-QA is still required after Migration H application and `license-lookup` redeployment.
+
+### Notes
+
+- Migration H approval does not by itself approve redeploying the current `license-lookup` source as-is.
+- Claude should update `license-lookup` to use the documented RapidAPI `POST /verify` response shape and `license_status` field before redeploy.
+- The prior Codex open blocker "provider does not return status" is superseded by David's provider-contract correction, but the implementation must be reconciled to that contract.
+
+---
+
 ## APPROVAL-0001 — TASK-0001 Approved for Execution
 
 **Date:** 2026-05-24  
