@@ -1425,3 +1425,43 @@ Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 sp
 | TASK-0045: Codex re-QA (P1 remediation) | Required before TASK-0046 execution |
 | TASK-0046: Schema mapping + provider decision + state transition spec | Required before Claude can execute |
 | D-3: Abandon TASK-0022 Phase 2 Lovable work? | Pending David decision |
+
+---
+
+## Session Activity — 2026-06-01 (continued) — Claude
+
+**Task IDs:** TASK-0022 (abandoned), TASK-0045 (pre-deployment updated)
+**Status:** D-3 decision recorded; ONBOARDING_ENCRYPTION_KEY confirmed; TASK-0022 abandoned
+**Role:** Claude / Senior Engineer
+**Summary:** Recorded David decisions: (1) ONBOARDING_ENCRYPTION_KEY confirmed set on both `idme-verification-start` and `idme-exchange-v2`. (2) D-3 resolved — TASK-0022 Phase 2 Lovable work abandoned in favor of the ID.me-first flow. TASK-0022 marked Abandoned in GitHub.
+
+### Decisions Recorded
+
+| Decision | Resolution |
+|---|---|
+| ONBOARDING_ENCRYPTION_KEY secret | ✅ Set on both functions — David 2026-06-01 |
+| D-3: Abandon TASK-0022 Phase 2 Lovable work | ✅ Abandoned — David 2026-06-01 |
+
+### What Abandoning TASK-0022 Means
+
+- Traditional password-first signup form in Lovable is no longer in scope.
+- Auth user creation now happens via `create-account` Edge Function (TASK-0045) after ID.me verification.
+- `handle_new_user()` trigger and `passto-supabase/client` wiring from Phase 2 remain valid and in use.
+- New Lovable implementation guide: `docs/tasks/LOVABLE_PROMPT_2026-05-31_IDME_FIRST_ONBOARDING.md`.
+
+### Remaining TASK-0045 Pre-Deployment Gate
+
+| Step | Status |
+|---|---|
+| Apply Migration E (`migration_e_onboarding_attempts_v2.sql`) | ⬜ Pending David |
+| ONBOARDING_ENCRYPTION_KEY set | ✅ Done |
+| Deploy `idme-verification-start` (`--no-verify-jwt`) | ⬜ Pending David |
+| Deploy `idme-exchange-v2` (`--no-verify-jwt`) | ⬜ Pending David |
+| Deploy `create-account` (`--no-verify-jwt`) | ⬜ Pending David |
+
+### GitHub Files Changed
+
+| File | Commit |
+|---|---|
+| `docs/tasks/TASK-0022.md` | 897429e0ea16 — Abandoned |
+| `docs/tasks/TASK-0045.md` | 48a6b8a173f5 — D-3 resolved, key confirmed |
