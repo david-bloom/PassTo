@@ -4,17 +4,6 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
-## Task Closure — 2026-06-01 — David / Codex
-
-**Task:** TASK-0025 Phase 3.1 ID.me exchange and Lovable callback wiring  
-**Status:** Closed — will not do  
-**Summary:** David directed Codex to close TASK-0025. The older authenticated Phase 3.1 ID.me path is superseded by the ID.me-first pre-account backend flow in TASK-0045, which is now Codex QA-approved for downstream backend work.
-
-**Next Owner:** Claude  
-**Next Required Action:** Do not use TASK-0025 as a blocker. Continue with TASK-0046 and TASK-0047 using TASK-0045 as the canonical ID.me-first trust model.
-
----
-
 ## Re-QA Approval — 2026-06-01 — Codex
 
 **Task:** TASK-0045 ID.me-first onboarding backend  
@@ -1497,3 +1486,43 @@ Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 sp
 | `create-account` | ✅ Redeployed from remediated source |
 
 **Migration E still required.** `onboarding_attempts` lacks `state_hash`, `code_verifier_ciphertext`, `consumed_at`, and `account_creating` state until David applies `supabase/migrations/migration_e_onboarding_attempts_v2.sql` via the Supabase dashboard SQL Editor. Functions will error on any attempt insert until the migration runs.
+
+---
+
+## Session Activity — 2026-06-01 (continued) — Claude
+
+**Task IDs:** TASK-0045 (verdict recorded), TASK-0046 (unblocked)
+**Status:** TASK-0045 approved; diagnostic logging removed and redeployed; TASK-0046 unblocked
+**Role:** Claude / Senior Engineer
+**Summary:** Recorded Codex third QA verdict (Approved — pre-production hardening required). Removed diagnostic logging from `idme-exchange-v2` and redeployed. Updated TASK-0045 with five hardening items (H-1 done, H-2 through H-5 pre-launch). Marked TASK-0046 unblocked.
+
+### Work Completed
+
+- Removed both diagnostic `console.log` blocks from `idme-exchange-v2` (attribute key dump + parsed field presence flags)
+- Pushed and redeployed `idme-exchange-v2` from cleaned source
+- Updated TASK-0045 status: Approved — Pre-Production Hardening Required Before Launch
+- Updated TASK-0046 status: Unblocked — Schema Mapping + Provider Decision Required Before Claude Executes
+
+### Pre-Production Hardening Tracker (TASK-0045)
+
+| Item | Status |
+|---|---|
+| H-1: Remove diagnostic logging | ✅ Done — commit 74af005f6636, redeployed |
+| H-2: Pin ID.me response contract | ⬜ After sandbox run |
+| H-3: Document/replace token_hash handoff | ⬜ Pre-launch |
+| H-4: Rate limiting on pre-account endpoints | ⬜ Pre-launch |
+| H-5: End-to-end sandbox enrollment | ⬜ Pending David |
+
+### GitHub Files Changed
+
+| File | Commit |
+|---|---|
+| `supabase/functions/idme-exchange-v2/index.ts` | 74af005f6636 |
+| `docs/tasks/TASK-0045.md` | (next push) |
+| `docs/tasks/TASK-0046.md` | (next push) |
+
+### Next Steps
+
+- David: run ID.me sandbox enrollment (H-5) to pin response contract (H-2)
+- David: confirm or delegate schema mapping + provider decision for TASK-0046
+- Codex: QA `scripts/seed-dev-test-personas.ts` (TASK-0044) when ready
