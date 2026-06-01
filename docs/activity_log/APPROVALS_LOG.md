@@ -30,6 +30,41 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0011 — TASK-0040 Approved for Execution
+
+**Date:** 2026-06-01  
+**Approved By:** David  
+**Related Task:** TASK-0040  
+**Decision:** Approved with Notes  
+
+### Summary
+
+David approved TASK-0040:
+
+```text
+I approve 0040
+```
+
+This approval clears the prior "awaiting David approval" blocker for TASK-0040 Stripe subscription/payment state and entitlement gating implementation.
+
+### Approval Checklist
+
+- [x] I approve TASK-0040 for execution.
+- [x] I approve the stated acceptance criteria.
+- [x] I approve the stated out-of-scope items.
+- [x] I understand Stripe secrets must remain server-side only.
+- [x] I understand Stripe live-mode cutover remains out of scope unless separately approved.
+
+### Notes
+
+- Claude may implement checkout/session creation or approved subscription start flow, webhook idempotency, `subscriptions`/`payments` persistence, server-side entitlement checks, subscription lapse handling, and audit/event records.
+- Paid entitlements must only activate from server-confirmed Stripe payment/subscription state.
+- Client navigation or Stripe return URLs must not activate paid entitlements.
+- This approval does not approve Stripe live-mode cutover, live product/pricing changes, production launch, credential/wallet issuance launch, annual plans, coupons, institutional billing, employer billing, or additional license purchase flow.
+- Any concrete migration, secret change, Edge Function deployment, or production-impacting Stripe configuration must still be documented for review.
+
+---
+
 ## APPROVAL-0010 — TASK-0047 Approved to Proceed
 
 **Date:** 2026-06-01  
