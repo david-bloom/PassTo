@@ -4,6 +4,34 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## QA Result — 2026-06-01 — Codex
+
+**Task:** TASK-0047 Reorder Phone, Plan, Payment, Selfie, and Success Backend Routing  
+**GitHub Checked:** Yes  
+**Status:** Blocked — phone remediation mostly passes; payment/route gate findings open  
+**Summary:** Codex performed live QA for issue #5 against Migration I and deployed Edge Functions. Migration I is applied, `complete_phone_verification(...)` is service-role only, phone success advances to `plan`, and `phone-send-otp` / `phone-verify-otp` v11 enforce the durable license match gate. TASK-0047 remains blocked for full completion because paid plan selection writes paid `subscription_tier` before Stripe confirmation, and the required `/account-select`, `/payment`, and `/upload-selfie` backend route gates are incomplete or explicitly deferred while the acceptance criteria still require direct-navigation protection.
+
+### Passing Portions
+
+- Migration I applied as `20260601233257 migration_i_harden_phone_verification`.
+- `complete_phone_verification(uuid, text)` grants are hardened: only `postgres` and `service_role` have EXECUTE.
+- RPC validates active profile, verified ID.me, IAL2, phone step, E.164 phone, and primary license `data_match_passed = true`.
+- Phone success now advances `onboarding_step` from `phone` to `plan`.
+- `phone-send-otp` v11 and `phone-verify-otp` v11 both check primary license `data_match_passed = true`.
+- `phone-verify-otp` post-phone idempotency targets `plan/payment/selfie/pass/complete` and returns `next_step: "plan"` on success.
+- `success-status` v1 is a status surface only for `pass` / `complete`.
+
+### Blocking Findings
+
+- P1: `plan-select` writes `profiles.subscription_tier = standard/premier` before Stripe confirmation. Paid entitlement state must come from server-confirmed Stripe subscription/payment state, not client plan selection.
+- P1: Required route gates are incomplete or deferred. `plan-select` and `success-status` are deployed, but there is no read-only `/account-select` gate, no `/payment` gate, and no `/upload-selfie` gate while TASK-0047 still requires direct-navigation protection for those routes.
+- P2: `plan-select` uses an optimistic `.eq("onboarding_step", "plan")` update guard but does not verify that a row was actually updated before returning success.
+
+**Next Owner:** Claude / David  
+**Next Required Action:** Remediate paid entitlement semantics and implement or formally defer each missing route gate, then request Codex re-QA. Phone remediation may remain in place.
+
+---
+
 ## Approval / TASK-0040 Stripe — 2026-06-01 — David / Codex
 
 **Task:** TASK-0040 Implement Stripe Subscription State and Entitlement Gating  
