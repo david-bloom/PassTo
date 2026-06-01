@@ -160,12 +160,12 @@ serve(async (req) => {
   const licenseNumberNorm = normalizeLicenseNumber(license_number);
 
   // ── 4. Call RapidAPI license verification ─────────────────────────────────
+  // Endpoint confirmed: POST https://nurse-license-verification.p.rapidapi.com/verify
+  // Body: { state, license_number } — no license_type in this API's contract
   const rapidApiKey = Deno.env.get("RAPIDAPI_KEY") ?? "";
-  const rapidApiHost = Deno.env.get("RAPIDAPI_HOST") ?? "";
-  const rapidApiUrl = Deno.env.get("RAPIDAPI_LICENSE_URL") ?? "";
 
-  if (!rapidApiKey || !rapidApiHost || !rapidApiUrl) {
-    console.error("RapidAPI environment variables not configured");
+  if (!rapidApiKey) {
+    console.error("RAPIDAPI_KEY not configured");
     await writeLookupRecord(supabaseAdmin, profile.id, null, "api_error",
       "rapidapi_not_configured");
     return json({ error: "source_unavailable", message_code: "license_source_unavailable" }, 200);
@@ -174,9 +174,8 @@ serve(async (req) => {
   let providerResult: ProviderResult;
 
   try {
-    const providerResponse = await callRapidApi(
-      rapidApiUrl, rapidApiKey, rapidApiHost,
-      { state: license_state, licenseNumber: license_number, licenseType: license_type },
+    const providerResponse = await callRapidApi(rapidApiKey,
+      { state: license_state, licenseNumber: license_number },
     );
     providerResult = providerResponse;
   } catch (e) {
@@ -397,28 +396,28 @@ interface ProviderResult {
 
 // ── RapidAPI adapter ──────────────────────────────────────────────────────────
 
+const RAPIDAPI_URL  = "https://nurse-license-verification.p.rapidapi.com/verify";
+const RAPIDAPI_HOST = "nurse-license-verification.p.rapidapi.com";
+
 async function callRapidApi(
-  url: string,
   apiKey: string,
-  host: string,
-  input: { state: string; licenseNumber: string; licenseType: string },
+  input: { state: string; licenseNumber: string },
 ): Promise<ProviderResult> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 10_000);
 
   let res: Response;
   try {
-    res = await fetch(url, {
+    res = await fetch(RAPIDAPI_URL, {
       method: "POST",
       headers: {
-        "Content-Type":      "application/json",
-        "x-rapidapi-key":    apiKey,
-        "x-rapidapi-host":   host,
+        "Content-Type":    "application/json",
+        "X-RapidAPI-Key":  apiKey,
+        "X-RapidAPI-Host": RAPIDAPI_HOST,
       },
       body: JSON.stringify({
-        state:         input.state,
-        licenseNumber: input.licenseNumber,
-        licenseType:   input.licenseType,
+        state:          input.state,
+        license_number: input.licenseNumber,
       }),
       signal: controller.signal,
     });
