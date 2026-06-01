@@ -71,6 +71,24 @@ serve(async (req) => {
     return json({ error: "identity_not_verified" }, 400);
   }
 
+  // ── 4b. License match gate ─────────────────────────────────────────────────
+  // Require data_match_passed = true on the primary license before sending OTP.
+  // Prevents a nurse who failed license lookup from reaching phone verification.
+  const { data: primaryLicense } = await supabaseAdmin
+    .from("licenses")
+    .select("data_match_passed")
+    .eq("profile_id", profile.id)
+    .eq("is_primary", true)
+    .eq("data_match_passed", true)
+    .maybeSingle();
+
+  if (!primaryLicense) {
+    await writeAudit(supabaseAdmin, profile.id, "phone.otp_blocked", {
+      error_key: "license_not_verified",
+    });
+    return json({ error: "license_not_verified" }, 403);
+  }
+
   // ── 5. Call Twilio Verify ───────────────────────────────────────────────────
   const accountSid = Deno.env.get("TWILIO_ACCOUNT_SID") ?? "";
   const authToken = Deno.env.get("TWILIO_AUTH_TOKEN") ?? "";
