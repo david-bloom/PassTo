@@ -1468,3 +1468,22 @@ Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 sp
 | `create-account` | ✅ Redeployed from remediated source |
 
 **Migration E still required.** `onboarding_attempts` lacks `state_hash`, `code_verifier_ciphertext`, `consumed_at`, and `account_creating` state until David applies `supabase/migrations/migration_e_onboarding_attempts_v2.sql` via the Supabase dashboard SQL Editor. Functions will error on any attempt insert until the migration runs.
+
+---
+
+## Session Activity — 2026-06-01 (continued) — David
+
+**Task ID:** TASK-0045 — Migration E Applied
+**Status:** All gates clear — ready for Codex re-QA
+**Summary:** David applied `migration_e_onboarding_attempts_v2.sql` via Supabase dashboard SQL Editor. Result: no rows returned (expected for DDL). All pre-deployment gates are now clear.
+
+### Complete Gate Status
+
+| Gate | Status |
+|---|---|
+| Migration E applied | ✅ 2026-06-01 |
+| `ONBOARDING_ENCRYPTION_KEY` set | ✅ 2026-06-01 |
+| `idme-verification-start` deployed | ✅ 2026-06-01 |
+| `idme-exchange-v2` deployed | ✅ 2026-06-01 |
+| `create-account` deployed | ✅ 2026-06-01 |
+| Codex re-QA (live schema + functions) | ⬜ Pending |
