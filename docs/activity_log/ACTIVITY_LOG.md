@@ -1408,3 +1408,47 @@ Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 sp
 | TASK-0025 IDME_ATTRIBUTES_URL | Unresolved — try `https://api.idmelabs.com/api/public/v3/attributes.json` |
 | D-3: Abandon TASK-0022 Lovable Phase 2 work? | Pending David decision |
 | TASK-0046, TASK-0047 | Blocked on TASK-0045 completion |
+
+---
+
+## Session Activity — 2026-06-01 (continued) — Claude
+
+**Task ID:** TASK-0045 — Second Remediation (Codex Re-QA Blockers)
+**Status:** Complete — pushed; awaiting Migration E application + deployment + Codex re-QA
+**Role:** Claude / Senior Engineer
+**Summary:** Fixed all P1/P2 findings from Codex Re-QA of 2026-06-01. Migration E: dropped NOT NULL from idme_subject and id_verification_level, removed invalid expires_at > now() from partial index predicate, added state-aware CHECK constraints, revoked anon/authenticated grants. create-account: profile now uses ID.me-verified names (not browser input) as identity anchor, fail-closed on attempt-link, awaited success audit, added Cache-Control: no-store, renamed session_token → token_hash.
+
+### Fixes
+
+**Migration E (v3):**
+- `ALTER COLUMN idme_subject DROP NOT NULL` — allows started rows before ID.me exchange
+- `ALTER COLUMN id_verification_level DROP NOT NULL` — same
+- Removed `expires_at > now()` from partial index predicate (invalid in Postgres)
+- Added three state-aware CHECK constraints (started/verified/linked field requirements)
+- `REVOKE ALL ON onboarding_attempts FROM anon, authenticated`
+
+**create-account:**
+- Profile first_name/last_name set from attempt.verified_first_name/verified_last_name (ID.me trust source, not browser input)
+- Attempt-link failure returns `warning: attempt_link_partial` (fail-closed recovery state)
+- Success audit is awaited
+- json() includes Cache-Control: no-store on all responses
+- session_token renamed to token_hash in response body
+
+### GitHub Files Changed
+
+| File | Commit |
+|---|---|
+| `supabase/migrations/migration_e_onboarding_attempts_v2.sql` | 064bffaf4912 |
+| `supabase/functions/create-account/index.ts` | 738c257984f5 |
+| `docs/tasks/TASK-0045.md` | 18b63e4276e2 |
+
+### Next Steps (David)
+
+1. Apply `supabase/migrations/migration_e_onboarding_attempts_v2.sql` via Supabase dashboard SQL Editor
+2. Run deploy commands:
+   ```
+   npx supabase functions deploy idme-verification-start --project-ref wvzjfxacykgsaffskgtr --no-verify-jwt
+   npx supabase functions deploy idme-exchange-v2 --project-ref wvzjfxacykgsaffskgtr --no-verify-jwt
+   npx supabase functions deploy create-account --project-ref wvzjfxacykgsaffskgtr --no-verify-jwt
+   ```
+3. Tag Codex for re-QA against live schema + deployed functions
