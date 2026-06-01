@@ -1452,3 +1452,19 @@ Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 sp
    npx supabase functions deploy create-account --project-ref wvzjfxacykgsaffskgtr --no-verify-jwt
    ```
 3. Tag Codex for re-QA against live schema + deployed functions
+
+---
+
+## Session Activity — 2026-06-01 (continued) — David + Claude
+
+**Task ID:** TASK-0045 — Function Deployments
+**Status:** All three functions deployed; Migration E still pending application
+**Summary:** David deployed all three remediated Edge Functions to `wvzjfxacykgsaffskgtr` after successful `supabase login`.
+
+| Function | Result |
+|---|---|
+| `idme-verification-start` | ✅ Deployed — first-ever deployment |
+| `idme-exchange-v2` | ✅ Redeployed from remediated source |
+| `create-account` | ✅ Redeployed from remediated source |
+
+**Migration E still required.** `onboarding_attempts` lacks `state_hash`, `code_verifier_ciphertext`, `consumed_at`, and `account_creating` state until David applies `supabase/migrations/migration_e_onboarding_attempts_v2.sql` via the Supabase dashboard SQL Editor. Functions will error on any attempt insert until the migration runs.
