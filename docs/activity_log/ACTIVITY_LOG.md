@@ -1580,3 +1580,53 @@ Codex should review `phone-send-otp` and `phone-verify-otp` against TASK-0026 sp
 3. Set Supabase secrets: `RAPIDAPI_KEY`, `RAPIDAPI_HOST`, `RAPIDAPI_LICENSE_URL`
 4. Deploy: `npx supabase functions deploy license-lookup --project-ref wvzjfxacykgsaffskgtr`
 5. Tag Codex for QA
+
+---
+
+## Session Close — 2026-06-01 — Claude
+
+**Session Type:** Full working session
+**Duration:** 2026-06-01
+**Participants:** David, Claude, Codex (async QA)
+
+### Session Accomplishments
+
+| Task | Outcome |
+|---|---|
+| TASK-0045 P1 remediation | Complete — server-side PKCE, atomic consume, email comparison, verified names |
+| TASK-0045 second remediation (Codex re-QA) | Complete — Migration E NOT NULL fix, index fix, grants revoke, create-account P2 fixes |
+| TASK-0045 Migration E | Applied to live schema |
+| TASK-0045 three functions deployed | idme-verification-start, idme-exchange-v2, create-account |
+| TASK-0045 Codex third QA | Approved — pre-production hardening items H-1 through H-5 |
+| TASK-0045 H-1 | Complete — diagnostic logging removed, redeployed |
+| TASK-0022 | Abandoned — D-3, superseded by ID.me-first flow |
+| TASK-0044 David approval | Recorded 2026-06-01 |
+| TASK-0044 implementation | Complete — 13 personas, all Codex P1 safety guards, pushed to GitHub |
+| TASK-0046 David approval | Recorded 2026-06-01 |
+| TASK-0046 DOB decision | Resolved — dob_match_mode = name_only |
+| TASK-0046 provider decision | Resolved — RapidAPI nurse-license-verification.p.rapidapi.com |
+| TASK-0046 Migration G | Applied to live schema |
+| TASK-0046 license-lookup deployed | Live — name-search adapter, LAST,FIRST parsing, synthetic status |
+| TASK-0046 API contract pinned | Request: { state, query: last_name } / Response: results[] array |
+
+### Open Items Entering Next Session
+
+| Item | Status | Owner |
+|---|---|---|
+| TASK-0044 Codex QA of seed harness | Pending | Codex |
+| TASK-0044 run --apply | Pending Codex QA | David |
+| TASK-0045 H-2: pin ID.me response contract | After sandbox run | David + Claude |
+| TASK-0045 H-3: token_hash handoff | Pre-launch | Claude |
+| TASK-0045 H-4: rate limiting on pre-account endpoints | Pre-launch | Claude |
+| TASK-0045 H-5: end-to-end ID.me sandbox enrollment | Pending | David |
+| TASK-0046 Codex QA of license-lookup | Pending | Codex |
+| TASK-0046 pre-production: confirm API returns status or find alternative | Pre-launch | David + Claude |
+| TASK-0047 | Awaiting TASK-0046 Codex QA | Claude |
+
+### Decisions Locked This Session
+
+- D-3: TASK-0022 abandoned
+- D-4: Magic link for account creation (implemented)
+- D-5: IDME_ATTRIBUTES_URL bundled into idme-exchange-v2 (env var)
+- DOB: dob_match_mode = name_only for MVP — do not store or compare DOB
+- Provider: RapidAPI nurse-license-verification.p.rapidapi.com
