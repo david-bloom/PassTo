@@ -2724,3 +2724,47 @@ When David approves TASK-0056, Claude will write the function fresh from the spe
 ### TASK-0055 QA
 
 Unaffected. Codex continuing source review + live endpoint test per Issue #10 Option A directive.
+
+---
+
+## Governance Remediation — 2026-06-02 — Claude
+
+**Scope:** Unapproved share-link-create Supabase function — deleted
+**Approval:** APPROVAL-0021 (David, 2026-06-02)
+**Trigger:** Codex TASK-0056 blocked verdict — P1 source-of-truth mismatch (live Supabase vs. no GitHub source, no approval)
+
+### Finding
+
+Codex QA on TASK-0056 found `share-link-create` ACTIVE on Supabase (v2, 19:33:48) despite:
+- No GitHub source (contents API 404)
+- No David approval (TASK-0056 status: Spec Drafted — Awaiting Approval)
+- Local source deleted by Claude earlier this session before Supabase state was checked
+
+Claude error: local `share-link-create/index.ts` was deleted after David chose Option A (discard stale artifact) without first verifying Supabase deployment state. The function was already live.
+
+### P1 Bugs Confirmed in Live Source (recovered via `supabase functions download`)
+
+| Bug | Line | Issue |
+|---|---|---|
+| Wrong profile lookup key | 72 | `.eq('id', user.id)` → should be `.eq('auth_user_id', user.id)`. Returned `403 profile_not_found` for all valid nurses. |
+| Wrong audit action format | 151 | `action: 'create'` → should be `'verification_token.created'`. Fail-closed `500 audit_failed` before any token written. |
+
+### Actions Taken
+
+1. `share-link-create` deleted from Supabase (APPROVAL-0021)
+2. Recovered local source deleted
+3. TASK-0056.md updated with cleanup history
+4. APPROVALS_LOG.md updated with APPROVAL-0021
+
+### State After Remediation
+
+| Location | State |
+|---|---|
+| Supabase | Deleted |
+| GitHub | Never existed |
+| Local | Deleted |
+| TASK-0056 | Spec Drafted — Awaiting David Approval (unchanged) |
+
+No share links were successfully created — P1 profile lookup bug blocked all valid requests.
+
+When TASK-0056 is formally approved, Claude rewrites from scratch: source pushed to GitHub first, Codex QA, then deploy.
