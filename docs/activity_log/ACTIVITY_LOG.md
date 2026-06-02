@@ -2634,3 +2634,57 @@ Codex re-QA passed. TASK-0047 status: Codex QA passed.
 | [#3](https://github.com/david-bloom/PassTo/issues/3) TASK-0046 Codex re-QA | Closed (v10 passed) |
 | [#4](https://github.com/david-bloom/PassTo/issues/4) TASK-0047 David approval | Closed (approved + executed) |
 | [#5](https://github.com/david-bloom/PassTo/issues/5) TASK-0047 Codex QA | Passed re-QA |
+
+---
+
+## Session Activity — 2026-06-02 — Claude
+
+**Task IDs:** TASK-0055  
+**Status:** Implementation complete — Codex QA Required  
+**Role:** Claude / Senior Engineer
+
+### TASK-0055 — Nurse Dashboard Launch-Critical Status View — Executed
+
+David approved TASK-0055 as APPROVAL-0020 (2026-06-02): "execute 0055".
+
+#### Deliverables
+
+**New Edge Function:** `supabase/functions/dashboard-status/index.ts`
+
+New read-only GET endpoint called by Lovable from `/dashboard`. Returns all launch-critical state for the nurse dashboard in a single authenticated call:
+
+| Field | Source |
+|---|---|
+| `subscription_tier`, `subscription_status`, `subscription_plan_name` | `profiles` + `subscriptions` |
+| `license_type`, `license_state`, `license_normalized_status`, `license_status_intent`, `license_expiration_date`, `license_current_as_of` | `licenses` (primary, most recent) |
+| `credential_status`, `credential_issued_at`, `credential_expires_at` | `credentials` (most recent) |
+| `wallet.apple`, `wallet.google`, `wallet.any_issued` | `wallet_passes` (by credential_id) |
+| `share_link_eligible: false, share_link_reason: "not_implemented"` | Hardcoded until TASK-0056 |
+| `can_add_license` | `subscriptions.license_entitlement_count` |
+
+Gate: `onboarding_step` in `["pass", "complete"]`. All other steps return `403 onboarding_not_complete` with the current step.
+
+**New Lovable Prompt:** `docs/tasks/LOVABLE_PROMPT_2026-06-02_TASK0055_DASHBOARD.md`
+
+Instructs Lovable to:
+- Call `dashboard-status` on page load
+- Render credential, license, wallet, and subscription status cards with correct PassTo design tokens
+- Show "Share Credential — Coming Soon" as permanently disabled (TASK-0056 not yet implemented)
+- Route guard: redirect to sign-in (401), to the correct onboarding step (403), or show error (503)
+- Explicitly prohibit: QR code, PDF export, Add-license prompt, Employer dashboard, direct DB writes
+
+#### No Migrations Required
+
+`dashboard-status` reads existing tables only. No schema changes.
+
+#### Open Items
+
+| Item | Status |
+|---|---|
+| Share-link toggle | Blocked on TASK-0056 — `share_link_eligible` will remain `false` until TASK-0056 backend is in place |
+| `subscriptions` column verification | Codex QA should verify `plan_name`, `status`, `license_entitlement_count` match applied migration |
+| Lovable implementation | David must paste `LOVABLE_PROMPT_2026-06-02_TASK0055_DASHBOARD.md` into Lovable after Codex QA passes |
+
+#### GitHub Issue
+
+Codex QA issue to be opened: TASK-0055 Codex QA — Nurse Dashboard Status Function
