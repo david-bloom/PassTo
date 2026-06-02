@@ -53,7 +53,7 @@ Continue with ID.me
 
 ---
 
-## Route Sequence (Implemented — TASK-0048)
+## Route Sequence (Implemented — TASK-0048; Lovable UI Updated 2026-06-02)
 
 ```text
 /id-verification
@@ -62,9 +62,7 @@ Continue with ID.me
         ↓
 /license-checking   (search fallback only — skipped when license number provided)
         ↓
-/confirm-info
-        ↓
-/phone-check
+/confirm-info       (review info, confirm phone, complete SMS OTP inline)
         ↓
 /account-select
         ↓
@@ -75,7 +73,7 @@ Continue with ID.me
 /success
 ```
 
-License lookup and identity binding happen **before** `/confirm-info`. The nurse sees their matched license data on `/confirm-info` and confirms contact info before proceeding to phone verification.
+License lookup and identity binding happen **before** `/confirm-info`. The nurse sees matched identity, license, and contact data on `/confirm-info`, confirms the phone number to use, receives the Twilio OTP from that same page, and enters the OTP inline. The backend still advances through separate `confirm` and `phone` trust states; the Lovable UI combines them into one visible page.
 
 ### Route Responsibilities
 
@@ -84,8 +82,8 @@ License lookup and identity binding happen **before** `/confirm-info`. The nurse
 | `/id-verification` | `identity` | Start ID.me before account/password creation. | Create or resume an onboarding attempt; exchange ID.me result server-side; store verified identity fields. |
 | `/license-info` | `license` | Collect license number (optional), state, and type. Start lookup. | `license-lookup-start`: POST /verify (fast path) or POST /search (name fallback); bind to ID.me identity via RPC. |
 | `/license-checking` | `license_checking` | Show candidates when search returns multiple results. Nurse selects. | `license-lookup-status` (GET candidates); `license-lookup-select` (POST selection → POST /verify → bind). Entered only on multi-candidate search result. |
-| `/confirm-info` | `confirm` | Show matched identity + license + contact info for nurse review and phone entry. | `confirm-info-status` (GET display payload); `confirm-info-complete` (POST phone intent → advance to `phone`). |
-| `/phone-check` | `phone` | Verify phone possession with SMS OTP. | `phone-send-otp` and `phone-verify-otp`; write verified phone only after Twilio success. |
+| `/confirm-info` | `confirm` → `phone` | Show matched identity + license + contact info; nurse confirms phone; same page sends and verifies Twilio OTP inline. | `confirm-info-status` (GET display payload); `confirm-info-complete` (POST phone intent → advance to `phone`); then `phone-send-otp` and `phone-verify-otp`; write verified phone only after Twilio success. |
+| `/phone-check` | `phone` | Backend state / legacy route only. Lovable should not show it as a separate breadcrumb step in the current UX. | If retained as a direct URL fallback, use the same `phone-send-otp` and `phone-verify-otp` gates. |
 | `/account-select` | `plan` | Choose Free, Standard, or Premier. | `account-select-status`, `plan-select`; subscription_tier records intent only, not confirmed entitlement. |
 | `/payment` | `payment` | Complete payment for paid plans only. | `stripe-checkout-create`; webhook confirms final payment/subscription state. |
 | `/upload-selfie` | `selfie` | Optional pass photo. | `selfie-status`; backend confirmation required after upload. |
@@ -102,11 +100,26 @@ It is NOT entered for:
 - Search that returns zero results (nurse stays at `license` for retry).
 - Search that returns exactly one result (resolved via `/verify` then advances to `confirm`).
 
-### Phone Prefill on `/confirm-info`
+### Combined Confirm + OTP UX on `/confirm-info`
 
 `confirm-info-status` returns `contact.phone` from `profiles.phone` (if set by a prior ID.me session or manual entry). This phone may prefill the `/confirm-info` input field in Lovable.
 
-Phone prefill does NOT skip Twilio OTP. The nurse must still verify phone possession on `/phone-check` even if the phone field is prefilled.
+Phone prefill does NOT skip Twilio OTP. When the nurse clicks Confirm:
+
+1. Lovable calls `confirm-info-complete`.
+2. The backend records phone intent only and advances `onboarding_step` from `confirm` to `phone`.
+3. Lovable immediately calls `phone-send-otp` from the same `/confirm-info` page.
+4. The same page switches to OTP entry state.
+5. Lovable calls `phone-verify-otp`.
+6. On OTP success, Lovable routes to `/account-select`.
+
+The Confirm click alone must not route to `/account-select`. OTP success is the gate.
+
+### Breadcrumb Rules
+
+The top breadcrumb/progress indicator should show one combined confirmation step for this portion of onboarding, such as `Confirm Info`, not separate visible `Confirm Info` and `Phone Verification` steps.
+
+`Payment` and `Photo` should appear only when the current selected plan flow requires them. Free/basic flows should not show skipped paid/photo steps as upcoming breadcrumb items.
 
 ---
 
@@ -189,15 +202,17 @@ If license lookup fails or data matching fails:
 
 ## Phone Verification Placement
 
-Phone verification should be its own route: `/phone-check`.
+Phone verification should be its own visible state on `/confirm-info`, immediately after the nurse confirms matched identity/license/contact information.
 
-Do not hide SMS verification inside `/account-select`. Phone verification is a trust/security gate, not a plan-selection action.
+Do not hide SMS verification inside `/account-select`. Phone verification is a trust/security gate, not a plan-selection action. The backend `phone` state remains separate even though Lovable shows the OTP form on the same `/confirm-info` page.
 
 Rules:
 
 - Prefill phone from ID.me only if available.
 - Allow nurse to correct phone before OTP send.
+- Clicking Confirm triggers OTP send but does not mark phone verified.
 - Twilio success is required before writing `profiles.phone` as verified.
+- Route to `/account-select` only after `phone-verify-otp` succeeds.
 - If SMS cannot be delivered, show retry/support state.
 
 ---
@@ -235,11 +250,16 @@ The page should show:
 
 - Whether `/upload-selfie` is optional or required for launch credential issuance (David decision pending — TASK-0047).
 - Whether `/success` fully replaces `/pass-ready` or aliases it during migration (David decision pending — TASK-0047).
-- Whether an ID.me-verified phone on `/confirm-info` may skip Twilio OTP if the nurse confirms it. Current spec requires OTP regardless; changing this requires explicit David approval and Twilio policy update.
 - Whether the "I don't have my license number" search fallback should be hidden for license types where RapidAPI /search coverage is unconfirmed.
 - Retry limit enforcement server-side: current implementation caps at 3 lookup attempts per onboarding session via `license_lookups` row count. David should confirm if different.
 - Exact support copy for ID.me/license mismatch and name mismatch cases.
 - LVN / CN alias map: RapidAPI may return these types; current MVP uses exact uppercase match only. David approval required before launch if LVN/CN coverage is needed.
+
+## Resolved Decisions
+
+- ID.me-verified phone may prefill `/confirm-info`, but it does not skip Twilio OTP.
+- Lovable may combine info confirmation and OTP send/verify on the visible `/confirm-info` page.
+- Backend trust states remain separate: `confirm-info-complete` advances to `phone`; `phone-send-otp` sends the code; `phone-verify-otp` verifies possession and advances to `plan`.
 
 ## Implementation Notes (TASK-0048, 2026-06-02)
 
