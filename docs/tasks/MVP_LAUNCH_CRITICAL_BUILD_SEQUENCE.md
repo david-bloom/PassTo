@@ -78,11 +78,11 @@ The sequence is designed to keep implementation moving while preserving the appr
 
 | Order | Work | Owner | Depends On |
 |---|---|---|---|
-| 5.1 | Nurse dashboard launch-critical status view | Claude/Codex | Phase 4 |
-| 5.2 | Share-link token creation function | Claude/Codex | 5.1 |
-| 5.3 | Verifier token validation function | Claude/Codex | 5.2 |
-| 5.4 | `/v/{token}` verifier flow | Claude/Codex | 5.3 |
-| 5.5 | Share-link/verifier QA | Codex | 5.2-5.4 |
+| 5.1 | TASK-0055 — Nurse dashboard launch-critical status view | Claude/Lovable | Phase 4 |
+| 5.2 | TASK-0056 — Share-link token creation function | Claude | TASK-0055 |
+| 5.3 | TASK-0057 — Verifier token validation function | Claude | TASK-0056 |
+| 5.4 | TASK-0058 — `/v/{token}` verifier flow | Claude/Lovable | TASK-0057 |
+| 5.5 | TASK-0059 — Share-link/verifier QA | Codex | TASK-0055 through TASK-0058 |
 
 ### Phase 6 — Stripe, Entitlements, and Lapse Behavior
 
