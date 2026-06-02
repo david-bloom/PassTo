@@ -168,6 +168,22 @@ Extends `payments.action_type` CHECK constraint to include `subscription_start` 
 
 ## Session Activity — 2026-06-02 — Claude
 
+**Task:** TASK-0050 — Define Wallet Signing and Issuance Contract  
+**Status:** Implementation complete — pending deployment + Codex QA  
+**Approval:** APPROVAL-0017
+
+Signing boundary: Apple Wallet and Google Wallet both via Vercel (Node.js). `wallet-issue` Edge Function orchestrates, loads from DB, calls Vercel routes with internal auth, writes `wallet_passes`, activates credential. QR barcode removed from Google pass.
+
+**Files created/changed:** `docs/architecture/WALLET_SIGNING_CONTRACT.md`, `api/sign-apple.js` (hardened), `api/sign-google.js` (hardened, QR removed), `supabase/functions/wallet-issue/index.ts`
+
+**Blocking hard gates:** Apple Wallet certificate procurement + Google Wallet issuer setup (David must provide before wallet issuance can work in any environment).
+
+**Next:** Deploy `wallet-issue`, then Codex QA.
+
+---
+
+## Session Activity — 2026-06-02 — Claude
+
 **Task:** TASK-0049 — Implement Credential Creation Gate  
 **Status:** Implementation complete — pending deployment + Codex QA  
 **Approval:** APPROVAL-0016

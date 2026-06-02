@@ -30,6 +30,37 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0017 — TASK-0050 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0050
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0050 for execution:
+
+```text
+0050
+```
+
+TASK-0050 — Define Wallet Signing and Issuance Contract. Covers signing boundary decision, contract document, revised Vercel signing routes, and new `wallet-issue` Edge Function.
+
+### Approval Checklist
+
+- [x] I approve TASK-0050 for execution.
+- [x] I understand wallet signing routes will be revised to require internal service token auth.
+- [x] I understand production wallet certificates (Apple) and Google service account keys must be set separately and are hard gates.
+- [x] I understand this does not approve production wallet certificate procurement, live wallet provider configuration, or production launch.
+
+### Notes
+
+- Not approved: production Apple certificate/key procurement, Google Wallet issuer setup, production launch, risk acceptance, Done decision.
+- Certificate/key secrets (`APPLE_WWDR_PEM_BASE64`, `APPLE_CERT_PEM_BASE64`, `APPLE_KEY_PEM_BASE64`, `GOOGLE_SERVICE_ACCOUNT_JSON`) must be set by David separately — hard gate.
+
+---
+
 ## APPROVAL-0016 — TASK-0049 Approved for Execution
 
 **Date:** 2026-06-02
