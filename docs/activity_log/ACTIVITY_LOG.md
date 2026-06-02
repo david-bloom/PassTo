@@ -4,6 +4,42 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Phase 6 Tasks Created — 2026-06-02 — Codex
+
+**Scope:** PRD Phase 6 — Stripe, Entitlements, and Lapse Behavior  
+**Status:** Task specs created — Awaiting David approval for execution  
+**Approval Lane:** Standing approval — draft task specs and documentation updates only
+
+### Summary
+
+Codex created the Phase 6 Stripe/entitlement/lapse task set as `TASK-0060` through `TASK-0064` and added a Phase 6 task inventory.
+
+| Phase Item | Task | Status |
+|---|---|---|
+| 6.1 | TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness | Spec Drafted — Awaiting David Approval |
+| 6.2 | TASK-0061 — Define Subscription Management and Cancellation Flow | Spec Drafted — Awaiting David Approval |
+| 6.3 | TASK-0062 — Resolve Free-Tier Paid Share-Link Entitlement Policy | Spec Drafted — Awaiting David Approval |
+| 6.4 | TASK-0063 — Harden Entitlement and Lapse Ops Visibility | Spec Drafted — Awaiting David Approval |
+| 6.5 | TASK-0064 — Codex QA Phase 6 Stripe, Entitlements, and Lapse Behavior | Spec Drafted — Awaiting David Approval |
+
+Created `docs/tasks/PRD_PHASE_06_STRIPE_ENTITLEMENTS_TASK_LIST.md` and updated `docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md` so Phase 6 references the new task IDs.
+
+### Relationship to TASK-0040
+
+`TASK-0040` already completed the core Stripe subscription/payment implementation and was marked Complete / Passed by David. The new Phase 6 task set avoids duplicating that work and instead focuses on remaining launch-readiness gaps: real Lovable checkout testing, subscription management/cancellation behavior, Free-tier paid share-link policy reconciliation, entitlement/lapse ops visibility, and QA closure.
+
+### Approval Boundary
+
+This task creation does not approve implementation, backend code changes, migrations, deployments, secret changes, Stripe live-mode changes, live Stripe product/price changes, production launch, task Done decisions, issue closure, risk acceptance, or moving deferred paid actions into launch scope.
+
+### Next Recommended Action
+
+David should review the Phase 6 task specs and approve the first task to execute when ready. `TASK-0060` is the recommended first execution gate because it closes the remaining real-checkout evidence gap from `TASK-0040`.
+
+---
+
+---
+
 ## Phase 5 Tasks Created — 2026-06-02 — Codex
 
 **Scope:** PRD Phase 5 — Dashboard and Share-Link Verification  
