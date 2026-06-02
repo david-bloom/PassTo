@@ -1,8 +1,9 @@
 # PassTo ID.me-First Onboarding Flow
 
-**Status:** Proposed Baseline - Awaiting David Approval  
-**Owner:** Codex  
+**Status:** Approved and Implemented — TASK-0048  
+**Owner:** Codex / Claude  
 **Created:** 2026-05-31  
+**Updated:** 2026-06-02  
 **Applies To:** MVP nurse enrollment flow  
 
 ---
@@ -52,14 +53,16 @@ Continue with ID.me
 
 ---
 
-## Proposed Route Sequence
+## Route Sequence (Implemented — TASK-0048)
 
 ```text
 /id-verification
         ↓
-/confirm-info
-        ↓
 /license-info
+        ↓
+/license-checking   (search fallback only — skipped when license number provided)
+        ↓
+/confirm-info
         ↓
 /phone-check
         ↓
@@ -72,18 +75,38 @@ Continue with ID.me
 /success
 ```
 
+License lookup and identity binding happen **before** `/confirm-info`. The nurse sees their matched license data on `/confirm-info` and confirms contact info before proceeding to phone verification.
+
 ### Route Responsibilities
 
-| Route | Purpose | Backend Responsibility |
-|---|---|---|
-| `/id-verification` | Start ID.me before account/password creation. | Create or resume an onboarding attempt; exchange ID.me result server-side; store temporary verified identity fields. |
-| `/confirm-info` | Let nurse confirm first name, last name, email, and phone returned by ID.me where available. | Create or link Supabase Auth/profile state safely; do not trust unverified phone as possession proof. |
-| `/license-info` | Collect license number, license state, and license type. | Run license lookup and bind lookup result to verified ID.me identity through backend data matching. |
-| `/phone-check` | Verify phone possession with SMS. | Send and verify Twilio OTP; write verified phone only after Twilio success. |
-| `/account-select` | Choose Free, Standard, or Premier after PassTo has demonstrated value. | Display server-derived plan options and entitlement implications. |
-| `/payment` | Complete payment only for paid plans. | Create Stripe checkout/payment flow; webhook confirms final payment/subscription state. |
-| `/upload-selfie` | Optional or required pass photo, depending on final launch scope. | Store selfie in protected Supabase Storage or skip if optional. |
-| `/success` | Show success state and next actions. | Show credential/pass status; provide wallet links when ready; offer add-another-license only when plan allows. |
+| Route | `onboarding_step` | Purpose | Backend Responsibility |
+|---|---|---|---|
+| `/id-verification` | `identity` | Start ID.me before account/password creation. | Create or resume an onboarding attempt; exchange ID.me result server-side; store verified identity fields. |
+| `/license-info` | `license` | Collect license number (optional), state, and type. Start lookup. | `license-lookup-start`: POST /verify (fast path) or POST /search (name fallback); bind to ID.me identity via RPC. |
+| `/license-checking` | `license_checking` | Show candidates when search returns multiple results. Nurse selects. | `license-lookup-status` (GET candidates); `license-lookup-select` (POST selection → POST /verify → bind). Entered only on multi-candidate search result. |
+| `/confirm-info` | `confirm` | Show matched identity + license + contact info for nurse review and phone entry. | `confirm-info-status` (GET display payload); `confirm-info-complete` (POST phone intent → advance to `phone`). |
+| `/phone-check` | `phone` | Verify phone possession with SMS OTP. | `phone-send-otp` and `phone-verify-otp`; write verified phone only after Twilio success. |
+| `/account-select` | `plan` | Choose Free, Standard, or Premier. | `account-select-status`, `plan-select`; subscription_tier records intent only, not confirmed entitlement. |
+| `/payment` | `payment` | Complete payment for paid plans only. | `stripe-checkout-create`; webhook confirms final payment/subscription state. |
+| `/upload-selfie` | `selfie` | Optional pass photo. | `selfie-status`; backend confirmation required after upload. |
+| `/success` | `pass` / `complete` | Show credential and wallet status. | `success-status`; read-only status surface. |
+
+### `license_checking` Step Semantics
+
+`license_checking` is entered **only** when:
+- The nurse did not supply a license number, AND
+- RapidAPI `/search` returned multiple candidates requiring selection.
+
+It is NOT entered for:
+- The `/verify` fast path (resolves synchronously, advances directly to `confirm`).
+- Search that returns zero results (nurse stays at `license` for retry).
+- Search that returns exactly one result (resolved via `/verify` then advances to `confirm`).
+
+### Phone Prefill on `/confirm-info`
+
+`confirm-info-status` returns `contact.phone` from `profiles.phone` (if set by a prior ID.me session or manual entry). This phone may prefill the `/confirm-info` input field in Lovable.
+
+Phone prefill does NOT skip Twilio OTP. The nurse must still verify phone possession on `/phone-check` even if the phone field is prefilled.
 
 ---
 
@@ -210,11 +233,23 @@ The page should show:
 
 ## Open Decisions
 
-- Whether `/upload-selfie` is optional or required for launch credential issuance.
-- Whether `onboarding_attempts` should be a new table or represented through an existing safe temporary state.
-- Exact account creation/linking method after ID.me-first callback.
-- Exact support copy for ID.me/license mismatch.
-- Whether `/success` fully replaces `/pass-ready` or aliases it during migration.
+- Whether `/upload-selfie` is optional or required for launch credential issuance (David decision pending — TASK-0047).
+- Whether `/success` fully replaces `/pass-ready` or aliases it during migration (David decision pending — TASK-0047).
+- Whether an ID.me-verified phone on `/confirm-info` may skip Twilio OTP if the nurse confirms it. Current spec requires OTP regardless; changing this requires explicit David approval and Twilio policy update.
+- Whether the "I don't have my license number" search fallback should be hidden for license types where RapidAPI /search coverage is unconfirmed.
+- Retry limit enforcement server-side: current implementation caps at 3 lookup attempts per onboarding session via `license_lookups` row count. David should confirm if different.
+- Exact support copy for ID.me/license mismatch and name mismatch cases.
+- LVN / CN alias map: RapidAPI may return these types; current MVP uses exact uppercase match only. David approval required before launch if LVN/CN coverage is needed.
+
+## Implementation Notes (TASK-0048, 2026-06-02)
+
+Route sequence and backend gate chain implemented. See TASK-0048 for full implementation detail.
+
+**Migration J** (not yet applied): extends `license_lookups`, adds `license_checking`/`confirm` to `onboarding_step` CHECK constraint, updates `complete_license_verification()` RPC to advance to `confirm` instead of `phone`.
+
+**New Edge Functions** (not yet deployed): `license-lookup-start`, `license-lookup-status`, `license-lookup-select`, `confirm-info-status`, `confirm-info-complete`.
+
+**Existing functions unchanged**: `phone-send-otp`, `phone-verify-otp`, `account-select-status`, `plan-select`, `payment-status`, `selfie-status`, `success-status`.
 
 ---
 

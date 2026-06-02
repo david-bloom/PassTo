@@ -4,6 +4,43 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Session Activity — 2026-06-02 — Claude
+
+**Task:** TASK-0048 — Re-instrument ID.me-First License Lookup Flow
+**GitHub Checked:** Yes
+**Status:** Implementation complete — pending Migration J application + function deployment + Codex QA
+
+### What Was Found
+
+All five new Edge Functions (`license-lookup-start`, `license-lookup-status`, `license-lookup-select`, `confirm-info-status`, `confirm-info-complete`) were already written in a prior session under the label TASK-0054. Migration J (extending `license_lookups`) also existed.
+
+### Critical Issues Fixed
+
+**Issue 1: `complete_license_verification()` RPC advanced to `'phone'`, not `'confirm'`**
+
+Migration H advanced `onboarding_step` to `'phone'` after a successful license match. The prior functions patched this with post-RPC overrides — a race condition risk. Migration J (Part 3) now updates the RPC to advance to `'confirm'` directly and accepts `'license'` OR `'license_checking'` as valid source steps. Post-RPC overrides in the Edge Functions become harmless no-ops.
+
+**Issue 2: `onboarding_step` CHECK constraint missing `'license_checking'` and `'confirm'`**
+
+The v4 baseline CHECK was `('identity', 'phone', 'license', 'pass', 'complete')`. Writes of `'license_checking'` or `'confirm'` would fail. Migration J (Part 2) drops and recreates the constraint with the full step set.
+
+### Files Changed
+
+- `supabase/migrations/migration_j_license_lookups_search_mode.sql` — expanded (Part 2: CHECK constraint, Part 3: RPC update)
+- `docs/flows/IDME_FIRST_ONBOARDING.md` — route sequence updated, step table added, implementation notes added
+- `docs/tasks/TASK-0048.md` — implementation notes, deviations, production actions, open questions added
+
+### Production Actions Required (David confirmation before each)
+
+1. Apply `migration_j_license_lookups_search_mode.sql` via Supabase SQL Editor
+2. Deploy 5 functions: `license-lookup-start`, `license-lookup-status`, `license-lookup-select`, `confirm-info-status`, `confirm-info-complete`
+3. Tag Codex for QA
+
+**Next Owner:** David (migration + deployment approval) → Codex QA  
+**No existing functions need redeployment.** `phone-send-otp` and all TASK-0047 gate functions are unchanged.
+
+---
+
 ## Approvals — 2026-06-02 — David / Claude
 
 **Tasks:** TASK-0048, TASK-0040
