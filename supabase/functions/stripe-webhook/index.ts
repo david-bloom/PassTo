@@ -32,9 +32,9 @@
  * Required Supabase secrets:
  *   STRIPE_WEBHOOK_SECRET — Stripe webhook signing secret
  *
- * license_entitlement_count by plan (MVP defaults — confirm with David):
- *   standard: 2
- *   premier:  5
+ * license_entitlement_count by plan (DECISION-0010 canonical values):
+ *   standard: 1
+ *   premier:  2
  *
  * TASK: TASK-0040
  * Codex QA: required before production use
@@ -286,11 +286,9 @@ async function handleSubscriptionUpsert(
   }
 
   if (!profileId) {
-    // Cannot link to a profile — skip rather than upsert with null profile_id
-    // (subscriptions.profile_id is NOT NULL). Event is persisted in stripe_events
-    // for manual investigation.
-    console.error(`handleSubscriptionUpsert: no profile_id for subscription ${stripeSubId} — skipping upsert`);
-    return;
+    // Throw so the outer handler marks stripe_events.processed = false,
+    // leaving the event available for manual replay once profile_id is known.
+    throw new Error(`handleSubscriptionUpsert: no profile_id for subscription ${stripeSubId}`);
   }
 
   const periodStart = sub.current_period_start
@@ -302,7 +300,7 @@ async function handleSubscriptionUpsert(
 
   const entitlementCount = LICENSE_ENTITLEMENT[planName] ?? 1;
 
-  await admin.from("subscriptions").upsert({
+  const { error: upsertErr } = await admin.from("subscriptions").upsert({
     profile_id:                profileId,
     stripe_subscription_id:    stripeSubId,
     stripe_customer_id:        stripeCustomerId,
@@ -313,6 +311,10 @@ async function handleSubscriptionUpsert(
     current_period_end:        periodEnd,
     updated_at:                now,
   }, { onConflict: "stripe_subscription_id" });
+
+  // Throw so the outer handler marks processed = false on DB failure,
+  // preserving the event for manual replay.
+  if (upsertErr) throw new Error(`handleSubscriptionUpsert: subscriptions upsert failed: ${upsertErr.message}`);
 }
 
 async function handleSubscriptionDeleted(
