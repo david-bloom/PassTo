@@ -106,7 +106,12 @@ serve(async (req) => {
   const next_step = PAID_PLANS.has(plan_name) ? "payment" : "selfie";
 
   // ── 5. Write subscription_tier + advance onboarding step ──────────────────
-  const { error: updateErr } = await supabaseAdmin
+  // IMPORTANT: subscription_tier here records the nurse's SELECTED PLAN INTENT,
+  // NOT a confirmed paid entitlement. Paid features (add-another-license, etc.)
+  // must be gated on an active row in the `subscriptions` table, which is written
+  // only by Stripe webhook confirmation in TASK-0040. Do not treat subscription_tier
+  // alone as proof of paid access.
+  const { data: updatedRow, error: updateErr } = await supabaseAdmin
     .from("profiles")
     .update({
       subscription_tier: plan_name,
@@ -114,11 +119,14 @@ serve(async (req) => {
       updated_at:        new Date().toISOString(),
     })
     .eq("id", profile.id)
-    .eq("onboarding_step", "plan"); // optimistic concurrency guard
+    .eq("onboarding_step", "plan") // optimistic concurrency guard
+    .select("id")
+    .single();
 
-  if (updateErr) {
-    console.error("plan-select: profile update failed:", updateErr);
-    return json({ error: "server_error" }, 500);
+  if (updateErr || !updatedRow) {
+    // Zero rows matched — profile moved off plan step concurrently, or DB error
+    console.error("plan-select: profile update affected zero rows or failed:", updateErr);
+    return json({ error: "invalid_step_conflict" }, 409);
   }
 
   // ── 6. Audit event ─────────────────────────────────────────────────────────
