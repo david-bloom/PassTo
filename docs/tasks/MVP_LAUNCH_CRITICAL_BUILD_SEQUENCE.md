@@ -68,11 +68,11 @@ The sequence is designed to keep implementation moving while preserving the appr
 
 | Order | Work | Owner | Depends On |
 |---|---|---|---|
-| 4.1 | Credential creation Edge Function | Claude/Codex | Phase 3 |
-| 4.2 | Wallet signing/issuance route contract | Claude/Codex | 4.1 |
-| 4.3 | Wallet pass provider state writes to Supabase | Claude/Codex | 4.2 |
-| 4.4 | PassReady status flow | Claude/Codex | 4.1-4.3 |
-| 4.5 | Credential/wallet QA | Codex | 4.1-4.4 |
+| 4.1 | TASK-0049 — Credential creation gate | Claude | Phase 3, TASK-0040, TASK-0047, selfie decision |
+| 4.2 | TASK-0050 — Wallet signing/issuance route contract | Claude | TASK-0049 |
+| 4.3 | TASK-0051 — Wallet pass provider state writes to Supabase | Claude | TASK-0050 |
+| 4.4 | TASK-0052 — Success / PassReady status flow | Claude/Lovable | TASK-0049, TASK-0051 |
+| 4.5 | TASK-0053 — Credential/wallet QA | Codex | TASK-0049 through TASK-0052 |
 
 ### Phase 5 — Dashboard and Share-Link Verification
 
