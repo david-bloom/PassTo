@@ -30,6 +30,62 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0014 — TASK-0048 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0048
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0048 for execution:
+
+```text
+0048 approved
+```
+
+TASK-0048 — Re-instrument ID.me-First License Lookup Flow. Covers re-sequencing the license lookup step to occur before `/confirm-info`, adding name-only fallback search support, and any required Migration J, new/revised Edge Functions, and flow-doc updates.
+
+### Approval Checklist
+
+- [x] I approve TASK-0048 for execution.
+- [x] I approve Migration J, new/revised Edge Functions, and flow-doc updates within the documented spec scope.
+- [x] I understand that Migration J application, function deployment, and production-impacting config changes still require documented review before execution.
+
+### Notes
+
+- Claude must not apply Migration J or deploy functions without first documenting the migration SQL, files changed, and deployment steps for review.
+- Codex QA is required before TASK-0048 is treated as accepted for downstream credential issuance work.
+- This approval does not approve production launch, credential issuance, wallet issuance, or live Stripe changes.
+
+---
+
+## APPROVAL-0013 — TASK-0040 Reconfirmed for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0040
+**Decision:** Approved (reconfirmation of APPROVAL-0011)
+
+### Summary
+
+David reconfirmed TASK-0040 for execution this session:
+
+```text
+0040 approved for execution
+```
+
+TASK-0040 — Implement Stripe Subscription State and Entitlement Gating. Original approval on record as APPROVAL-0011 (2026-06-01). This entry records David's explicit reconfirmation at session start.
+
+### Notes
+
+- Approved scope unchanged from APPROVAL-0011: checkout/session creation, webhook idempotency, subscriptions/payments persistence, server-side entitlement checks, subscription lapse handling, audit/event records — test mode only.
+- Not approved: Stripe live-mode cutover, live product/pricing changes, production launch, credential/wallet launch, annual plans, coupons, institutional/employer billing, additional license purchase flow.
+- Any migration, secret change, or Edge Function deployment must be documented before execution.
+
+---
+
 ## APPROVAL-0012 — Standing Approval Lanes Approved
 
 **Date:** 2026-06-02  

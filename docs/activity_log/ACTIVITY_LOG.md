@@ -4,6 +4,33 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Approvals — 2026-06-02 — David / Claude
+
+**Tasks:** TASK-0048, TASK-0040
+**GitHub Checked:** Yes
+**Status:** Both tasks approved for execution — approvals recorded
+
+David approved both tasks at session start:
+
+```text
+0048 approved
+0040 approved for execution
+```
+
+- TASK-0048: status updated to `Approved for Execution`. Recorded as APPROVAL-0014.
+- TASK-0040: reconfirmed. Recorded as APPROVAL-0013 (original APPROVAL-0011 remains authoritative).
+
+### Approval Boundaries
+
+**TASK-0048:** Migration J, new/revised Edge Functions, and flow-doc updates are within approved scope. Migration application and function deployment still require documented review before execution.
+
+**TASK-0040:** Stripe test-mode implementation approved. No live-mode cutover, live product/pricing, production launch, or credential/wallet launch. Any migration or deployment must be documented before execution.
+
+**Next Owner:** Claude
+**Next Required Action:** Begin TASK-0040 implementation (Stripe checkout, webhook, subscriptions/payments schema, entitlement reads). In parallel, draft TASK-0048 Migration J and Edge Function plan. Surface both to David before any Supabase action.
+
+---
+
 ## Workflow Approval — 2026-06-02 — Codex
 
 **Task:** Standing approval lanes and David bottleneck reduction  
