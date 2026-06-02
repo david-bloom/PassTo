@@ -4,6 +4,29 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Workflow Update — 2026-06-02 — Codex
+
+**Task:** Shared PassTo agent operating model  
+**GitHub Checked:** Yes  
+**Status:** Added shared workflow docs — approved by David  
+**Summary:** David approved adding shared agent workflow docs to GitHub so Claude, Codex, Lovable handoffs, and side agents can use the same conductor, QA-agent, skills, and handoff-packet model. Codex created the approved docs in `docs/team_charter/`.
+
+### Files Created
+
+- `docs/team_charter/AGENT_OPERATING_MODEL.md`
+- `docs/team_charter/HANDOFF_PACKET_TEMPLATE.md`
+- `docs/team_charter/PASSTO_SKILLS_GUIDE.md`
+
+### Approval Boundary
+
+- This workflow update does not approve any task execution, migration, deployment, live Stripe change, credential issuance, wallet issuance, or production launch.
+- Claude and Codex should use the shared docs for future task handoffs and agent coordination.
+
+**Next Owner:** David / Claude / Codex  
+**Next Required Action:** David updates the Claude new-session prompt to reference the new shared docs; Codex and Claude use handoff packets before execution, QA, Lovable prompts, or complex side-agent work.
+
+---
+
 ## Task Creation — 2026-06-02 — Codex
 
 **Task:** PRD Phase 4 Credential and Wallet Issuance  
