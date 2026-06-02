@@ -2,16 +2,18 @@
  * dashboard-status
  *
  * TASK-0055 — Implement Nurse Dashboard Launch-Critical Status View
+ * TASK-0056 — share_link_eligible updated from hardcoded false to real eligibility
  *
  * verify_jwt: true
  *
  * Called by Lovable from /dashboard to get server-derived credential, license,
- * wallet, and subscription state for display. Status surface only — does not
- * issue credentials, advance onboarding, or mutate any table.
+ * wallet, subscription, and share-link eligibility state for display.
+ * Status surface only — does not issue credentials, advance onboarding, or
+ * mutate any table.
  *
  * Gate: onboarding_step must be in ["pass", "complete"].
  *
- * TASK: TASK-0055
+ * TASK: TASK-0055 / TASK-0056
  * Codex QA: required before production use
  */
 
@@ -158,7 +160,15 @@ serve(async (req) => {
   const canAddLicense =
     activeSub !== null && (activeSub.license_entitlement_count ?? 0) > 1;
 
-  // ── 8. Return status payload ───────────────────────────────────────────────
+  // ── 8. Derive share-link eligibility (TASK-0056) ───────────────────────────
+  const shareLinkEligibility = deriveShareLinkEligibility(
+    profile.subscription_tier,
+    credential,
+    license,
+    activeSub,
+  );
+
+  // ── 9. Return status payload ───────────────────────────────────────────────
   return json({
     onboarding_step: profile.onboarding_step,
     account_status:  profile.account_status,
@@ -189,14 +199,37 @@ serve(async (req) => {
       any_issued: anyIssued,
     },
 
-    // Share-link — not yet implemented (TASK-0056)
-    share_link_eligible: false,
-    share_link_reason:   "not_implemented",
+    // Share-link eligibility (TASK-0056)
+    share_link_eligible: shareLinkEligibility.eligible,
+    share_link_reason:   shareLinkEligibility.reason,
 
     // Add-license entitlement
     can_add_license: canAddLicense,
   }, 200);
 });
+
+// ── Share-link eligibility helper (TASK-0056) ──────────────────────────────
+
+function deriveShareLinkEligibility(
+  subscriptionTier: string,
+  credential: { status: string } | null,
+  license: { normalized_status: string; data_match_passed: boolean } | null,
+  activeSub: { status: string } | null,
+): { eligible: boolean; reason: string } {
+  if (!credential || credential.status !== "active") {
+    return { eligible: false, reason: "credential_not_active" };
+  }
+  if (!license || license.normalized_status !== "Active") {
+    return { eligible: false, reason: "license_not_active" };
+  }
+  if (!license.data_match_passed) {
+    return { eligible: false, reason: "license_match_not_passed" };
+  }
+  if (subscriptionTier !== "free" && activeSub === null) {
+    return { eligible: false, reason: "entitlement_not_confirmed" };
+  }
+  return { eligible: true, reason: "" };
+}
 
 function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), {
