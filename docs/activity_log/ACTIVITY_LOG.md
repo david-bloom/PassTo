@@ -2687,4 +2687,6 @@ Instructs Lovable to:
 
 #### GitHub Issue
 
-Codex QA issue to be opened: TASK-0055 Codex QA — Nurse Dashboard Status Function
+GitHub Issue: [#10](https://github.com/david-bloom/PassTo/issues/10) TASK-0055 Codex QA — Nurse Dashboard Status Function (opened)
+
+**Deployment:** `dashboard-status` v1 deployed to Supabase project wvzjfxacykgsaffskgtr
