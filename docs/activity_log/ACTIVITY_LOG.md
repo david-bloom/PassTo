@@ -2783,3 +2783,45 @@ Codex issued a blocked verdict because no approved implementation exists. Prior 
 ### Required Next Action
 
 David approves TASK-0056 → Claude rewrites clean from spec (GitHub-first, fixes all known defects, includes `dashboard-status` eligibility update) → Codex QA restarts.
+
+---
+
+## Session Activity — 2026-06-02 — Claude
+
+**Task IDs:** TASK-0056
+**Status:** Implementation complete — Codex QA Required
+**Role:** Claude / Senior Engineer
+
+### TASK-0056 — Share-Link Token Creation — Executed
+
+David approved TASK-0056 as APPROVAL-0022 (2026-06-02): "execute task 0057" + "Do 0056 first".
+
+#### Deliverables
+
+**New Edge Function:** `supabase/functions/share-link-create/index.ts`
+
+POST endpoint. Full gate chain: auth → profile (IAL2, active, terminal step) → credential (active, owned) → license (Active, data_match_passed, linked) → entitlement (free always passes; paid requires active subscription). Writes `verification_tokens` (hash only, never raw) and `audit_events` (creation + all rejection paths).
+
+**Updated Edge Function:** `supabase/functions/dashboard-status/index.ts` (v3)
+
+Replaced hardcoded `share_link_eligible: false / not_implemented` with real `deriveShareLinkEligibility()` helper. Returns specific reason codes: `credential_not_active`, `license_not_active`, `license_match_not_passed`, `entitlement_not_confirmed`.
+
+#### Prior Bug Fixes Applied
+
+| Bug | Fix |
+|---|---|
+| `eq('id', user.id)` profile lookup | `eq('auth_user_id', user.id)` |
+| `action: 'create'` (OD-1 violation) | `'verification_token.created'` / `'verification_token.creation_rejected'` |
+| No rejection-path audit events | All gates write best-effort rejection audit |
+
+#### Deployment
+
+Both functions deployed to Supabase project `wvzjfxacykgsaffskgtr`. Source in GitHub before deployment.
+
+#### Open Items
+
+| Item | Status |
+|---|---|
+| `SHARE_LINK_BASE_URL` Supabase secret | Not yet set — defaults to `https://passtodigital.com/v`; must be set before production |
+| First-use token marking | Deferred to TASK-0057 |
+| Codex QA | Required — Issue to be opened |
