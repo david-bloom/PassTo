@@ -30,6 +30,38 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0024 — TASK-0058 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0058
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0058 for execution:
+
+```text
+execute 0058
+```
+
+TASK-0058 — Implement `/v/{token}` Verifier Flow. Lovable prompt for the public verifier credential view page. No new backend functions — `token-verify` (TASK-0057) is the backend. Also includes a minor `token-verify` v2 update to accept `marketing_consent`.
+
+### Approval Checklist
+
+- [x] I approve TASK-0058 for execution.
+- [x] I approve the Lovable prompt for `/v/:token` as the verifier UI implementation spec.
+- [x] I approve the `token-verify` v2 update adding `marketing_consent` field.
+- [x] I understand this does not approve Show QR, PDF export, employer dashboard, verifier account creation, or production launch.
+
+### Notes
+
+- Approved scope: Lovable prompt + `token-verify` marketing_consent patch only.
+- Not approved: Show QR, PDF export, employer dashboard, verifier account creation, production launch, risk acceptance, Done decision.
+- TASK-0056 (issue #11) and TASK-0057 (issue #12) Codex QA still pending.
+
+---
+
 ## APPROVAL-0023 — TASK-0057 Approved for Execution
 
 **Date:** 2026-06-02
