@@ -118,7 +118,7 @@ This verification link has already been used.
 Ask the nurse to send you a new link.
 ```
 
-#### ❌ State 4 — Token not valid (`error: "token_not_found"` / `"token_wrong_type"` / `"token_revoked"` / `"token_not_active"`)
+#### ❌ State 4 — Token not valid (`error: "token_not_found"` / `"token_wrong_type"` / `"token_revoked"` / `"token_not_active"` / `"missing_token"` / no token in URL)
 
 ```
 This verification link is not valid.
