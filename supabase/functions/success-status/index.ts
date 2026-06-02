@@ -65,8 +65,8 @@ serve(async (req) => {
     }, 403);
   }
 
-  // ── 3. Load credential ─────────────────────────────────────────────────────
-  const { data: credential } = await supabaseAdmin
+  // ── 3. Load credential — fail closed on read error ────────────────────────
+  const { data: credential, error: credReadErr } = await supabaseAdmin
     .from("credentials")
     .select("id, status, issued_at, expires_at")
     .eq("profile_id", profile.id)
@@ -74,20 +74,26 @@ serve(async (req) => {
     .limit(1)
     .maybeSingle();
 
-  // ── 4. Load per-provider wallet state ──────────────────────────────────────
-  // wallet_passes has unique(credential_id, provider) — one row per provider.
-  // Status values: pending | issued | error | voided
-  // "not_attempted" = no row exists for that provider.
+  if (credReadErr) {
+    console.error("success-status: credential read failed:", credReadErr.message);
+    return json({ error: "backend_read_error" }, 503);
+  }
 
+  // ── 4. Load per-provider wallet state — fail closed on read error ──────────
   type WalletPassRow = { provider: string; status: string; pass_url: string | null; external_pass_id: string | null };
   let applePass:  WalletPassRow | null = null;
   let googlePass: WalletPassRow | null = null;
 
   if (credential) {
-    const { data: passes } = await supabaseAdmin
+    const { data: passes, error: passReadErr } = await supabaseAdmin
       .from("wallet_passes")
       .select("provider, status, pass_url, external_pass_id")
       .eq("credential_id", credential.id);
+
+    if (passReadErr) {
+      console.error("success-status: wallet_passes read failed:", passReadErr.message);
+      return json({ error: "backend_read_error" }, 503);
+    }
 
     for (const p of (passes ?? [])) {
       if (p.provider === "apple_wallet")  applePass  = p as WalletPassRow;
@@ -99,7 +105,7 @@ serve(async (req) => {
 
   const appleState = applePass
     ? {
-        status:   applePass.status,                                  // pending|issued|error|voided
+        status:   applePass.status,
         pass_url: applePass.status === "issued" ? applePass.pass_url : null,
       }
     : { status: "not_attempted", pass_url: null };
@@ -113,16 +119,19 @@ serve(async (req) => {
 
   const anyIssued = applePass?.status === "issued" || googlePass?.status === "issued";
 
-  // ── 6. Entitlement reader ──────────────────────────────────────────────────
-  // can_add_license: paid plan with confirmed Stripe subscription > 1 entitlement.
-  // Reads from server-confirmed subscriptions table, not profiles.subscription_tier.
-  const { data: activeSub } = await supabaseAdmin
+  // ── 6. Entitlement reader — fail closed on read error ─────────────────────
+  const { data: activeSub, error: subReadErr } = await supabaseAdmin
     .from("subscriptions")
     .select("license_entitlement_count")
     .eq("profile_id", profile.id)
     .eq("status", "active")
     .gt("license_entitlement_count", 1)
     .maybeSingle();
+
+  if (subReadErr) {
+    console.error("success-status: subscriptions read failed:", subReadErr.message);
+    return json({ error: "backend_read_error" }, 503);
+  }
 
   const canAddLicense = activeSub !== null;
 
@@ -144,11 +153,14 @@ serve(async (req) => {
       any_issued: anyIssued,
     },
 
-    // Legacy fields retained for Lovable compatibility
-    // (single-provider view — prefer wallet.apple / wallet.google going forward)
+    // Legacy fields — status-gated; prefer wallet.apple / wallet.google going forward
     wallet_status:    applePass?.status  ?? googlePass?.status  ?? "none",
-    wallet_pass_url:  applePass?.pass_url ?? googlePass?.external_pass_id ?? null,
-    wallet_provider:  applePass ? "apple_wallet" : googlePass ? "google_wallet" : null,
+    wallet_pass_url:  (applePass?.status  === "issued" ? applePass.pass_url  : null)
+                   ?? (googlePass?.status === "issued" ? googlePass.external_pass_id : null)
+                   ?? null,
+    wallet_provider:  applePass?.status  === "issued" ? "apple_wallet"
+                    : googlePass?.status === "issued" ? "google_wallet"
+                    : null,
 
     can_add_license: canAddLicense,
   }, 200);

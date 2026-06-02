@@ -252,15 +252,24 @@ serve(async (req) => {
     }).eq("id", credential.id);
 
     if (activateErr) {
-      // Wallet passes are durably marked issued but credential activation failed.
-      // Log prominently — ops must manually activate. Return partial success so
-      // the nurse still gets wallet URLs.
+      // Wallet passes are durably issued but credential DB activation failed.
+      // Return a distinct partial state so Lovable can show "wallet ready,
+      // credential pending" rather than overstating full activation.
+      // Ops must manually run: UPDATE credentials SET status='active' WHERE id=...
       console.error("wallet-issue: credential activation failed:", activateErr.message);
       await supabaseAdmin.from("audit_events").insert({
         actor_id: profile.id, action: "credential.activation_failed",
         resource_type: "credential", resource_id: credential.id,
         change_after: { error: activateErr.message },
       }).catch(() => {});
+      return json({
+        credential_id:     credential.id,
+        credential_status: "pending",          // DB not yet updated — honest state
+        wallet_activation_partial: true,       // signal for ops / retry
+        already_issued:    false,
+        apple:  applePersisted ? { status: "issued", pass_url: applePassUrl }  : { status: "error", error: "provider_error" },
+        google: googlePersisted ? { status: "issued", save_url: googleSaveUrl } : { status: "error", error: "provider_error" },
+      }, 200);
     } else {
       await supabaseAdmin.from("audit_events").insert({
         actor_id: profile.id, action: "credential.activated",
