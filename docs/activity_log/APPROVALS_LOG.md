@@ -30,6 +30,40 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0020 — TASK-0056 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0056
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0056 for execution:
+
+```text
+execute 0056
+```
+
+TASK-0056 — Implement Share-Link Token Creation Function. Backend `share-link-create` Edge Function that creates a 72-hour one-time share link for an eligible nurse's active credential.
+
+### Approval Checklist
+
+- [x] I approve TASK-0056 for execution.
+- [x] I approve the stated acceptance criteria.
+- [x] I understand this is a trust-boundary task — verification token creation is backend-controlled only.
+- [x] I understand no migration is required (verification_tokens table already exists).
+- [x] I understand Lovable must not directly insert verification_tokens rows.
+
+### Notes
+
+- Not approved: Show QR token type, PDF token type, verifier UI, employer dashboard, production launch, risk acceptance, Done decision.
+- TASK-0055 (dashboard UI) is not yet approved for execution; share-link-create backend is independent and can be deployed separately.
+- Deployment requires David to run: `npx supabase functions deploy share-link-create --project-ref wvzjfxacykgsaffskgtr`
+- `SHARE_LINK_BASE_URL` env var should be set to the production verifier base URL before live use.
+
+---
+
 ## APPROVAL-0019 — TASK-0052 Approved for Execution
 
 **Date:** 2026-06-02

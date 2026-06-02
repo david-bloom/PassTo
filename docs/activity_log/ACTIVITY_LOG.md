@@ -4,6 +4,74 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0056 Execution Complete — 2026-06-02 — Claude
+
+**Task:** TASK-0056 — Implement Share-Link Token Creation Function  
+**Status:** Ready for Codex QA  
+**Approval:** APPROVAL-0020 (David: "execute 0056")  
+**Approval Lane:** Class A — David approval recorded before execution
+
+### Summary
+
+Implemented `share-link-create` Edge Function. No migration required — `verification_tokens` table was already live with all required columns. Live schema confirmed before implementation.
+
+### Implementation
+
+**Function:** `share-link-create` | **verify_jwt:** true | **Method:** POST | **CORS:** `enroll.passtodigital.com`
+
+**Gate sequence:**
+1. JWT verification (401 on failure)
+2. Profile: active account + IAL2 identity (403 on failure)
+3. Primary credential: `status = 'active'` (403 on failure)
+4. License: `normalized_status = 'Active'` + `data_match_passed = true` (403 on failure)
+5. Entitlement: free tier always allowed; paid tier requires active subscriptions row (403 `subscription_not_confirmed`)
+
+**Token:** 32-byte `crypto.getRandomValues` → 64-char hex raw token → SHA-256 hash stored. Raw token returned once; never stored.
+
+**TTL:** 72 hours. First-use enforcement deferred to TASK-0057.
+
+**Write order:** Audit event first (fail-closed) → verification_tokens insert.
+
+### Files Changed
+
+| File | Action |
+|---|---|
+| `supabase/functions/share-link-create/index.ts` | Created |
+| `docs/tasks/TASK-0056.md` | Updated — status, implementation notes, deviations, risks |
+| `docs/activity_log/APPROVALS_LOG.md` | APPROVAL-0020 added |
+| `docs/activity_log/ACTIVITY_LOG.md` | This entry |
+
+### Deploy Command (David)
+
+```
+npx supabase functions deploy share-link-create --project-ref wvzjfxacykgsaffskgtr
+```
+
+No migration. No new required secrets. Optional: set `SHARE_LINK_BASE_URL` Supabase secret if the default (`https://passtodigital.com/v`) is not the correct verifier base URL.
+
+### Deviations
+
+- TASK-0055 (dashboard UI) not yet executed — backend function is independent
+- Rejection paths do not write audit events (same pattern as credential-create)
+- Credential selected by most-recent created_at (no is_primary flag on credentials table)
+
+### Risks
+
+- First-use expiry (`used_at` + `status = 'used'`) deferred to TASK-0057
+- `SHARE_LINK_BASE_URL` must be confirmed before production use
+
+### Approval Boundaries
+
+Not approved: Show QR token type, PDF token type, verifier UI, employer dashboard, production launch, risk acceptance, Done decision. David must separately approve TASK-0055, TASK-0057, TASK-0058 before those tasks execute.
+
+### Next Recommended Action
+
+1. David: deploy `share-link-create` via command above.
+2. Codex: QA `share-link-create` against acceptance criteria in TASK-0056.
+3. David: decide whether to approve TASK-0055, TASK-0057, TASK-0058 for execution.
+
+---
+
 ## Phase 5 Tasks Created — 2026-06-02 — Codex
 
 **Scope:** PRD Phase 5 — Dashboard and Share-Link Verification  
