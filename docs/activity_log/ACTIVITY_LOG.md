@@ -2825,3 +2825,29 @@ Both functions deployed to Supabase project `wvzjfxacykgsaffskgtr`. Source in Gi
 | `SHARE_LINK_BASE_URL` Supabase secret | Not yet set — defaults to `https://passtodigital.com/v`; must be set before production |
 | First-use token marking | Deferred to TASK-0057 |
 | Codex QA | Required — Issue to be opened |
+
+---
+
+## Session Activity — 2026-06-02 — Claude
+
+**Task IDs:** TASK-0057
+**Status:** Implementation complete — Codex QA Required
+**Role:** Claude / Senior Engineer
+
+### TASK-0057 — Verifier Token Validation — Executed
+
+David approved TASK-0057 as APPROVAL-0023 (2026-06-02): "execute task 0057".
+
+#### Deliverable
+
+**New Edge Function:** `supabase/functions/token-verify/index.ts`
+
+Anonymous POST endpoint. Accepts `token` (raw), `verifier_name`, `verifier_email`, `terms_accepted`. Hashes token server-side, validates against `verification_tokens`, checks credential + license still active at redemption time, atomically marks token used, inserts `verifiers` row, writes `verification_events` and `audit_events`, returns safe credential display payload.
+
+**Double-use prevention:** `UPDATE WHERE status='active'` — atomic, single winner for any concurrent redemptions.
+
+**Safe payload:** credential status/dates, license type/state/status/expiry/current-as-of. No nurse PII, no license number, no raw provider data.
+
+#### Dependency Gap
+
+TASK-0056 Codex QA (issue #11) still open. End-to-end token creation → validation chain requires #11 to resolve before live testing.
