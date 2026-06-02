@@ -4,56 +4,71 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
-## Phase 4 QA Complete — 2026-06-02 — Codex / Claude (Main Conductor)
+## TASK-0056 Execution Complete — 2026-06-02 — Claude
 
-**Tasks:** TASK-0049, TASK-0050, TASK-0051, TASK-0052, TASK-0053  
-**Status:** Codex QA Complete — Ready for David Review  
-**Approval Lane:** Standing approval — conductor finalization of proposed QA findings; routing to David for Done decision  
+**Task:** TASK-0056 — Implement Share-Link Token Creation Function  
+**Status:** Ready for Codex QA  
+**Approval:** APPROVAL-0020 (David: "execute 0056")  
+**Approval Lane:** Class A — David approval recorded before execution
 
 ### Summary
 
-Codex proposed pass-with-deferrals verdicts for all Phase 4 tasks. Main Conductor (Claude) accepted findings and published final QA verdicts to GitHub task docs.
+Implemented `share-link-create` Edge Function. No migration required — `verification_tokens` table was already live with all required columns. Live schema confirmed before implementation.
 
-| Task | Title | QA Verdict |
-|---|---|---|
-| TASK-0049 | Implement Credential Creation Gate | ✅ Pass with deferrals — Re-QA v2 complete |
-| TASK-0050 | Define Wallet Signing and Issuance Contract | ✅ Pass with deferrals |
-| TASK-0051 | Persist Wallet Provider State to Supabase | ✅ Pass with deferrals |
-| TASK-0052 | Implement Success / PassReady Credential Status Flow | ✅ Pass with deferrals |
-| TASK-0053 | Codex QA Phase 4 (umbrella) | ✅ Pass with deferrals — conductor finalized |
+### Implementation
 
-All task statuses updated to: **Codex QA Complete — Ready for David Review**
+**Function:** `share-link-create` | **verify_jwt:** true | **Method:** POST | **CORS:** `enroll.passtodigital.com`
 
-### Non-Blocking Risks / Deferrals
+**Gate sequence:**
+1. JWT verification (401 on failure)
+2. Profile: active account + IAL2 identity (403 on failure)
+3. Primary credential: `status = 'active'` (403 on failure)
+4. License: `normalized_status = 'Active'` + `data_match_passed = true` (403 on failure)
+5. Entitlement: free tier always allowed; paid tier requires active subscriptions row (403 `subscription_not_confirmed`)
 
-| Item | Type |
+**Token:** 32-byte `crypto.getRandomValues` → 64-char hex raw token → SHA-256 hash stored. Raw token returned once; never stored.
+
+**TTL:** 72 hours. First-use enforcement deferred to TASK-0057.
+
+**Write order:** Audit event first (fail-closed) → verification_tokens insert.
+
+### Files Changed
+
+| File | Action |
 |---|---|
-| `success-status` live version is v7; docs previously referenced v8 — source matches remediation, label drift only | Doc drift — non-blocking |
-| Migration L not visible in migration-list view; schema inspection confirms `credentials_profile_license_unique` is live | Tooling view gap — non-blocking |
-| Real Apple/Google wallet issuance untested until certificates, issuer, Vercel env vars, and signing secrets are configured | Pre-production deferral — hard gate |
-| Vercel production deployment of `api/sign-apple.js` / `api/sign-google.js` not live-verified | Pre-production deferral — hard gate |
-| `credentials` and `wallet_passes` have broad direct grants to `anon`/`authenticated`; RLS-backed SELECT only — not a current bypass | Recommended cleanup before production |
+| `supabase/functions/share-link-create/index.ts` | Created |
+| `docs/tasks/TASK-0056.md` | Updated — status, implementation notes, deviations, risks |
+| `docs/activity_log/APPROVALS_LOG.md` | APPROVAL-0020 added |
+| `docs/activity_log/ACTIVITY_LOG.md` | This entry |
 
-### Recommended Pre-Production Cleanup (not blocking Done)
+### Deploy Command (David)
 
-1. Correct doc references from `success-status v8` to `v7`, or redeploy with aligned version label.
-2. Consider revoking broad direct table grants from `anon`/`authenticated` for `credentials` and `wallet_passes`, leaving RLS-backed SELECT only.
+```
+npx supabase functions deploy share-link-create --project-ref wvzjfxacykgsaffskgtr
+```
 
-### Files Updated This Session
+No migration. No new required secrets. Optional: set `SHARE_LINK_BASE_URL` Supabase secret if the default (`https://passtodigital.com/v`) is not the correct verifier base URL.
 
-- `docs/tasks/TASK-0049.md` — status → Codex QA Complete, re-QA v2 verdict added
-- `docs/tasks/TASK-0053.md` — status → Codex QA Complete, TASK-0049 entry updated, umbrella verdict added
-- `docs/activity_log/ACTIVITY_LOG.md` — this entry
+### Deviations
 
-### Approval Boundary
+- TASK-0055 (dashboard UI) not yet executed — backend function is independent
+- Rejection paths do not write audit events (same pattern as credential-create)
+- Credential selected by most-recent created_at (no is_primary flag on credentials table)
 
-This is a standing-approval conductor finalization. It does not constitute a Done decision, task/issue closure, production launch approval, migration application, deployment, secret change, wallet certificate/key handling, credential/wallet issuance launch, or risk acceptance.
+### Risks
 
-David approval required before any of those actions.
+- First-use expiry (`used_at` + `status = 'used'`) deferred to TASK-0057
+- `SHARE_LINK_BASE_URL` must be confirmed before production use
+
+### Approval Boundaries
+
+Not approved: Show QR token type, PDF token type, verifier UI, employer dashboard, production launch, risk acceptance, Done decision. David must separately approve TASK-0055, TASK-0057, TASK-0058 before those tasks execute.
 
 ### Next Recommended Action
 
-David: review Phase 4 task docs (TASK-0049 through TASK-0053) and this QA summary. Make a Done decision for Phase 4 or identify remaining concerns. Separately decide whether to approve Phase 5 execution (TASK-0055–0059).
+1. David: deploy `share-link-create` via command above.
+2. Codex: QA `share-link-create` against acceptance criteria in TASK-0056.
+3. David: decide whether to approve TASK-0055, TASK-0057, TASK-0058 for execution.
 
 ---
 
