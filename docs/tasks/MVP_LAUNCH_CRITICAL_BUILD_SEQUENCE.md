@@ -88,11 +88,11 @@ The sequence is designed to keep implementation moving while preserving the appr
 
 | Order | Work | Owner | Depends On |
 |---|---|---|---|
-| 6.1 | Stripe checkout function | Claude/Codex | Phase 1 |
-| 6.2 | Stripe webhook function with `stripe_events` idempotency | Claude/Codex | 6.1 |
-| 6.3 | Entitlement gate checks for launch-critical actions | Claude/Codex | 6.2 |
-| 6.4 | Subscription lapse downgrade behavior | Claude/Codex | 6.2 |
-| 6.5 | Stripe/subscription QA | Codex | 6.1-6.4 |
+| 6.1 | TASK-0060 — Reconcile Stripe checkout end-to-end readiness | Claude/Codex | TASK-0040, Lovable payment route |
+| 6.2 | TASK-0061 — Define subscription management and cancellation flow | Claude/Lovable | TASK-0040, TASK-0060 |
+| 6.3 | TASK-0062 — Resolve Free-tier paid share-link entitlement policy | Claude/Codex | TASK-0056, TASK-0040 |
+| 6.4 | TASK-0063 — Harden entitlement and lapse ops visibility | Claude/Codex | TASK-0040, TASK-0055, TASK-0061 |
+| 6.5 | TASK-0064 — Codex QA Phase 6 Stripe, entitlements, and lapse behavior | Codex | TASK-0060 through TASK-0063 |
 
 ### Phase 7 — Ops, Alerts, QA, and Launch Readiness
 
