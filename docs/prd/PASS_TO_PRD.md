@@ -113,11 +113,11 @@ The launch-critical MVP journey is:
 ```text
 Nurse discovers PassTo
 -> starts ID.me verification
--> confirms identity/contact info
 -> enters license details
 -> license lookup runs
 -> data match runs
--> verifies phone
+-> confirms matched identity/license/contact info
+-> verifies phone by SMS OTP from the same confirmation page
 -> chooses plan
 -> pays if needed
 -> selfie is captured and stored
@@ -132,7 +132,7 @@ Nurse discovers PassTo
 
 ### ID.me-First Onboarding and Account/Profile Linking
 
-The nurse starts onboarding with ID.me rather than password-first account creation. ID.me verification happens through a trusted backend flow. The nurse then confirms safe profile/contact fields such as first name, last name, email, and phone where available. Supabase Auth/profile state is created or linked after backend verification. Account/profile linking does not itself authorize credential issuance.
+The nurse starts onboarding with ID.me rather than password-first account creation. ID.me verification happens through a trusted backend flow. Supabase Auth/profile state is created or linked after backend verification. After license lookup and identity/license binding pass, the nurse confirms safe matched identity, license, and contact fields before phone OTP verification. Account/profile linking does not itself authorize credential issuance.
 
 ### Identity Verification
 
@@ -140,11 +140,11 @@ The nurse completes ID.me verification as the first substantive enrollment step.
 
 ### Phone Verification
 
-After license lookup and ID.me/license binding pass, the nurse verifies phone possession through Twilio SMS. Backend code sends and verifies the code. Credential issuance remains blocked until phone verification passes.
+After license lookup and ID.me/license binding pass, the nurse confirms contact information and verifies phone possession through Twilio SMS. Lovable may show this as one combined `/confirm-info` page: confirm info, send OTP, enter OTP, then proceed to plan selection. Backend code still treats confirmation and OTP verification as separate trust events. Credential issuance remains blocked until phone verification passes.
 
 ### License Lookup
 
-After ID.me verification and contact confirmation, the nurse enters required license details. Lovable invokes a dedicated backend license lookup function. License lookup remains separate from ID.me exchange so audit, retry, and failure handling stay clear. Plan selection and payment should not be requested until lookup and identity/license binding pass.
+After ID.me verification, the nurse enters required license details. Lovable invokes a dedicated backend license lookup function. License lookup remains separate from ID.me exchange so audit, retry, and failure handling stay clear. Plan selection and payment should not be requested until lookup, identity/license binding, contact confirmation, and phone OTP verification pass.
 
 ### Data Matching
 
