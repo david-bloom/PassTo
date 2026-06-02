@@ -4,6 +4,31 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## David Completion Approval — 2026-06-02 — David / Codex
+
+**Tasks:** TASK-0040, TASK-0048  
+**Status:** Complete / Passed — David Approved  
+**Approval Record:** APPROVAL-0015  
+
+David approved marking both tasks as complete/passed:
+
+```text
+david approves marking both as complete/passed
+```
+
+### Final Task Status
+
+| Task | Status | Key pre-production gap |
+|---|---|---|
+| TASK-0048 | Complete / Passed — David Approved | Live RapidAPI end-to-end test needed before production |
+| TASK-0040 | Complete / Passed — David Approved | Real Stripe checkout test through Lovable with test card `4242 4242 4242 4242` needed before production |
+
+### Approval Boundary
+
+This approval accepts the current QA gates and task statuses. It does not approve Stripe live-mode cutover, live Stripe product/pricing changes, credential issuance launch, wallet issuance launch, production launch, or broader risk acceptance.
+
+---
+
 ## Functions Deployed — 2026-06-02 — David / Claude
 
 **Task:** TASK-0048 — Edge Functions deployed  
