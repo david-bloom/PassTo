@@ -39,6 +39,19 @@ Applied via Supabase SQL Editor. Three parts executed:
 
 ---
 
+## Migration Applied — 2026-06-02 — David / Claude
+
+**Task:** TASK-0040 — Migration K applied  
+**Status:** Applied successfully — no rows returned  
+**Migration:** `migration_k_payments_action_type.sql`  
+**Project:** `wvzjfxacykgsaffskgtr`
+
+Extends `payments.action_type` CHECK constraint to include `subscription_start` and `subscription_renewal`. Required before `stripe-webhook` can process checkout events without constraint violations.
+
+**Next:** Steps 2–5 — Supabase secrets, Stripe products/prices, function deploys, webhook registration.
+
+---
+
 ## Session Activity — 2026-06-02 — Claude
 
 **Task:** TASK-0048 — Re-instrument ID.me-First License Lookup Flow
