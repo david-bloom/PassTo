@@ -30,6 +30,39 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0020 — TASK-0055 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0055
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0055 for execution:
+
+```text
+execute 0055
+```
+
+TASK-0055 — Implement Nurse Dashboard Launch-Critical Status View. New `dashboard-status` Edge Function (read-only GET, returns credential/license/wallet/subscription state) and Lovable prompt for the `/dashboard` page.
+
+### Approval Checklist
+
+- [x] I approve TASK-0055 for execution.
+- [x] I approve the `dashboard-status` Edge Function reading `profiles`, `licenses`, `credentials`, `wallet_passes`, and `subscriptions` tables in read-only mode.
+- [x] I approve the Lovable prompt for `/dashboard` as the dashboard UI implementation spec.
+- [x] I understand share-link token creation is not approved here — `share_link_eligible` will return `false` until TASK-0056 is separately approved.
+- [x] I understand deferred features (QR, PDF export, add-license, employer dashboard) must not appear as launch blockers.
+
+### Notes
+
+- Approved scope: `dashboard-status` Edge Function + Lovable prompt only. No schema migrations.
+- Not approved: share-link token creation, QR code, PDF export, add-license flow, employer dashboard, production launch, Done decision, risk acceptance.
+- Codex QA required before Lovable prompt is sent to Lovable — issue [#10](https://github.com/david-bloom/PassTo/issues/10).
+
+---
+
 ## APPROVAL-0019 — TASK-0052 Approved for Execution
 
 **Date:** 2026-06-02
