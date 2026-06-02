@@ -30,6 +30,31 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0018 — TASK-0051 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0051
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0051 for execution:
+
+```text
+0051
+```
+
+TASK-0051 — Persist Wallet Provider State to Supabase. Covers wallet status reader update, per-provider state, and ops alert documentation.
+
+### Notes
+
+- `wallet_passes` write logic is already implemented in TASK-0050 `wallet-issue`.
+- Main work: update `success-status` to return separate Apple/Google wallet state.
+- Not approved: production launch, risk acceptance, Done decision.
+
+---
+
 ## APPROVAL-0017 — TASK-0050 Approved for Execution
 
 **Date:** 2026-06-02

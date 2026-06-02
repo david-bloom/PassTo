@@ -1,21 +1,18 @@
 /**
  * success-status
  *
- * TASK-0047 — Reorder Phone, Plan, Payment, Selfie, and Success Backend Routing
+ * TASK-0047 — initial implementation
+ * TASK-0051 — updated: per-provider wallet state (Apple + Google separate rows)
  *
  * verify_jwt: true
  *
  * Called by Lovable from /success to get server-derived credential and wallet status.
- * This is a status surface only — it does not issue credentials or advance onboarding.
+ * Status surface only — does not issue credentials or advance onboarding.
  *
- * Flow:
- *   1. Authenticate caller
- *   2. Validate gate: onboarding_step in ['pass', 'complete'], account active
- *   3. Read credential status from credentials table
- *   4. Read wallet pass status from wallet_passes table
- *   5. Return server-derived status object
+ * Returns separate Apple and Google wallet states from wallet_passes table.
+ * wallet_passes has unique(credential_id, provider) — one row per provider.
  *
- * TASK: TASK-0047
+ * TASK: TASK-0051
  * Codex QA: required before production use
  */
 
@@ -43,16 +40,16 @@ serve(async (req) => {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader) return json({ error: "unauthorized" }, 401);
 
-  const supabaseAuth = createClient(supabaseUrl, supabaseAnon, {
+  const supabaseAuth  = createClient(supabaseUrl, supabaseAnon, {
     global: { headers: { Authorization: authHeader } },
   });
   const supabaseAdmin = createClient(supabaseUrl, supabaseKey);
 
-  // ── 1. Authenticate caller ─────────────────────────────────────────────────
+  // ── 1. Authenticate ────────────────────────────────────────────────────────
   const { data: { user }, error: userErr } = await supabaseAuth.auth.getUser();
   if (userErr || !user) return json({ error: "unauthorized" }, 401);
 
-  // ── 2. Load profile and validate gate ─────────────────────────────────────
+  // ── 2. Load profile + gate ─────────────────────────────────────────────────
   const { data: profile, error: profileErr } = await supabaseAdmin
     .from("profiles")
     .select("id, onboarding_step, account_status, subscription_tier")
@@ -60,14 +57,15 @@ serve(async (req) => {
     .maybeSingle();
 
   if (profileErr || !profile) return json({ error: "profile_not_found" }, 404);
-
   if (profile.account_status !== "active") return json({ error: "account_not_active" }, 403);
-
   if (!TERMINAL_STEPS.has(profile.onboarding_step)) {
-    return json({ error: "onboarding_not_complete", onboarding_step: profile.onboarding_step }, 403);
+    return json({
+      error: "onboarding_not_complete",
+      onboarding_step: profile.onboarding_step,
+    }, 403);
   }
 
-  // ── 3. Read credential status ──────────────────────────────────────────────
+  // ── 3. Load credential ─────────────────────────────────────────────────────
   const { data: credential } = await supabaseAdmin
     .from("credentials")
     .select("id, status, issued_at, expires_at")
@@ -76,30 +74,48 @@ serve(async (req) => {
     .limit(1)
     .maybeSingle();
 
-  // ── 4. Read wallet pass status ─────────────────────────────────────────────
-  let walletPass: { status: string; pass_url: string | null; provider: string } | null = null;
+  // ── 4. Load per-provider wallet state ──────────────────────────────────────
+  // wallet_passes has unique(credential_id, provider) — one row per provider.
+  // Status values: pending | issued | error | voided
+  // "not_attempted" = no row exists for that provider.
+
+  type WalletPassRow = { provider: string; status: string; pass_url: string | null; external_pass_id: string | null };
+  let applePass:  WalletPassRow | null = null;
+  let googlePass: WalletPassRow | null = null;
 
   if (credential) {
-    const { data: wp } = await supabaseAdmin
+    const { data: passes } = await supabaseAdmin
       .from("wallet_passes")
-      .select("status, pass_url, provider")
-      .eq("credential_id", credential.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .select("provider, status, pass_url, external_pass_id")
+      .eq("credential_id", credential.id);
 
-    if (wp) walletPass = wp;
+    for (const p of (passes ?? [])) {
+      if (p.provider === "apple_wallet")  applePass  = p as WalletPassRow;
+      if (p.provider === "google_wallet") googlePass = p as WalletPassRow;
+    }
   }
 
-  // ── 5. Derive display status ───────────────────────────────────────────────
-  // credential_status: issued | pending | failed | none
-  // wallet_status:     ready | pending | failed | none
-  const credentialStatus = credential?.status ?? "none";
-  const walletStatus     = walletPass?.status  ?? "none";
+  // ── 5. Derive safe wallet display state ────────────────────────────────────
 
-  // can_add_license requires a Stripe-confirmed active subscription with
-  // license_entitlement_count > 1, written by TASK-0040 webhook confirmation.
-  // profiles.subscription_tier is the selected intent — NOT confirmed entitlement.
+  const appleState = applePass
+    ? {
+        status:   applePass.status,                                  // pending|issued|error|voided
+        pass_url: applePass.status === "issued" ? applePass.pass_url : null,
+      }
+    : { status: "not_attempted", pass_url: null };
+
+  const googleState = googlePass
+    ? {
+        status:   googlePass.status,
+        save_url: googlePass.status === "issued" ? googlePass.external_pass_id : null,
+      }
+    : { status: "not_attempted", save_url: null };
+
+  const anyIssued = applePass?.status === "issued" || googlePass?.status === "issued";
+
+  // ── 6. Entitlement reader ──────────────────────────────────────────────────
+  // can_add_license: paid plan with confirmed Stripe subscription > 1 entitlement.
+  // Reads from server-confirmed subscriptions table, not profiles.subscription_tier.
   const { data: activeSub } = await supabaseAdmin
     .from("subscriptions")
     .select("license_entitlement_count")
@@ -110,17 +126,31 @@ serve(async (req) => {
 
   const canAddLicense = activeSub !== null;
 
+  // ── 7. Return status payload ───────────────────────────────────────────────
   return json({
-    onboarding_step:   profile.onboarding_step,
-    subscription_tier: profile.subscription_tier,
-    credential_status: credentialStatus,
-    credential_id:     credential?.id ?? null,
-    credential_issued_at: credential?.issued_at ?? null,
+    onboarding_step:       profile.onboarding_step,
+    subscription_tier:     profile.subscription_tier,
+
+    // Credential
+    credential_status:     credential?.status    ?? "none",
+    credential_id:         credential?.id        ?? null,
+    credential_issued_at:  credential?.issued_at ?? null,
     credential_expires_at: credential?.expires_at ?? null,
-    wallet_status:     walletStatus,
-    wallet_pass_url:   walletPass?.pass_url ?? null,
-    wallet_provider:   walletPass?.provider ?? null,
-    can_add_license:   canAddLicense,
+
+    // Per-provider wallet state (TASK-0051)
+    wallet: {
+      apple:  appleState,
+      google: googleState,
+      any_issued: anyIssued,
+    },
+
+    // Legacy fields retained for Lovable compatibility
+    // (single-provider view — prefer wallet.apple / wallet.google going forward)
+    wallet_status:    applePass?.status  ?? googlePass?.status  ?? "none",
+    wallet_pass_url:  applePass?.pass_url ?? googlePass?.external_pass_id ?? null,
+    wallet_provider:  applePass ? "apple_wallet" : googlePass ? "google_wallet" : null,
+
+    can_add_license: canAddLicense,
   }, 200);
 });
 

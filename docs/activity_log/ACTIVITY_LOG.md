@@ -168,6 +168,19 @@ Extends `payments.action_type` CHECK constraint to include `subscription_start` 
 
 ## Session Activity — 2026-06-02 — Claude
 
+**Task:** TASK-0051 — Persist Wallet Provider State to Supabase  
+**Status:** Implementation complete — pending deployment + Codex QA  
+**Approval:** APPROVAL-0018
+
+`success-status` updated to read both Apple and Google `wallet_passes` rows and return per-provider wallet state. Adds `wallet.apple`, `wallet.google`, `wallet.any_issued` fields. Retains legacy `wallet_status`/`wallet_pass_url`/`wallet_provider` for backward compatibility. Ops notification deferred (no email/SMS infrastructure yet).
+
+**Files changed:** `supabase/functions/success-status/index.ts`  
+**Next:** Deploy, then Codex QA.
+
+---
+
+## Session Activity — 2026-06-02 — Claude
+
 **Task:** TASK-0050 — Define Wallet Signing and Issuance Contract  
 **Status:** Implementation complete — pending deployment + Codex QA  
 **Approval:** APPROVAL-0017
