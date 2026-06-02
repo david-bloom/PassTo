@@ -166,6 +166,17 @@ Extends `payments.action_type` CHECK constraint to include `subscription_start` 
 
 ---
 
+## Live Test — 2026-06-02 — David / Claude
+
+**Task:** TASK-0052 — /success page live test  
+**Status:** Confirmed working — State 2 (credential ready, wallet pending)
+
+Test profile manually advanced to `pass` step in SQL Editor. Loaded `/success` at `enroll.passtodigital.com`. Loading state displayed, then State 2 confirmed by David. Route guard and `/pass-ready` redirect both working. Wallet signing in error state as expected (Vercel signing not yet configured).
+
+**TASK-0052 status updated to: Implemented and Tested — Ready for Codex QA**
+
+---
+
 ## Session Activity — 2026-06-02 — Claude
 
 **Task:** TASK-0052 — Implement Success / PassReady Credential Status Flow  
