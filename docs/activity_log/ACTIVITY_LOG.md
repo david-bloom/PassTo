@@ -39,6 +39,36 @@ Applied via Supabase SQL Editor. Three parts executed:
 
 ---
 
+## Remediation — 2026-06-02 — Claude
+
+**Task:** TASK-0040 — Codex QA P1 remediation  
+**Status:** Remediated and redeployed — requesting Codex re-QA  
+**Commit:** a57b25a
+
+### Codex QA v1 Findings (Blocked)
+
+- P1: `stripe-webhook` deployed with `verify_jwt: true` — Stripe cannot call it
+- P1: Entitlement counts wrong (standard: 2, premier: 5 vs DECISION-0010 canonical standard: 1, premier: 2)
+- P1: `handleSubscriptionUpsert` could not resolve `profile_id`; `stripe-checkout-create` did not set `subscription_data.metadata`
+
+### Fixes Applied
+
+| Finding | Fix |
+|---|---|
+| verify_jwt | Redeployed `stripe-webhook` with `--no-verify-jwt` |
+| Entitlement counts | Corrected to standard: 1, premier: 2 (DECISION-0010) |
+| subscription_data.metadata | `stripe-checkout-create` now sets `subscription_data[metadata][profile_id/plan_name]` |
+| handleSubscriptionUpsert | Reads profile_id from sub.metadata, falls back to DB row, skips on unresolvable |
+
+### Redeployed
+
+- `stripe-webhook` — with `--no-verify-jwt`
+- `stripe-checkout-create` — updated subscription_data.metadata
+
+**Next Owner:** Codex re-QA
+
+---
+
 ## Session Activity — 2026-06-02 — Claude / David
 
 **Task:** TASK-0040 — Implement Stripe Subscription State and Entitlement Gating  
