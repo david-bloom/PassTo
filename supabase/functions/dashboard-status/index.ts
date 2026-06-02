@@ -31,6 +31,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
+  if (req.method !== "GET") {
+    return json({ error: "method_not_allowed" }, 405);
+  }
 
   const supabaseUrl  = Deno.env.get("SUPABASE_URL") ?? "";
   const supabaseAnon = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
