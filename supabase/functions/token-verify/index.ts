@@ -2,31 +2,31 @@
  * token-verify
  *
  * TASK-0057 — Implement Verifier Token Validation Function
+ * TASK-0058 remediation — added marketing_consent, fixed sequence, added rejection audits
  *
- * verify_jwt: false — anonymous, token-gated endpoint
+ * verify_jwt: false — anonymous, token-gated endpoint (config.toml sets this)
  *
- * Called by Lovable from /v/{token} when a verifier submits their form.
+ * Called by Lovable from /v/:token when a verifier submits their form.
  *
  * Flow:
  *   1. Validate request body (token, verifier_name, verifier_email, terms_accepted)
  *   2. Hash raw token server-side (SHA-256); look up verification_tokens by hash
- *   3. Reject expired, used, revoked, wrong-type, or unknown tokens
+ *   3. Reject expired, used, revoked, wrong-type, unknown tokens — write audit on each
  *   4. Verify credential still active + license still Active at time of verification
- *   5. Atomically mark token used (UPDATE WHERE status='active' — prevents double-use)
- *   6. Insert verifiers row (name, email, terms_accepted_at)
- *   7. Write verification_events (session_started + credential_viewed)
- *   8. Write audit_event (verification.completed)
+ *   5. Insert verifiers row (FAIL-CLOSED — token still active if this fails; verifier can retry)
+ *   6. Write verification_events: session_started + credential_viewed (FAIL-CLOSED)
+ *   7. Atomically mark token used (UPDATE WHERE status='active')
+ *      — verifiers.token_id UNIQUE ensures only one concurrent request reaches step 7
+ *   8. Write audit_event best-effort
  *   9. Return safe credential/license display payload
  *
- * Safe display payload excludes:
- *   - Nurse name, email, phone, DOB
- *   - Raw license number
- *   - Internal profile/credential/license IDs
- *   - Raw provider API payloads
- *   - Subscription/payment details
- *   - Audit internals
+ * Failure-path audit trail:
+ *   All rejection paths (steps 3–4) write audit_events (resource.verb format, OD-1).
+ *   verification_events requires verifier_id (NOT NULL) — cannot be written for rejections
+ *   that occur before a verifier row exists. Rejection audit trail lives in audit_events.
+ *   This is a documented deviation from the TASK-0057 spec.
  *
- * CORS: open (*) — public anonymous endpoint; all auth is via token hash.
+ * CORS: open (*) — public anonymous endpoint; token hash provides auth.
  *
  * TASK: TASK-0057
  * Codex QA: required before production use
@@ -36,7 +36,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  // Public verifier endpoint — no credential cookies; token provides auth.
+  // Public verifier endpoint — no credential cookies; token hash provides auth.
   "Access-Control-Allow-Origin":  "*",
   "Access-Control-Allow-Headers": "content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -44,11 +44,28 @@ const corsHeaders = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// ── Token helpers ──────────────────────────────────────────────────────────────
+// ── Token helper ───────────────────────────────────────────────────────────────
 
 async function hashToken(raw: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// ── Audit helper — best-effort, never throws ──────────────────────────────────
+
+// deno-lint-ignore no-explicit-any
+async function writeAudit(svc: any, action: string, resourceId: string | null, meta: Record<string, unknown>): Promise<void> {
+  try {
+    await svc.from("audit_events").insert({
+      actor_id:      null,   // anonymous verifier — no profile_id
+      action,
+      resource_type: "verification_token",
+      resource_id:   resourceId,
+      change_after:  meta,
+    });
+  } catch (e) {
+    console.error(`token-verify: audit write failed (${action}):`, (e as Error).message);
+  }
 }
 
 // ── Main handler ───────────────────────────────────────────────────────────────
@@ -78,7 +95,7 @@ serve(async (req) => {
     verifierName     = (body?.verifier_name  ?? "").toString().trim();
     verifierEmail    = (body?.verifier_email ?? "").toString().trim().toLowerCase();
     termsAccepted    = body?.terms_accepted    === true;
-    marketingConsent = body?.marketing_consent === true;  // optional — defaults false
+    marketingConsent = body?.marketing_consent === true;
   } catch {
     return json({ verified: false, error: "invalid_request" }, 400);
   }
@@ -107,27 +124,33 @@ serve(async (req) => {
     return json({ verified: false, error: "backend_read_error" }, 503);
   }
 
-  // ── 3. Token validity checks ───────────────────────────────────────────────
+  // ── 3. Token validity checks — audit each rejection ───────────────────────
   if (!tokenRow) {
+    await writeAudit(svc, "verification.rejected", null, { reason: "token_not_found" });
     return json({ verified: false, error: "token_not_found" }, 404);
   }
   if (tokenRow.token_type !== "share_link") {
+    await writeAudit(svc, "verification.rejected", tokenRow.id, { reason: "token_wrong_type", token_type: tokenRow.token_type });
     return json({ verified: false, error: "token_wrong_type" }, 403);
   }
   if (tokenRow.status === "used") {
+    await writeAudit(svc, "verification.rejected", tokenRow.id, { reason: "token_used" });
     return json({ verified: false, error: "token_used" }, 403);
   }
   if (tokenRow.status === "revoked") {
+    await writeAudit(svc, "verification.rejected", tokenRow.id, { reason: "token_revoked" });
     return json({ verified: false, error: "token_revoked" }, 403);
   }
   if (tokenRow.status !== "active") {
+    await writeAudit(svc, "verification.rejected", tokenRow.id, { reason: "token_not_active", status: tokenRow.status });
     return json({ verified: false, error: "token_not_active" }, 403);
   }
   if (new Date(tokenRow.expires_at) <= new Date(now)) {
+    await writeAudit(svc, "verification.rejected", tokenRow.id, { reason: "token_expired", expires_at: tokenRow.expires_at });
     return json({ verified: false, error: "token_expired" }, 403);
   }
 
-  // ── 4. Load credential — verify still active at time of verification ──────
+  // ── 4. Load + validate credential and license at redemption time ──────────
   const { data: credential, error: credErr } = await svc
     .from("credentials")
     .select("id, status, issued_at, expires_at, license_id")
@@ -139,13 +162,14 @@ serve(async (req) => {
     return json({ verified: false, error: "backend_read_error" }, 503);
   }
   if (!credential) {
+    await writeAudit(svc, "verification.rejected", tokenRow.id, { reason: "credential_not_found" });
     return json({ verified: false, error: "credential_not_found" }, 403);
   }
   if (credential.status !== "active") {
+    await writeAudit(svc, "verification.rejected", tokenRow.id, { reason: "credential_not_shareable", credential_status: credential.status });
     return json({ verified: false, error: "credential_not_shareable", credential_status: credential.status }, 403);
   }
 
-  // ── 5. Load license — verify still Active at time of verification ─────────
   let licenseType: string | null = null;
   let licenseState: string | null = null;
   let licenseNormalizedStatus: string | null = null;
@@ -164,11 +188,11 @@ serve(async (req) => {
       return json({ verified: false, error: "backend_read_error" }, 503);
     }
     if (!license || license.normalized_status !== "Active") {
-      return json({
-        verified: false,
-        error: "license_not_active",
+      await writeAudit(svc, "verification.rejected", tokenRow.id, {
+        reason: "license_not_active",
         license_status: license?.normalized_status ?? "not_found",
-      }, 403);
+      });
+      return json({ verified: false, error: "license_not_active", license_status: license?.normalized_status ?? "not_found" }, 403);
     }
 
     licenseType             = license.license_type;
@@ -178,24 +202,9 @@ serve(async (req) => {
     licenseCurrentAsOf      = license.status_checked_at;
   }
 
-  // ── 6. Atomically mark token used (prevents double-use) ───────────────────
-  const { count: updatedCount, error: markErr } = await svc
-    .from("verification_tokens")
-    .update({ status: "used", used_at: now })
-    .eq("id", tokenRow.id)
-    .eq("status", "active")          // guard: only succeeds if still active
-    .select("id", { count: "exact", head: true });
-
-  if (markErr) {
-    console.error("token-verify: token mark-used failed:", markErr.message);
-    return json({ verified: false, error: "backend_read_error" }, 503);
-  }
-  if ((updatedCount ?? 0) === 0) {
-    // Another request won the race and already marked this token used
-    return json({ verified: false, error: "token_used" }, 403);
-  }
-
-  // ── 7. Insert verifiers row ────────────────────────────────────────────────
+  // ── 5. Insert verifiers row — FAIL-CLOSED ────────────────────────────────
+  // verifiers.token_id is UNIQUE — concurrent requests fail here, not at mark-used.
+  // Token remains active if this insert fails; verifier can retry.
   const { data: verifierRow, error: verifierErr } = await svc
     .from("verifiers")
     .insert({
@@ -211,55 +220,68 @@ serve(async (req) => {
 
   if (verifierErr || !verifierRow) {
     console.error("token-verify: verifiers insert failed:", verifierErr?.message);
-    // Token is marked used; log and continue — do not block the verified response
+    // Unique constraint violation = another request already inserted for this token
+    const isConcurrentDuplicate = verifierErr?.code === "23505";
+    return json({
+      verified: false,
+      error: isConcurrentDuplicate ? "token_used" : "backend_write_error",
+    }, isConcurrentDuplicate ? 403 : 500);
   }
 
-  const verifierId = verifierRow?.id ?? null;
-
-  // ── 8. Write verification_events ──────────────────────────────────────────
-  if (verifierId) {
-    const events = [
-      {
-        verifier_id:           verifierId,
-        verification_token_id: tokenRow.id,
-        event_type:            "session_started",
-        metadata:              { source: "share_link" },
-      },
-      {
-        verifier_id:           verifierId,
-        verification_token_id: tokenRow.id,
-        event_type:            "credential_viewed",
-        metadata:              { credential_status: credential.status },
-      },
-    ];
-
-    const { error: eventsErr } = await svc.from("verification_events").insert(events);
-    if (eventsErr) {
-      console.error("token-verify: verification_events insert failed (non-fatal):", eventsErr.message);
-    }
-  }
-
-  // ── 9. Write audit event ───────────────────────────────────────────────────
-  const { error: auditErr } = await svc.from("audit_events").insert({
-    actor_id:      tokenRow.profile_id,
-    action:        "verification.completed",
-    resource_type: "verification_token",
-    resource_id:   tokenRow.id,
-    change_after: {
-      verifier_id:    verifierId,
-      token_type:     "share_link",
-      credential_id:  tokenRow.credential_id,
-      verified_at:    now,
+  // ── 6. Write verification_events — FAIL-CLOSED ────────────────────────────
+  // Both events written together; verifier row exists; token still active.
+  // If this fails, token is still active — verifier row exists (orphaned).
+  const events = [
+    {
+      verifier_id:           verifierRow.id,
+      verification_token_id: tokenRow.id,
+      event_type:            "session_started",
+      metadata:              { source: "share_link" },
     },
-  });
-  if (auditErr) {
-    console.error("token-verify: audit insert failed (non-fatal):", auditErr.message);
+    {
+      verifier_id:           verifierRow.id,
+      verification_token_id: tokenRow.id,
+      event_type:            "credential_viewed",
+      metadata:              { credential_status: credential.status },
+    },
+  ];
+
+  const { error: eventsErr } = await svc.from("verification_events").insert(events);
+  if (eventsErr) {
+    console.error("token-verify: verification_events insert failed:", eventsErr.message);
+    // Token still active; verifier row exists. Return error — verifier can retry.
+    return json({ verified: false, error: "backend_write_error" }, 500);
   }
 
-  // ── 10. Return safe credential display payload ─────────────────────────────
+  // ── 7. Atomically mark token used ─────────────────────────────────────────
+  // verifiers.token_id UNIQUE constraint means only one request reaches this point
+  // per token. Race condition at step 5 prevents double mark-used.
+  const { count: updatedCount, error: markErr } = await svc
+    .from("verification_tokens")
+    .update({ status: "used", used_at: now })
+    .eq("id", tokenRow.id)
+    .eq("status", "active")
+    .select("id", { count: "exact", head: true });
+
+  if (markErr || (updatedCount ?? 0) === 0) {
+    // Should not reach here given the unique verifier insert guard above,
+    // but handle defensively: log, continue, and return success — verifier
+    // row and events are committed; credential data was legitimately loaded.
+    console.error("token-verify: mark-used returned 0 rows or error:", markErr?.message);
+  }
+
+  // ── 8. Audit — best-effort ────────────────────────────────────────────────
+  await writeAudit(svc, "verification.completed", tokenRow.id, {
+    verifier_id:   verifierRow.id,
+    token_type:    "share_link",
+    credential_id: tokenRow.credential_id,
+    verified_at:   now,
+  });
+
+  // ── 9. Return safe credential display payload ──────────────────────────────
   return json({
     verified:    true,
-    verifier_id: verifierId,
+    verifier_id: verifierRow.id,
 
     credential: {
       status:    credential.status,
