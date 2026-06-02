@@ -23,7 +23,7 @@ The goal is to make every external dependency explicit before implementation tas
 | Supabase Storage | Protected selfie storage. | Launch-critical | Supabase. |
 | ID.me | Identity verification. | Launch-critical | Backend handles token exchange/result. |
 | Twilio | Phone verification. | Launch-critical | Backend sends/verifies SMS. |
-| RapidAPI / Propelus | License lookup. | Launch-critical | Backend calls vendor. |
+| RapidAPI | License lookup. | Launch-critical | Backend calls vendor. |
 | Stripe | Subscriptions, checkout, payment events. | Launch-critical | Backend owns payment truth. |
 | PassKit / Apple Wallet / Google Wallet | Wallet credential issuance. | Launch-critical | Vercel likely for signing; Supabase stores state. |
 | Postmark | Critical email/ops alerts. | Launch-critical minimal | Backend sends/logs. |
