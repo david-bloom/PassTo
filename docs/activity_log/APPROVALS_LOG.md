@@ -30,6 +30,37 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0012 — Standing Approval Lanes Approved
+
+**Date:** 2026-06-02  
+**Approved By:** David  
+**Related Task:** N/A  
+**Decision:** Approved with Notes  
+
+### Summary
+
+David approved the proposed operating changes to reduce bottlenecks:
+
+```text
+all suggestions approved
+```
+
+The approved workflow creates standing approvals for low-risk recurring work, allows bounded batch approvals, and preserves explicit hard gates for production-impacting or Done/risk decisions.
+
+### Approval Checklist
+
+- [x] Standing approvals are approved for read-only checks, draft task specs, handoff packets, Lovable prompts, non-execution activity-log updates, read-only Supabase/GitHub checks, read-only side agents, implementation/QA planning, and approved workflow documentation.
+- [x] Batch approvals may be used when David approves a bounded work package with explicit "approved" and "not approved" scope.
+- [x] Hard gates remain required for migrations, deployments, secrets, RLS/live grants, Stripe live-mode/product/price changes, wallet certificates/private keys, credential/wallet launch, production launch, risk acceptance, Done decisions, closing tasks/issues, and moving deferred features into launch scope.
+- [x] Chat approvals must be recorded in GitHub before downstream agents rely on them.
+
+### Notes
+
+- This approval does not approve any individual task execution beyond the standing lanes.
+- If classification is unclear, agents must treat the action as a hard gate and request David approval.
+
+---
+
 ## APPROVAL-0011 — TASK-0040 Approved for Execution
 
 **Date:** 2026-06-01  
