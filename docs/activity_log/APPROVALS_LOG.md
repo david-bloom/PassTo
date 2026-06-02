@@ -30,6 +30,37 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0025 — TASK-0065 Supabase Auth Password Reset Redirect Fix Approved
+
+**Date:** 2026-06-02  
+**Approved By:** David  
+**Related Task:** TASK-0065  
+**Decision:** Approved  
+
+### Summary
+
+David approved creating and assigning a Claude task to fix the password reset email redirect, after reporting that a received password reset email linked to `http://localhost:3000/`.
+
+```text
+David approved. Codex Make a task for Claude
+```
+
+TASK-0065 covers Supabase Auth URL configuration and, if needed, Lovable password-reset redirect behavior so reset links point to `https://enroll.passtodigital.com`.
+
+### Approval Checklist
+
+- [x] I approve TASK-0065 for execution.
+- [x] I approve changing Supabase Auth URL configuration for password-reset redirect correctness.
+- [x] I approve a Lovable password-reset redirect adjustment if needed.
+- [x] I understand this is a production-impacting auth configuration change and must be documented with before/after values and test evidence.
+
+### Notes
+
+- Approved scope: fix password reset redirect host/path, test with a reset email, document values changed and rollback/recovery note.
+- Not approved: production launch, task Done decision, issue closure, database migrations, Edge Function deployments, unrelated secret changes, or broad redirect allowlists outside trusted PassTo domains without separate approval.
+
+---
+
 ## APPROVAL-0024 — TASK-0058 Approved for Execution
 
 **Date:** 2026-06-02
