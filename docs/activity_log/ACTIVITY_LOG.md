@@ -4,6 +4,41 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0065 Created — 2026-06-02 — Codex
+
+**Task:** TASK-0065 — Fix Supabase Auth Password Reset Redirect URL  
+**Status:** Approved — Awaiting Claude Execution  
+**Approval:** APPROVAL-0025  
+**Approval Lane:** Hard gate approved by David — Supabase Auth/provider configuration
+
+### Summary
+
+David reported that a received password reset email links to `http://localhost:3000/`. Codex created TASK-0065 for Claude to fix Supabase Auth URL configuration and any necessary Lovable password-reset redirect behavior so reset links use `https://enroll.passtodigital.com`.
+
+### Required Target
+
+| Setting / behavior | Required value |
+|---|---|
+| Supabase Auth Site URL | `https://enroll.passtodigital.com` |
+| Redirect allowlist | include `/reset-password` and `/update-password` on `https://enroll.passtodigital.com` |
+| Lovable reset call | explicit `redirectTo` to the live reset/update route if needed |
+
+### Files Updated
+
+- `docs/tasks/TASK-0065.md`
+- `docs/activity_log/APPROVALS_LOG.md`
+- `docs/activity_log/ACTIVITY_LOG.md`
+
+### Approval Boundary
+
+This records David approval for TASK-0065 execution only. It does not approve production launch, task Done decision, issue closure, database migrations, Edge Function deployments, unrelated secret changes, or broad redirect allowlists outside trusted PassTo domains.
+
+### Next Recommended Action
+
+Claude should execute TASK-0065: capture current Supabase Auth URL settings, apply the approved live-domain reset redirect configuration, verify Lovable redirect behavior, send a test password reset email, and document evidence.
+
+---
+
 ## Phase 6 Tasks Created — 2026-06-02 — Codex
 
 **Scope:** PRD Phase 6 — Stripe, Entitlements, and Lapse Behavior  
