@@ -2900,3 +2900,37 @@ TASK-0056 QA (issue #11) and TASK-0057 QA (issue #12) still pending. Lovable pro
 ### Live State
 
 `token-verify` v3, ACTIVE, 20:25:55 UTC. Issue #12 updated — Codex re-QA requested.
+
+---
+
+## TASK-0057 + TASK-0058 Codex QA Verdicts — 2026-06-02 — Codex
+
+**TASK-0057 Verdict:** Pass with Deferrals (issue #12 closed)
+**TASK-0058 Verdict:** Pass with Deferrals (issue #13 closed)
+
+### TASK-0057 Accepted Deferrals
+
+- End-to-end token creation → validation deferred until TASK-0056 QA clears
+- Rejection-path `verification_events` deviation accepted (audit_events used; `verifier_id NOT NULL` constraint blocks direct path)
+- P2 hardening noted: verification_events insert failure after verifier insert strands token — not a launch blocker
+
+### TASK-0058 Accepted Deferrals
+
+- Lovable prompt not yet applied — live UI + responsive QA pending post paste-in
+- Full `/dashboard` → `/v/:token` flow deferred until TASK-0056 QA + conductor acceptance
+- `missing_token` route-shape prevention accepted
+
+### Phase 5 Backend QA Status
+
+| Task | QA Status |
+|---|---|
+| TASK-0055 `dashboard-status` | Pass with Gaps (issue #10 closed) |
+| TASK-0056 `share-link-create` | Issue #11 — open, pending Codex re-QA |
+| TASK-0057 `token-verify` | Pass with Deferrals (issue #12 closed) |
+| TASK-0058 Lovable prompt | Pass with Deferrals (issue #13 closed) |
+
+### Next Actions
+
+1. TASK-0056 issue #11 must resolve before end-to-end flow can be tested
+2. David to paste Lovable prompts (TASK-0055 dashboard + TASK-0058 verifier) into Lovable when ready
+3. Post-paste Lovable UI QA needed for both prompts
