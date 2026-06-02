@@ -4,6 +4,59 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Phase 4 QA Complete — 2026-06-02 — Codex / Claude (Main Conductor)
+
+**Tasks:** TASK-0049, TASK-0050, TASK-0051, TASK-0052, TASK-0053  
+**Status:** Codex QA Complete — Ready for David Review  
+**Approval Lane:** Standing approval — conductor finalization of proposed QA findings; routing to David for Done decision  
+
+### Summary
+
+Codex proposed pass-with-deferrals verdicts for all Phase 4 tasks. Main Conductor (Claude) accepted findings and published final QA verdicts to GitHub task docs.
+
+| Task | Title | QA Verdict |
+|---|---|---|
+| TASK-0049 | Implement Credential Creation Gate | ✅ Pass with deferrals — Re-QA v2 complete |
+| TASK-0050 | Define Wallet Signing and Issuance Contract | ✅ Pass with deferrals |
+| TASK-0051 | Persist Wallet Provider State to Supabase | ✅ Pass with deferrals |
+| TASK-0052 | Implement Success / PassReady Credential Status Flow | ✅ Pass with deferrals |
+| TASK-0053 | Codex QA Phase 4 (umbrella) | ✅ Pass with deferrals — conductor finalized |
+
+All task statuses updated to: **Codex QA Complete — Ready for David Review**
+
+### Non-Blocking Risks / Deferrals
+
+| Item | Type |
+|---|---|
+| `success-status` live version is v7; docs previously referenced v8 — source matches remediation, label drift only | Doc drift — non-blocking |
+| Migration L not visible in migration-list view; schema inspection confirms `credentials_profile_license_unique` is live | Tooling view gap — non-blocking |
+| Real Apple/Google wallet issuance untested until certificates, issuer, Vercel env vars, and signing secrets are configured | Pre-production deferral — hard gate |
+| Vercel production deployment of `api/sign-apple.js` / `api/sign-google.js` not live-verified | Pre-production deferral — hard gate |
+| `credentials` and `wallet_passes` have broad direct grants to `anon`/`authenticated`; RLS-backed SELECT only — not a current bypass | Recommended cleanup before production |
+
+### Recommended Pre-Production Cleanup (not blocking Done)
+
+1. Correct doc references from `success-status v8` to `v7`, or redeploy with aligned version label.
+2. Consider revoking broad direct table grants from `anon`/`authenticated` for `credentials` and `wallet_passes`, leaving RLS-backed SELECT only.
+
+### Files Updated This Session
+
+- `docs/tasks/TASK-0049.md` — status → Codex QA Complete, re-QA v2 verdict added
+- `docs/tasks/TASK-0053.md` — status → Codex QA Complete, TASK-0049 entry updated, umbrella verdict added
+- `docs/activity_log/ACTIVITY_LOG.md` — this entry
+
+### Approval Boundary
+
+This is a standing-approval conductor finalization. It does not constitute a Done decision, task/issue closure, production launch approval, migration application, deployment, secret change, wallet certificate/key handling, credential/wallet issuance launch, or risk acceptance.
+
+David approval required before any of those actions.
+
+### Next Recommended Action
+
+David: review Phase 4 task docs (TASK-0049 through TASK-0053) and this QA summary. Make a Done decision for Phase 4 or identify remaining concerns. Separately decide whether to approve Phase 5 execution (TASK-0055–0059).
+
+---
+
 ## Phase 5 Tasks Created — 2026-06-02 — Codex
 
 **Scope:** PRD Phase 5 — Dashboard and Share-Link Verification  
