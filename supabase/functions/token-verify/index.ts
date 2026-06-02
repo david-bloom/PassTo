@@ -70,13 +70,15 @@ serve(async (req) => {
   let verifierName: string;
   let verifierEmail: string;
   let termsAccepted: boolean;
+  let marketingConsent: boolean;
 
   try {
     const body = await req.json();
-    rawToken      = (body?.token          ?? "").toString().trim();
-    verifierName  = (body?.verifier_name  ?? "").toString().trim();
-    verifierEmail = (body?.verifier_email ?? "").toString().trim().toLowerCase();
-    termsAccepted = body?.terms_accepted === true;
+    rawToken         = (body?.token          ?? "").toString().trim();
+    verifierName     = (body?.verifier_name  ?? "").toString().trim();
+    verifierEmail    = (body?.verifier_email ?? "").toString().trim().toLowerCase();
+    termsAccepted    = body?.terms_accepted    === true;
+    marketingConsent = body?.marketing_consent === true;  // optional — defaults false
   } catch {
     return json({ verified: false, error: "invalid_request" }, 400);
   }
@@ -201,6 +203,7 @@ serve(async (req) => {
       name:              verifierName,
       email:             verifierEmail,
       terms_accepted_at: now,
+      marketing_consent: marketingConsent,
       status:            "active",
     })
     .select("id")
