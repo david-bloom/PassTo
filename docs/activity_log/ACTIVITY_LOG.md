@@ -197,6 +197,185 @@ Extends `payments.action_type` CHECK constraint to include `subscription_start` 
 
 ---
 
+## Session Closeout — 2026-06-02 — Claude
+
+**Role:** Claude — Senior Engineer / Main Conductor  
+**Session Date:** 2026-06-02  
+**GitHub Checked:** Yes — all changes pushed
+
+---
+
+### Work Completed This Session
+
+#### Approvals Recorded
+- APPROVAL-0012 — Standing Approval Lanes (carried from prior session)
+- APPROVAL-0013 — TASK-0040 reconfirmed
+- APPROVAL-0014 — TASK-0048 approved
+- APPROVAL-0015 — TASK-0040 and TASK-0048 marked Complete/Passed by David
+- APPROVAL-0016 — TASK-0049 approved
+- APPROVAL-0017 — TASK-0050 approved
+- APPROVAL-0018 — TASK-0051 approved
+- APPROVAL-0019 — TASK-0052 approved
+
+#### TASK-0048 — Re-instrument ID.me-First License Lookup Flow
+- Migration J written (3 parts: `license_lookups` extension, `onboarding_step` CHECK constraint, `complete_license_verification()` RPC update to advance to `confirm`)
+- Applied Migration J via Supabase SQL Editor
+- Deployed 5 Edge Functions: `license-lookup-start`, `license-lookup-status`, `license-lookup-select`, `confirm-info-status`, `confirm-info-complete`
+- Codex QA v1: blocked — P1 audit fail-open, P2 candidate validation, P2 step row count
+- Remediated all findings, redeployed 3 functions
+- Codex re-QA: pass with deferrals — **TASK-0048 marked Complete/Passed by David**
+- Lovable prompt written and pasted: `/license-info` update, `/license-checking` new page, `/confirm-info` update, `/phone-check` prefill, progress indicator update
+
+#### TASK-0040 — Stripe Subscription State and Entitlement Gating
+- Migration K applied (`payments.action_type` extended for `subscription_start`, `subscription_renewal`)
+- Supabase secrets set, Stripe test products/prices created
+- `stripe-checkout-create` and `stripe-webhook` deployed
+- Stripe webhook registered (5 events)
+- Codex QA v1: blocked — P1 `verify_jwt: true`, P1 wrong entitlement counts, P1 `handleSubscriptionUpsert` profile_id gap
+- Remediated all P1s, redeployed with `--no-verify-jwt`
+- Stripe test-mode replay: all 7 test cases passed (bad sig, 5 event types, duplicate idempotency)
+- Codex re-QA: pass with P2 hardening — **TASK-0040 marked Complete/Passed by David**
+
+#### TASK-0049 — Implement Credential Creation Gate
+- `credential-create` Edge Function written and deployed (v1)
+- No migration needed (credentials table existed)
+- Codex QA: P2 — no DB unique constraint on `(profile_id, license_id)`
+- Migration L written and applied; `credential-create` v2 handles `23505` idempotently
+- Status: **Ready for Codex Re-QA**
+
+#### TASK-0050 — Define Wallet Signing and Issuance Contract
+- `WALLET_SIGNING_CONTRACT.md` written (signing boundary, contract, secrets, retry/idempotency)
+- `api/sign-apple.js` hardened: internal auth, credential_id input, Supabase data load, deterministic serial
+- `api/sign-google.js` hardened: same + QR barcode removed
+- `wallet-issue` Edge Function written and deployed (v1)
+- Codex QA v1: P1 package.json missing `@supabase/supabase-js`, P1 asset files with " copy" suffix, P1 wallet writes not fail-closed
+- All P1s remediated; P2 hardening applied (activation partial state, fail-closed reads)
+- Status: **Codex QA Complete — Ready for David Review**
+
+#### TASK-0051 — Persist Wallet Provider State to Supabase
+- `success-status` updated from v6 → v8: per-provider wallet state, fail-closed DB reads, status-gated legacy URLs
+- Codex QA: P2 read errors + legacy URL gap, both remediated
+- Status: **Codex QA Complete — Ready for David Review**
+
+#### TASK-0052 — Success / PassReady Credential Status Flow
+- Lovable prompt written: 5 UI states, Phase 4 backend call sequence
+- `/pass-ready` → redirect to `/success` (David decision)
+- Prompt pasted into Lovable
+- Lovable Supabase connection fixed (was pointing to old project `ofpxczstptysqxoruiox` — reconnected to `wvzjfxacykgsaffskgtr`)
+- Live test: State 2 ("credential ready, wallet pending") confirmed by David at `enroll.passtodigital.com`
+- Status: **Codex QA Complete — Ready for David Review**
+
+#### TASK-0053 — Phase 4 Codex QA
+- Status updated to In Progress
+- Full finding matrix across TASK-0049–0052 documented
+- Status: **In Progress — awaiting TASK-0049 re-QA**
+
+#### TASK-0054
+- Confirmed superseded by TASK-0048. Ignored per David instruction.
+
+---
+
+### Files / Docs Changed
+
+**Migrations applied:**
+- `migration_j_license_lookups_search_mode.sql` — applied
+- `migration_k_payments_action_type.sql` — applied
+- `migration_l_credentials_unique.sql` — applied
+
+**Edge Functions deployed:**
+- `license-lookup-start` v6, `license-lookup-status` v5, `license-lookup-select` v6
+- `confirm-info-status` v5, `confirm-info-complete` v6
+- `stripe-checkout-create` v6, `stripe-webhook` v7
+- `credential-create` v2, `wallet-issue` v3, `success-status` v8
+
+**GitHub docs:**
+- `docs/activity_log/APPROVALS_LOG.md` — APPROVAL-0012 through 0019
+- `docs/activity_log/ACTIVITY_LOG.md` — this and all session entries
+- `docs/tasks/TASK-0048.md` through `TASK-0054.md` — updated
+- `docs/flows/IDME_FIRST_ONBOARDING.md` — route sequence, step table, implementation notes
+- `docs/architecture/WALLET_SIGNING_CONTRACT.md` — created
+- `docs/tasks/LOVABLE_PROMPT_2026-06-02_TASK0048_LICENSE_CONFIRM_ROUTES.md` — created
+- `docs/tasks/LOVABLE_PROMPT_2026-06-02_TASK0052_SUCCESS_PAGE.md` — created
+- `api/sign-apple.js`, `api/sign-google.js` — hardened
+- `package.json` — `@supabase/supabase-js` added
+- `api/assets/icon.png`, `icon@2x.png`, `logo@2x.png` — created (corrected from " copy" originals)
+
+---
+
+### Open Items
+
+| Item | Status | Owner |
+|---|---|---|
+| TASK-0049 Codex re-QA (Migration L + 23505 path) | ⬜ Requested | Codex |
+| TASK-0053 Phase 4 closure QA | ⬜ Awaiting 0049 re-QA | Codex |
+| David Done decisions: TASK-0050, 0051, 0052 | ⬜ Ready for review | David |
+| Apple Wallet certificate procurement | ⬜ Hard gate | David |
+| Google Wallet issuer setup | ⬜ Hard gate | David |
+| `WALLET_INTERNAL_SECRET` + `VERCEL_SIGN_APPLE_URL` + `VERCEL_SIGN_GOOGLE_URL` set in Supabase | ⬜ Needed for wallet issuance | David |
+| Vercel re-deploy after `package.json` + asset fixes | ⬜ Required for signing routes to work | David |
+| End-to-end test through full onboarding flow (live nurse or test persona) | ⬜ Pre-production | David / Claude |
+| Real Stripe checkout test (nurse through Lovable → `4242` card) | ⬜ Pre-production gap | David |
+
+---
+
+### Decisions Made
+
+- `/pass-ready` → redirect to `/success`
+- Selfie is optional at MVP (`selfie-complete` supports skip)
+- Wallet signing boundary: Apple and Google both via Vercel (Node.js)
+- No permanent QR in wallet pass
+- `credential-create` uses service-role writes (no RPC), deviation documented
+- Entitlement counts canonical: Standard = 1 license, Premier = 2 (DECISION-0010)
+
+---
+
+### Risks / Issues
+
+- Wallet signing will fail (503) until Apple/Google credentials and Vercel URLs are configured
+- `wallet_activation_partial: true` partial state logged to ops — requires manual credential activation if credential DB write fails after wallet issues
+- Race condition for credential idempotency now DB-enforced (Migration L), not function-only
+- Vercel `package.json` must be re-deployed for `@supabase/supabase-js` dependency to take effect in production
+
+---
+
+### David Approval Needed
+
+- Done decisions: TASK-0050, TASK-0051, TASK-0052
+- TASK-0049 Done decision (after Codex re-QA clears)
+- TASK-0053 Phase 4 QA closure Done decision
+- Apple Wallet certificate/private key handling (hard gate)
+- Google Wallet issuer + service account key (hard gate)
+- Production launch (hard gate)
+
+---
+
+### Next Recommended Action
+
+1. Wait for Codex re-QA on TASK-0049
+2. After TASK-0049 clears — TASK-0053 Phase 4 QA closes
+3. David Done decisions on Phase 4 tasks
+4. Begin wallet provider setup (Apple/Google) and Vercel signing deployment
+5. End-to-end test through full Lovable onboarding flow
+
+---
+
+### Handoff Notes
+
+Next session should read:
+```
+docs/team_charter/AGENT_OPERATING_MODEL.md
+docs/team_charter/STANDING_APPROVAL_LANES.md
+docs/activity_log/ACTIVITY_LOG.md
+docs/activity_log/APPROVALS_LOG.md
+docs/tasks/TASK-0049.md
+docs/tasks/TASK-0053.md
+docs/architecture/WALLET_SIGNING_CONTRACT.md
+```
+
+All deployed functions are on `wvzjfxacykgsaffskgtr`. Lovable app at `enroll.passtodigital.com` uses `passtoSupabase` client correctly configured to this project.
+
+---
+
 ## QA Result — 2026-06-02 — Codex / Claude (Conductor)
 
 **Tasks:** TASK-0050, TASK-0051, TASK-0052  
