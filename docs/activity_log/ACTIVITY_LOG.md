@@ -1858,3 +1858,53 @@ With the `"Registered"` → Active mapping removed and the provider returning no
 - David approval to accept a different MVP stance (e.g., treat existence as Active with documented risk acceptance)
 
 Claude is not proposing a provider switch or a risk acceptance. This is a David decision before TASK-0047 can proceed.
+
+---
+
+## Session Activity — 2026-06-01 — Claude
+
+**Task IDs:** TASK-0046 (closed), TASK-0047 (Codex QA passed; deferrals open)
+**Status:** Both tasks passed Codex live QA. Backend onboarding gate chain complete through plan selection.
+**Role:** Claude / Senior Engineer
+
+### TASK-0046 — Closed
+
+All Codex QA findings resolved across three remediation cycles:
+- Migration H applied: `complete_license_verification()` hardened (service_role only, server-side invariant checks)
+- `license-lookup` revised to documented POST /verify contract (`license_number + state`, top-level `license_status`)
+- Provider `license_type` binding added: type mismatch blocks progression, terminal audit written
+- Codex live re-QA v10 passed
+
+### TASK-0047 — Backend Route Gates Complete; Deferrals Open
+
+Migration I applied: `complete_phone_verification()` fixed (phone → plan, service_role only, license match gate).
+
+Edge functions deployed:
+
+| Function | Version | Purpose |
+|---|---|---|
+| `phone-send-otp` | v11 | Added license match gate |
+| `phone-verify-otp` | v11 | Added license match gate; fixed idempotency to post-phone steps |
+| `plan-select` | v2 | Plan intent write + fail-closed row-count guard; subscription_tier ≠ confirmed entitlement |
+| `success-status` | v2 | can_add_license from confirmed subscriptions table (TASK-0040), not subscription_tier |
+| `account-select-status` | v1 | /account-select gate |
+| `payment-status` | v1 | /payment gate; reads subscriptions for Stripe confirmation state |
+| `selfie-status` | v1 | /upload-selfie gate |
+
+Codex re-QA passed. TASK-0047 status: Codex QA passed.
+
+### Open Items Requiring David Input
+
+| Item | Task | Status |
+|---|---|---|
+| Stripe checkout implementation | TASK-0040 | Spec drafted, awaiting David approval |
+| Selfie required vs optional at MVP | TASK-0047 | Open question; selfie upload mechanics deferred |
+| `/pass-ready` disposition | TASK-0047 | Open question; redirect/alias/remove |
+
+### GitHub Issues
+
+| Issue | Status |
+|---|---|
+| [#3](https://github.com/david-bloom/PassTo/issues/3) TASK-0046 Codex re-QA | Closed (v10 passed) |
+| [#4](https://github.com/david-bloom/PassTo/issues/4) TASK-0047 David approval | Closed (approved + executed) |
+| [#5](https://github.com/david-bloom/PassTo/issues/5) TASK-0047 Codex QA | Passed re-QA |
