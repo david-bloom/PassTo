@@ -101,13 +101,18 @@ serve(async (req) => {
 
   // ── 4. Create Stripe Checkout Session ─────────────────────────────────────
   const params = new URLSearchParams({
-    "mode":                       "subscription",
-    "line_items[0][price]":       priceId,
-    "line_items[0][quantity]":    "1",
-    "metadata[profile_id]":       profile.id,
-    "metadata[plan_name]":        profile.subscription_tier,
-    "success_url":                "https://enroll.passtodigital.com/upload-selfie",
-    "cancel_url":                 "https://enroll.passtodigital.com/payment",
+    "mode":                                    "subscription",
+    "line_items[0][price]":                    priceId,
+    "line_items[0][quantity]":                 "1",
+    // Checkout Session metadata (available on checkout.session.completed)
+    "metadata[profile_id]":                    profile.id,
+    "metadata[plan_name]":                     profile.subscription_tier,
+    // subscription_data.metadata propagates to the Subscription object,
+    // making profile_id available on customer.subscription.* events.
+    "subscription_data[metadata][profile_id]": profile.id,
+    "subscription_data[metadata][plan_name]":  profile.subscription_tier,
+    "success_url":                             "https://enroll.passtodigital.com/upload-selfie",
+    "cancel_url":                              "https://enroll.passtodigital.com/payment",
     // Payment confirmation comes from webhook — not the return URL.
     // success_url is UX only; Lovable re-checks payment-status on page load.
   });

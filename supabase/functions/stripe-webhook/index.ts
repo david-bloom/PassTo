@@ -45,9 +45,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 
+// Canonical values per DECISION-0010: Standard=1, Premier=2.
 const LICENSE_ENTITLEMENT: Record<string, number> = {
-  standard: 2,
-  premier:  5,
+  standard: 1,
+  premier:  2,
 };
 
 serve(async (req) => {
@@ -261,11 +262,37 @@ async function handleSubscriptionUpsert(
   const stripeSubId      = sub.id as string;
   const stripeCustomerId = sub.customer as string;
   const status           = sub.status as string;
-  const planName         = (sub.metadata as Record<string, string>)?.plan_name
-    ?? ((sub.items as Record<string, unknown>)?.data as Array<Record<string, unknown>>)?.[0]
-         ?.price
-       ? "standard"
-       : "standard";
+  const now              = new Date().toISOString();
+
+  // Resolve profile_id and plan_name.
+  // Primary source: subscription metadata set via subscription_data.metadata
+  // in stripe-checkout-create. Fallback: existing subscriptions row created
+  // by checkout.session.completed, which fires before or concurrently with
+  // customer.subscription.created.
+  const subMeta = (sub.metadata ?? {}) as Record<string, string>;
+  let profileId: string | null = subMeta.profile_id ?? null;
+  let planName: string = subMeta.plan_name ?? "standard";
+
+  if (!profileId) {
+    const { data: existingRow } = await admin
+      .from("subscriptions")
+      .select("profile_id, plan_name")
+      .eq("stripe_subscription_id", stripeSubId)
+      .maybeSingle();
+    if (existingRow?.profile_id) {
+      profileId = existingRow.profile_id;
+      planName  = existingRow.plan_name ?? planName;
+    }
+  }
+
+  if (!profileId) {
+    // Cannot link to a profile — skip rather than upsert with null profile_id
+    // (subscriptions.profile_id is NOT NULL). Event is persisted in stripe_events
+    // for manual investigation.
+    console.error(`handleSubscriptionUpsert: no profile_id for subscription ${stripeSubId} — skipping upsert`);
+    return;
+  }
+
   const periodStart = sub.current_period_start
     ? new Date((sub.current_period_start as number) * 1000).toISOString()
     : null;
@@ -273,21 +300,19 @@ async function handleSubscriptionUpsert(
     ? new Date((sub.current_period_end as number) * 1000).toISOString()
     : null;
 
-  const now = new Date().toISOString();
-  const entitlementCount = LICENSE_ENTITLEMENT[planName] ?? 2;
+  const entitlementCount = LICENSE_ENTITLEMENT[planName] ?? 1;
 
-  await admin
-    .from("subscriptions")
-    .upsert({
-      stripe_subscription_id:    stripeSubId,
-      stripe_customer_id:        stripeCustomerId,
-      plan_name:                 planName,
-      status,
-      license_entitlement_count: entitlementCount,
-      current_period_start:      periodStart,
-      current_period_end:        periodEnd,
-      updated_at:                now,
-    }, { onConflict: "stripe_subscription_id" });
+  await admin.from("subscriptions").upsert({
+    profile_id:                profileId,
+    stripe_subscription_id:    stripeSubId,
+    stripe_customer_id:        stripeCustomerId,
+    plan_name:                 planName,
+    status,
+    license_entitlement_count: entitlementCount,
+    current_period_start:      periodStart,
+    current_period_end:        periodEnd,
+    updated_at:                now,
+  }, { onConflict: "stripe_subscription_id" });
 }
 
 async function handleSubscriptionDeleted(
