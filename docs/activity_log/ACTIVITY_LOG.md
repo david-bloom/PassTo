@@ -197,6 +197,17 @@ Extends `payments.action_type` CHECK constraint to include `subscription_start` 
 
 ---
 
+## Migration Applied — 2026-06-02 — David / Claude
+
+**Task:** TASK-0049 P2 — Migration L applied  
+**Migration:** `migration_l_credentials_unique.sql`  
+**Project:** `wvzjfxacykgsaffskgtr`  
+**Status:** Applied successfully — no rows returned
+
+`unique(profile_id, license_id)` constraint now enforced at DB level. `credential-create` v2 handles `23505` unique violation as idempotent return.
+
+---
+
 ## Live Test — 2026-06-02 — David / Claude
 
 **Task:** TASK-0052 — /success page live test  
