@@ -97,10 +97,18 @@ serve(async (req) => {
   const credentialStatus = credential?.status ?? "none";
   const walletStatus     = walletPass?.status  ?? "none";
 
-  // add_another_license is only available when subscription_tier supports it.
-  // Standard and Premier allow multiple licenses; Free does not.
-  const canAddLicense = profile.subscription_tier === "standard" ||
-                        profile.subscription_tier === "premier";
+  // can_add_license requires a Stripe-confirmed active subscription with
+  // license_entitlement_count > 1, written by TASK-0040 webhook confirmation.
+  // profiles.subscription_tier is the selected intent — NOT confirmed entitlement.
+  const { data: activeSub } = await supabaseAdmin
+    .from("subscriptions")
+    .select("license_entitlement_count")
+    .eq("profile_id", profile.id)
+    .eq("status", "active")
+    .gt("license_entitlement_count", 1)
+    .maybeSingle();
+
+  const canAddLicense = activeSub !== null;
 
   return json({
     onboarding_step:   profile.onboarding_step,
