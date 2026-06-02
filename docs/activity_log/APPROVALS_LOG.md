@@ -30,6 +30,67 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0016 — TASK-0049 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0049
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0049 for execution:
+
+```text
+execute task 0049
+```
+
+TASK-0049 — Implement Credential Creation Gate. Backend credential row creation after all trust/payment/selfie gates pass. Service-role only. Lovable cannot directly create credentials.
+
+### Approval Checklist
+
+- [x] I approve TASK-0049 for execution.
+- [x] I approve the stated acceptance criteria.
+- [x] I understand this is a trust-boundary task — credential creation is backend-controlled only.
+- [x] I understand any required migration must be documented and separately approved before application.
+- [x] I understand wallet signing and PassKit issuance remain out of scope (TASK-0050).
+
+### Notes
+
+- Not approved: PassKit/wallet provider calls, Apple/Google wallet certificate setup, production launch, risk acceptance, Done decision.
+
+---
+
+## APPROVAL-0015 — TASK-0040 and TASK-0048 Complete / Passed
+
+**Date:** 2026-06-02  
+**Approved By:** David  
+**Related Task:** TASK-0040, TASK-0048  
+**Decision:** Complete / Passed  
+
+### Summary
+
+David approved marking both TASK-0040 and TASK-0048 as complete/passed:
+
+```text
+david approves marking both as complete/passed
+```
+
+### Approval Checklist
+
+- [x] I approve TASK-0040 as Complete / Passed.
+- [x] I approve TASK-0048 as Complete / Passed.
+- [x] I understand the documented QA deferrals remain pre-production gaps.
+- [x] I understand this does not approve production launch unless separately documented.
+
+### Notes
+
+- TASK-0040 pre-production gap: real Stripe checkout test through Lovable using Stripe test card `4242 4242 4242 4242`.
+- TASK-0048 pre-production gap: live RapidAPI end-to-end test before production use.
+- This approval does not approve Stripe live-mode cutover, live Stripe product/pricing changes, credential issuance launch, wallet issuance launch, production launch, or broader risk acceptance.
+
+---
+
 ## APPROVAL-0014 — TASK-0048 Approved for Execution
 
 **Date:** 2026-06-02
