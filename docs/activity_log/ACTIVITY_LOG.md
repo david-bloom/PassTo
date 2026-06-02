@@ -2934,3 +2934,23 @@ TASK-0056 QA (issue #11) and TASK-0057 QA (issue #12) still pending. Lovable pro
 1. TASK-0056 issue #11 must resolve before end-to-end flow can be tested
 2. David to paste Lovable prompts (TASK-0055 dashboard + TASK-0058 verifier) into Lovable when ready
 3. Post-paste Lovable UI QA needed for both prompts
+
+---
+
+## Lovable Implementation Applied — 2026-06-02 — David
+
+**Scope:** TASK-0055 `/dashboard` + TASK-0058 `/v/:token`
+**Action:** David pasted both Lovable prompts into Lovable and confirmed execution.
+
+### Applied Prompts
+
+| Task | Prompt | Route |
+|---|---|---|
+| TASK-0055 | `LOVABLE_PROMPT_2026-06-02_TASK0055_DASHBOARD.md` | `/dashboard` |
+| TASK-0058 | `LOVABLE_PROMPT_2026-06-02_TASK0058_VERIFIER_FLOW.md` | `/v/:token` |
+
+### Next Action
+
+Live UI QA for both pages — issue #14 opened for Codex.
+
+End-to-end `/dashboard` share-link creation → `/v/:token` verifier flow still deferred until TASK-0056 QA (issue #11) clears.
