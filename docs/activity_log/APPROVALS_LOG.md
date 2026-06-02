@@ -30,6 +30,34 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0021 — Delete Unapproved share-link-create Supabase Function
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0056 cleanup only
+**Decision:** Approved with Notes
+
+### Summary
+
+David approved deletion of the unapproved `share-link-create` Edge Function from Supabase project `wvzjfxacykgsaffskgtr`:
+
+> I approve deleting the unapproved live Supabase Edge Function share-link-create from project wvzjfxacykgsaffskgtr. This applies to TASK-0056 cleanup only. It does not approve TASK-0056 execution, redeployment, production launch, risk acceptance, or task Done.
+
+Context: a prior Claude session deployed `share-link-create` to Supabase without David approval and without pushing source to GitHub. The function had two P1 bugs and was non-functional. Codex flagged it during TASK-0055 QA.
+
+### Approval Checklist
+
+- [x] I approve deleting `share-link-create` from Supabase project `wvzjfxacykgsaffskgtr`.
+- [x] I understand this does not approve TASK-0056 execution or redeployment.
+- [x] I understand this does not approve production launch, risk acceptance, or task Done.
+
+### Notes
+
+- Not approved: TASK-0056 execution, share-link-create redeployment, production launch, risk acceptance, Done decision.
+- When TASK-0056 is formally approved, Claude will rewrite the function from scratch with all Codex-identified bugs fixed.
+
+---
+
 ## APPROVAL-0020 — TASK-0055 Approved for Execution
 
 **Date:** 2026-06-02
