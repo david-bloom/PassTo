@@ -168,6 +168,20 @@ Extends `payments.action_type` CHECK constraint to include `subscription_start` 
 
 ## Session Activity — 2026-06-02 — Claude
 
+**Task:** TASK-0052 — Implement Success / PassReady Credential Status Flow  
+**Status:** Lovable prompt ready — pending David /pass-ready decision  
+**Approval:** APPROVAL-0019
+
+Lovable prompt written for `/success` Phase 4 update. Covers 5 UI states (issued, wallet pending, loading, blocked, suspended). Backend call sequence: success-status → credential-create → wallet-issue → re-poll. No deferred Show QR/share/add-license controls.
+
+**Open decision:** `/pass-ready` route — redirect to /success, alias, or remove. Prompt ready to paste now; /pass-ready handling added after David decides.
+
+**Files created:** `docs/tasks/LOVABLE_PROMPT_2026-06-02_TASK0052_SUCCESS_PAGE.md`
+
+---
+
+## Session Activity — 2026-06-02 — Claude
+
 **Task:** TASK-0051 — Persist Wallet Provider State to Supabase  
 **Status:** Implementation complete — pending deployment + Codex QA  
 **Approval:** APPROVAL-0018
