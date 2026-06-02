@@ -4,6 +4,22 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Migration Applied — 2026-06-02 — David / Claude
+
+**Task:** TASK-0048 — Migration J applied  
+**Status:** Applied successfully — no rows returned  
+**Migration:** `migration_j_license_lookups_search_mode.sql`  
+**Project:** `wvzjfxacykgsaffskgtr`
+
+Applied via Supabase SQL Editor. Three parts executed:
+- Part 1: `license_lookups` extended with `submitted_license_number`, `submitted_state`, `submitted_license_type`, `search_mode`, `candidate_data`, `completed_at`; `lookup_source` default set to null
+- Part 2: `profiles_onboarding_step_check` constraint recreated with full step set including `license_checking`, `confirm`, `plan`, `payment`, `selfie`
+- Part 3: `complete_license_verification()` RPC updated to advance to `confirm` (not `phone`); accepts `license` or `license_checking` as source steps; service_role grants preserved
+
+**Next:** Deploy 5 Edge Functions, then Codex QA.
+
+---
+
 ## Session Activity — 2026-06-02 — Claude
 
 **Task:** TASK-0048 — Re-instrument ID.me-First License Lookup Flow
