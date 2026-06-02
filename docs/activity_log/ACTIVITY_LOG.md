@@ -4,6 +4,37 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Task Creation — 2026-06-02 — Codex
+
+**Task:** PRD Phase 4 Credential and Wallet Issuance  
+**GitHub Checked:** Yes  
+**Status:** Draft tasks created — awaiting David approval before execution  
+**Summary:** Codex created the Phase 4 credential/wallet task set as TASK-0049 through TASK-0053 and added a Phase 4 master task list. The tasks split credential creation, wallet signing contract, wallet provider state persistence, Success/PassReady status UX, and Codex QA into separate approval-ready work items.
+
+### Files Created
+
+- `docs/tasks/PRD_PHASE_04_CREDENTIAL_WALLET_TASK_LIST.md`
+- `docs/tasks/TASK-0049.md` — Implement Credential Creation Gate
+- `docs/tasks/TASK-0050.md` — Define Wallet Signing and Issuance Contract
+- `docs/tasks/TASK-0051.md` — Persist Wallet Provider State to Supabase
+- `docs/tasks/TASK-0052.md` — Implement Success / PassReady Credential Status Flow
+- `docs/tasks/TASK-0053.md` — Codex QA Phase 4 Credential and Wallet Issuance
+
+### Files Updated
+
+- `docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md` — Phase 4 now references TASK-0049 through TASK-0053.
+
+### Approval Boundary
+
+- These task specs do not authorize execution, migration application, wallet certificate/key setup, live wallet provider configuration, live function deployment, credential issuance launch, wallet issuance launch, or production launch.
+- David approval is required before Claude executes any Phase 4 implementation task.
+- Codex QA remains required before Phase 4 is treated as accepted for downstream Phase 5 work.
+
+**Next Owner:** David / Claude  
+**Next Required Action:** David reviews and approves or revises the Phase 4 task set, then Claude executes only the approved next task.
+
+---
+
 ## QA Result — 2026-06-01 — Codex
 
 **Task:** TASK-0047 Reorder Phone, Plan, Payment, Selfie, and Success Backend Routing  
