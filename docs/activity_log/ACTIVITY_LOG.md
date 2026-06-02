@@ -3108,3 +3108,36 @@ Once issues #11 and #14 resolve, TASK-0059 (Phase 5 Codex QA) can run to formall
 - `SHARE_LINK_BASE_URL` secret not yet set in Supabase — defaults to `https://passtodigital.com/v`. Must be configured before production use.
 - Wallet signing (`APPLE_WWDR_PEM_BASE64`, `APPLE_CERT_PEM_BASE64`, `APPLE_KEY_PEM_BASE64`, `GOOGLE_SERVICE_ACCOUNT_JSON`) not yet configured — wallet passes will remain in error state until configured.
 - `TASK-0056` P2 hardening noted: if `verification_events` insert fails after `verifiers` insert, token is stranded. Not a launch blocker but should be addressed before production scale.
+
+---
+
+## TASK-0065 — Supabase Auth Password Reset Redirect Fix — 2026-06-02 — Claude
+
+**Approval:** APPROVAL-0025 (recorded in task spec)
+**Scope:** Supabase Auth URL configuration change only — no migrations, no Edge Function deployments
+
+### Before State
+
+| Setting | Value |
+|---|---|
+| Site URL | `http://localhost:3000` |
+| Redirect URLs | None |
+
+### After State
+
+| Setting | Value |
+|---|---|
+| Site URL | `https://app.passtodigital.com` |
+| Redirect URL 1 | `https://app.passtodigital.com/update-password` |
+| Redirect URL 2 | `https://app.passtodigital.com/reset-password` |
+| Redirect URL 3 | `https://app.passtodigital.com/**` |
+
+### Deviation
+
+Task spec target was `enroll.passtodigital.com`. Live app is at `app.passtodigital.com` (David confirmed 2026-06-02). All redirect targets use `app.passtodigital.com`.
+
+**Follow-up required (out of scope for TASK-0065):** Edge Function CORS headers still reference `enroll.passtodigital.com`. If `app.passtodigital.com` is the permanent live domain, CORS must be updated across all functions before production.
+
+### Outstanding QA
+
+Live password reset email test required — trigger reset, inspect link host, confirm `app.passtodigital.com` not `localhost`, verify update-password route works.
