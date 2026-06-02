@@ -166,6 +166,19 @@ Extends `payments.action_type` CHECK constraint to include `subscription_start` 
 
 ---
 
+## Session Activity — 2026-06-02 — Claude
+
+**Task:** TASK-0049 — Implement Credential Creation Gate  
+**Status:** Implementation complete — pending deployment + Codex QA  
+**Approval:** APPROVAL-0016
+
+`credential-create` Edge Function created. No migration required. Six trust/payment gates enforced. Audit written before credential insert (fail-closed). Idempotent. PassKit not called (TASK-0050 scope).
+
+**Files created:** `supabase/functions/credential-create/index.ts`  
+**Next:** David deploys, then Codex QA.
+
+---
+
 ## QA Result — 2026-06-02 — Codex / Claude (Conductor)
 
 **Task:** TASK-0048 — Re-instrument ID.me-First License Lookup Flow  
