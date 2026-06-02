@@ -197,6 +197,24 @@ Extends `payments.action_type` CHECK constraint to include `subscription_start` 
 
 ---
 
+## QA Result — 2026-06-02 — Codex / Claude (Conductor)
+
+**Tasks:** TASK-0050, TASK-0051, TASK-0052  
+**Status:** Codex QA Complete — Ready for David Review  
+**Verdict:** Pass with deferrals — conductor accepted, P2 items remediated before publishing
+
+Codex proposed pass-with-deferrals on all three tasks. Conductor accepted and fixed all three P2 hardening items before publishing:
+
+| Fix | Deployed |
+|---|---|
+| `success-status`: credential/wallet/subscription reads now fail closed (503) on DB error | ✅ v8 |
+| `success-status`: legacy `wallet_pass_url`/`wallet_provider` now status-gated on `issued` | ✅ v8 |
+| `wallet-issue`: credential activation failure now returns `credential_status: pending, wallet_activation_partial: true` | ✅ v3 |
+
+**Remaining documented deferrals (not blocking):** Apple/Google real signing not testable until certificates/issuer configured; Vercel production config not verified by Codex.
+
+---
+
 ## Migration Applied — 2026-06-02 — David / Claude
 
 **Task:** TASK-0049 P2 — Migration L applied  
