@@ -9,7 +9,7 @@
 
 ## Purpose
 
-This guide defines the PassTo skill equivalents that agents should use when working on GitHub docs, Supabase, Stripe, Lovable, QA, or handoffs.
+This guide defines the PassTo skill equivalents that agents should use when working on GitHub docs, Supabase, Stripe, Vercel, Lovable, QA, or handoffs.
 
 Codex may have local skills installed, but GitHub is the shared source of truth for Claude and all agents. When local skills are unavailable, follow this guide directly.
 
@@ -139,6 +139,32 @@ verification_tokens
 
 ---
 
+## Skill Equivalent: PassTo Vercel
+
+Use for:
+
+- Vercel routes.
+- Wallet signing.
+- Apple Wallet issuance.
+- Google Wallet issuance.
+- Vercel environment variables.
+- Deployments and logs.
+- Vercel/Supabase boundary decisions.
+
+Rules:
+
+- Vercel is used only where Supabase Edge Functions are not the right tool.
+- Supabase remains the system of record.
+- Wallet signing secrets, certificates, private keys, and Google service account keys stay backend-only.
+- Lovable must not call Apple/Google wallet providers directly.
+- Lovable must not receive signing secrets or raw private provider material.
+- Vercel routes must write or return only approved safe status/results.
+- Production Vercel deployments, env var changes, wallet provider config, certificate/private-key handling, and launch posture changes require documented David approval.
+- Wallet provider state must be persisted in Supabase before downstream status treats it as durable.
+- Wallet passes must not embed a permanent verification QR.
+
+---
+
 ## Skill Equivalent: PassTo QA
 
 Use when:
@@ -164,4 +190,3 @@ QA output should include:
 4. Evidence reviewed.
 5. Required remediation or next action.
 6. Remaining approval boundaries.
-
