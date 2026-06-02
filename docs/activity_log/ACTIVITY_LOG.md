@@ -82,6 +82,37 @@ Extends `payments.action_type` CHECK constraint to include `subscription_start` 
 
 ---
 
+## Remediation — 2026-06-02 — Claude
+
+**Task:** TASK-0048 — Codex QA P1/P2 remediation  
+**Status:** Remediated and redeployed — requesting Codex re-QA  
+**Commit:** 543d331
+
+### Codex QA v1 Findings (Blocked)
+
+- P1: Audit writes fail-open for terminal transitions in `license-lookup-start` and `confirm-info-complete`
+- P2: `license-lookup-select` accepted any license_number without validating against stored candidate list
+- P2: `license-lookup-start` multi-candidate path ignored profile step update row count
+
+### Fixes Applied
+
+| Finding | Fix |
+|---|---|
+| P1 audit fail-open (lookup_success + needs_selection) | Inline audit inserts, return 500 on failure |
+| P1 audit fail-open (confirm-info-complete) | Audit written before step advance; failure aborts transition |
+| P2 candidate validation | Selected license_number verified against `candidate_data` before /verify |
+| P2 step row count | `.single()` result checked; reverts to `failed` + returns 500 on zero rows |
+
+### Redeployed
+
+- `license-lookup-start` — remediated
+- `confirm-info-complete` — remediated
+- `license-lookup-select` — remediated
+
+**Next Owner:** Codex re-QA
+
+---
+
 ## Session Activity — 2026-06-02 — Claude
 
 **Task:** TASK-0048 — Re-instrument ID.me-First License Lookup Flow
