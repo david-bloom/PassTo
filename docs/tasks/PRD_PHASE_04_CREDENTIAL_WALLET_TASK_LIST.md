@@ -19,17 +19,19 @@ This document does not authorize implementation, migration execution, wallet cer
 
 | Phase Item | Task ID | Task | Owner | Status | Depends On |
 |---|---|---|---|---|---|
-| 4.1 | TASK-0048 | Implement Credential Creation Gate | Claude | Draft — Awaiting David Approval | Phase 3 trust gates, TASK-0040 payment entitlement state, selfie decision |
-| 4.2 | TASK-0049 | Define Wallet Signing and Issuance Contract | Claude | Draft — Awaiting David Approval | TASK-0048, wallet provider/certificate readiness |
-| 4.3 | TASK-0050 | Persist Wallet Provider State to Supabase | Claude | Draft — Awaiting David Approval | TASK-0049 |
-| 4.4 | TASK-0051 | Implement Success / PassReady Credential Status Flow | Claude / Lovable | Draft — Awaiting David Approval | TASK-0048, TASK-0050 |
-| 4.5 | TASK-0052 | Codex QA Phase 4 Credential and Wallet Issuance | Codex | Draft — Awaiting David Approval | TASK-0048 through TASK-0051 |
+| 4.1 | TASK-0049 | Implement Credential Creation Gate | Claude | Draft — Awaiting David Approval | Phase 3 trust gates, TASK-0040 payment entitlement state, selfie decision |
+| 4.2 | TASK-0050 | Define Wallet Signing and Issuance Contract | Claude | Draft — Awaiting David Approval | TASK-0049, wallet provider/certificate readiness |
+| 4.3 | TASK-0051 | Persist Wallet Provider State to Supabase | Claude | Draft — Awaiting David Approval | TASK-0050 |
+| 4.4 | TASK-0052 | Implement Success / PassReady Credential Status Flow | Claude / Lovable | Draft — Awaiting David Approval | TASK-0049, TASK-0051 |
+| 4.5 | TASK-0053 | Codex QA Phase 4 Credential and Wallet Issuance | Codex | Draft — Awaiting David Approval | TASK-0049 through TASK-0052 |
 
 ## Relationship to Earlier Tasks
 
 Earlier high-level tasks `TASK-0037` and `TASK-0038` described credential creation and wallet issuance at a broad Section 3 journey level. This Phase 4 task set supersedes those high-level slices for execution granularity.
 
 Do not delete or rewrite `TASK-0037` / `TASK-0038`; keep them as historical planning context unless David explicitly asks to consolidate.
+
+`TASK-0048` is already assigned to re-instrumenting the ID.me-first license lookup flow and is not part of Phase 4.
 
 ## Phase 4 Entry Criteria
 
@@ -53,4 +55,3 @@ Do not delete or rewrite `TASK-0037` / `TASK-0038`; keep them as historical plan
 ## Approval Boundary
 
 David approval is required before Claude executes any Phase 4 task that changes live backend behavior, applies migrations, deploys functions/routes, configures wallet providers, touches certificates/private keys, or changes production launch posture.
-
