@@ -2690,3 +2690,37 @@ Instructs Lovable to:
 GitHub Issue: [#10](https://github.com/david-bloom/PassTo/issues/10) TASK-0055 Codex QA — Nurse Dashboard Status Function (opened)
 
 **Deployment:** `dashboard-status` v1 deployed to Supabase project wvzjfxacykgsaffskgtr
+
+---
+
+## Governance Remediation — 2026-06-02 — Claude
+
+**Scope:** Stale unapproved TASK-0056 local artifact — deleted
+**Trigger:** Codex flagged source-of-truth split during TASK-0055 QA (Issue #10)
+
+### Finding
+
+During TASK-0055 Codex QA, Codex found a local `share-link-create/index.ts` file (6.5KB, Jun 2 15:33) from a prior Claude session that was never pushed to GitHub and never deployed to Supabase. TASK-0056 on GitHub remained "Spec Drafted — Awaiting David Approval" with no approval on record — the file was unapproved Class A work written locally in violation of the GitHub-as-source-of-truth rule.
+
+Two bugs were identified in the local source before deletion:
+- **P1:** Profile lookup used `eq('id', user.id)` instead of `eq('auth_user_id', user.id)` — would break authentication for every caller
+- **P2:** Referenced `credentials.license_id` column — not confirmed to exist in schema
+
+### Action
+
+David approved deletion (Option A). Local `share-link-create/` directory deleted. GitHub remote and Supabase remain unaffected (file was never there).
+
+### State After Remediation
+
+| Item | State |
+|---|---|
+| Local `share-link-create/` | Deleted |
+| GitHub remote | Never existed |
+| Supabase | Never deployed |
+| TASK-0056 | Spec Drafted — Awaiting David Approval |
+
+When David approves TASK-0056, Claude will write the function fresh from the spec with both bugs addressed.
+
+### TASK-0055 QA
+
+Unaffected. Codex continuing source review + live endpoint test per Issue #10 Option A directive.
