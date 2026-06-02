@@ -2851,3 +2851,33 @@ Anonymous POST endpoint. Accepts `token` (raw), `verifier_name`, `verifier_email
 #### Dependency Gap
 
 TASK-0056 Codex QA (issue #11) still open. End-to-end token creation → validation chain requires #11 to resolve before live testing.
+
+---
+
+## Session Activity — 2026-06-02 — Claude
+
+**Task IDs:** TASK-0058
+**Status:** Implementation complete — Codex QA Required
+**Role:** Claude / Senior Engineer
+
+### TASK-0058 — `/v/{token}` Verifier Flow — Executed
+
+David approved TASK-0058 as APPROVAL-0024 (2026-06-02): "execute 0058".
+
+#### Deliverables
+
+**New Lovable Prompt:** `docs/tasks/LOVABLE_PROMPT_2026-06-02_TASK0058_VERIFIER_FLOW.md`
+
+Instructs Lovable to build the public `/v/:token` verifier page. Form: name, email, required Terms checkbox, optional marketing consent. All eight response states handled. Credential view shows license type/state/status/expiry/current-as-of and disclaimer. Excludes nurse PII, license number, internal IDs.
+
+**Updated Edge Function:** `supabase/functions/token-verify/index.ts` v2
+
+Added optional `marketing_consent` boolean field, passed to `verifiers.marketing_consent`. Required by `verifiers` table schema and verifier flow doc. Defaults false if not provided.
+
+#### Deviations from VERIFIER_CREDENTIAL_VIEW.md
+
+Nurse name and license number excluded from display — `token-verify` intentionally omits them as private data per task spec. Flow doc predates implemented backend contract.
+
+#### Open Items
+
+TASK-0056 QA (issue #11) and TASK-0057 QA (issue #12) still pending. Lovable prompt ready to paste after both pass.
