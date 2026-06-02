@@ -228,6 +228,20 @@ If still pending, keep the final step as in-progress (spinner or partial fill) r
 
 ---
 
+### `/pass-ready` Redirect
+
+David approved: `/pass-ready` redirects to `/success`.
+
+In `App.tsx` (or wherever routes are defined), add:
+
+```
+/pass-ready → redirect to /success (301 or equivalent client-side redirect)
+```
+
+The `/pass-ready` route should not render any content of its own — it redirects immediately.
+
+---
+
 ### Do Not Implement
 
 - Any logic that marks credential or wallet complete from client-side state alone
