@@ -177,8 +177,29 @@ serve(async (req) => {
     .single();
 
   if (credErr || !newCredential) {
+    // PostgreSQL unique constraint violation (23505) means a concurrent call
+    // created the credential between our pre-insert check and this insert.
+    // Return the existing row idempotently rather than a 500.
+    if (credErr?.code === "23505") {
+      const { data: raceWinner } = await supabaseAdmin
+        .from("credentials")
+        .select("id, status, pass_template_data, created_at")
+        .eq("profile_id", profile.id)
+        .eq("license_id", license.id)
+        .maybeSingle();
+
+      if (raceWinner) {
+        console.warn("credential-create: unique constraint race — returning existing credential", raceWinner.id);
+        return json({
+          credential_id:   raceWinner.id,
+          status:          raceWinner.status,
+          already_existed: true,
+          onboarding_step: profile.onboarding_step,
+        }, 200);
+      }
+    }
+
     console.error("credential-create: insert failed:", credErr);
-    // Audit was already written — log the discrepancy but return error
     await supabaseAdmin.from("audit_events").insert({
       actor_id:      profile.id,
       action:        "credential.creation_failed",
