@@ -39,6 +39,36 @@ Applied via Supabase SQL Editor. Three parts executed:
 
 ---
 
+## Session Activity — 2026-06-02 — Claude / David
+
+**Task:** TASK-0040 — Implement Stripe Subscription State and Entitlement Gating  
+**Status:** Implementation complete — pending Codex QA  
+**Project:** `wvzjfxacykgsaffskgtr`
+
+### Deployed
+
+| Item | Status |
+|---|---|
+| Migration K (`payments.action_type` extended) | ✅ Applied |
+| `STRIPE_SECRET_KEY` | ✅ Set in Supabase secrets |
+| `STRIPE_PRICE_ID_STANDARD` | ✅ Set in Supabase secrets |
+| `STRIPE_PRICE_ID_PREMIER` | ✅ Set in Supabase secrets |
+| `STRIPE_WEBHOOK_SECRET` | ✅ Set in Supabase secrets |
+| `stripe-checkout-create` | ✅ v1 ACTIVE |
+| `stripe-webhook` | ✅ v1 ACTIVE |
+| `selfie-complete` | ✅ v1 ACTIVE (deployed in TASK-0047) |
+| Stripe webhook endpoint registered | ✅ All 5 events (`checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.payment_failed`) |
+
+### Not Applied
+
+- Stripe live-mode cutover — out of scope
+- Live Stripe product/pricing changes — out of scope
+
+**Next Owner:** Codex QA  
+**Next Required Action:** Codex QA with Stripe test-mode event replay before any downstream payment-dependent gate is treated as complete.
+
+---
+
 ## Migration Applied — 2026-06-02 — David / Claude
 
 **Task:** TASK-0040 — Migration K applied  
