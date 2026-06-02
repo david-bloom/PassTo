@@ -2881,3 +2881,22 @@ Nurse name and license number excluded from display — `token-verify` intention
 #### Open Items
 
 TASK-0056 QA (issue #11) and TASK-0057 QA (issue #12) still pending. Lovable prompt ready to paste after both pass.
+
+---
+
+## TASK-0057 Remediation — 2026-06-02 — Claude
+
+**Trigger:** Codex blocked verdict — issue #12, 3 × P1 + 1 × P2
+
+### Fixes Applied
+
+| Finding | Fix |
+|---|---|
+| P1a — `verify_jwt: true` on live | Added `config.toml` (`verify_jwt = false`), redeployed `--no-verify-jwt`; live v3 ACTIVE |
+| P1b — GitHub / live out of sync | Both files committed to GitHub (`ce3ae92`) before deploy; now in sync |
+| P1c — Verifier/event writes not fail-closed | Resequenced: verifier insert (fail-closed) → events (fail-closed) → mark-used; `token_used` returned on UNIQUE violation |
+| P2 — No rejection-path events | All 8 rejection paths write `audit_events: verification.rejected`; `verification_events` requires verifier_id (NOT NULL) so rejections go to audit_events — documented deviation |
+
+### Live State
+
+`token-verify` v3, ACTIVE, 20:25:55 UTC. Issue #12 updated — Codex re-QA requested.
