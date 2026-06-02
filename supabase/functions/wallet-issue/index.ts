@@ -111,14 +111,19 @@ serve(async (req) => {
 
   const now = new Date().toISOString();
 
-  // ── 6. Ensure wallet_passes rows exist (pending) ───────────────────────────
+  // ── 6. Ensure wallet_passes rows exist (pending) — fail-closed ───────────────
   for (const provider of ["apple_wallet", "google_wallet"]) {
-    await supabaseAdmin.from("wallet_passes").upsert({
+    const { error: upsertErr } = await supabaseAdmin.from("wallet_passes").upsert({
       credential_id: credential.id,
       provider,
       status: "pending",
       updated_at: now,
     }, { onConflict: "credential_id,provider", ignoreDuplicates: false });
+    if (upsertErr) {
+      console.error(`wallet-issue: failed to upsert pending ${provider} row:`, upsertErr.message);
+      // Return 500 — cannot proceed without durable pending state rows
+      return json({ error: "server_error", detail: "wallet_state_init_failed" }, 500);
+    }
   }
 
   // ── 7. Call Vercel signing routes ──────────────────────────────────────────
@@ -129,108 +134,154 @@ serve(async (req) => {
     callSigningRoute(signGoogleUrl, authBearer, credential.id),
   ]);
 
-  // ── 8. Process Apple result ────────────────────────────────────────────────
-  const appleSuccess  = appleResult.status === "fulfilled"  && appleResult.value?.success;
-  const googleSuccess = googleResult.status === "fulfilled" && googleResult.value?.success;
+  // ── 8. Process Apple result — fail-closed persistence ─────────────────────
+  // P1 fix: provider success only counts if wallet_passes row is durably updated.
+  // If persistence fails after a successful provider call, treat as error so the
+  // status endpoint reflects reality and ops can retry.
+  let applePersisted  = false;
+  let googlePersisted = false;
+  let applePassUrl:  string | null = null;
+  let googleSaveUrl: string | null = null;
 
-  if (appleSuccess) {
+  const appleProviderSuccess  = appleResult.status === "fulfilled"  && appleResult.value?.success;
+  const googleProviderSuccess = googleResult.status === "fulfilled" && googleResult.value?.success;
+
+  if (appleProviderSuccess) {
     const r = appleResult.value!;
-    await supabaseAdmin.from("wallet_passes").update({
-      status:         "issued",
-      pass_url:       r.pass_url,
-      serial_number:  r.serial_number,
+    const { error: persistErr } = await supabaseAdmin.from("wallet_passes").update({
+      status:            "issued",
+      pass_url:          r.pass_url,
+      serial_number:     r.serial_number,
       provider_response: { serial_number: r.serial_number },
-      updated_at:     now,
+      updated_at:        now,
     }).eq("credential_id", credential.id).eq("provider", "apple_wallet");
 
-    await supabaseAdmin.from("audit_events").insert({
-      actor_id: profile.id, action: "wallet.apple_issued",
-      resource_type: "credential", resource_id: credential.id,
-      change_after: { serial_number: r.serial_number },
-    }).catch(e => console.error("wallet.apple_issued audit failed:", e.message));
+    if (persistErr) {
+      console.error("wallet-issue: apple wallet_passes persistence failed:", persistErr.message);
+      // Mark as error so status endpoint reflects true state
+      await supabaseAdmin.from("wallet_passes").update({
+        status: "error",
+        provider_response: { error: "persistence_failed", provider_succeeded: true },
+        updated_at: now,
+      }).eq("credential_id", credential.id).eq("provider", "apple_wallet");
+      await supabaseAdmin.from("audit_events").insert({
+        actor_id: profile.id, action: "wallet.apple_failed",
+        resource_type: "credential", resource_id: credential.id,
+        change_after: { error: "persistence_failed" },
+      }).catch(() => {});
+    } else {
+      applePersisted = true;
+      applePassUrl   = String(r.pass_url);
+      await supabaseAdmin.from("audit_events").insert({
+        actor_id: profile.id, action: "wallet.apple_issued",
+        resource_type: "credential", resource_id: credential.id,
+        change_after: { serial_number: r.serial_number },
+      }).catch(e => console.error("wallet.apple_issued audit failed:", e.message));
+    }
   } else {
     const errMsg = appleResult.status === "fulfilled"
       ? (appleResult.value?.error ?? "provider_error")
       : (appleResult.reason?.message ?? "network_error");
-
     await supabaseAdmin.from("wallet_passes").update({
-      status: "error",
-      provider_response: { error: errMsg },
-      updated_at: now,
+      status: "error", provider_response: { error: errMsg }, updated_at: now,
     }).eq("credential_id", credential.id).eq("provider", "apple_wallet");
-
     await supabaseAdmin.from("audit_events").insert({
       actor_id: profile.id, action: "wallet.apple_failed",
       resource_type: "credential", resource_id: credential.id,
       change_after: { error: errMsg },
     }).catch(() => {});
-
     console.error("Apple wallet issuance failed:", errMsg);
   }
 
-  // ── 9. Process Google result ───────────────────────────────────────────────
-  if (googleSuccess) {
+  // ── 9. Process Google result — fail-closed persistence ────────────────────
+  if (googleProviderSuccess) {
     const r = googleResult.value!;
-    await supabaseAdmin.from("wallet_passes").update({
+    const { error: persistErr } = await supabaseAdmin.from("wallet_passes").update({
       status:            "issued",
       external_pass_id:  r.save_url,
       provider_response: { object_id: r.object_id },
       updated_at:        now,
     }).eq("credential_id", credential.id).eq("provider", "google_wallet");
 
-    await supabaseAdmin.from("audit_events").insert({
-      actor_id: profile.id, action: "wallet.google_issued",
-      resource_type: "credential", resource_id: credential.id,
-      change_after: { object_id: r.object_id },
-    }).catch(e => console.error("wallet.google_issued audit failed:", e.message));
+    if (persistErr) {
+      console.error("wallet-issue: google wallet_passes persistence failed:", persistErr.message);
+      await supabaseAdmin.from("wallet_passes").update({
+        status: "error",
+        provider_response: { error: "persistence_failed", provider_succeeded: true },
+        updated_at: now,
+      }).eq("credential_id", credential.id).eq("provider", "google_wallet");
+      await supabaseAdmin.from("audit_events").insert({
+        actor_id: profile.id, action: "wallet.google_failed",
+        resource_type: "credential", resource_id: credential.id,
+        change_after: { error: "persistence_failed" },
+      }).catch(() => {});
+    } else {
+      googlePersisted = true;
+      googleSaveUrl   = String(r.save_url);
+      await supabaseAdmin.from("audit_events").insert({
+        actor_id: profile.id, action: "wallet.google_issued",
+        resource_type: "credential", resource_id: credential.id,
+        change_after: { object_id: r.object_id },
+      }).catch(e => console.error("wallet.google_issued audit failed:", e.message));
+    }
   } else {
     const errMsg = googleResult.status === "fulfilled"
       ? (googleResult.value?.error ?? "provider_error")
       : (googleResult.reason?.message ?? "network_error");
-
     await supabaseAdmin.from("wallet_passes").update({
-      status: "error",
-      provider_response: { error: errMsg },
-      updated_at: now,
+      status: "error", provider_response: { error: errMsg }, updated_at: now,
     }).eq("credential_id", credential.id).eq("provider", "google_wallet");
-
     await supabaseAdmin.from("audit_events").insert({
       actor_id: profile.id, action: "wallet.google_failed",
       resource_type: "credential", resource_id: credential.id,
       change_after: { error: errMsg },
     }).catch(() => {});
-
     console.error("Google wallet issuance failed:", errMsg);
   }
 
-  // ── 10. Activate credential if at least one provider succeeded ─────────────
-  const credentialStatus = (appleSuccess || googleSuccess) ? "active" : "pending";
+  // ── 10. Activate credential only if at least one provider persisted ─────────
+  // P1 fix: credential status = 'active' only when wallet_passes row is durably
+  // marked 'issued'. Provider success without DB persistence does not activate.
+  const credentialStatus = (applePersisted || googlePersisted) ? "active" : "pending";
 
   if (credentialStatus === "active") {
-    await supabaseAdmin.from("credentials").update({
-      status:    "active",
-      issued_at: now,
+    const { error: activateErr } = await supabaseAdmin.from("credentials").update({
+      status:     "active",
+      issued_at:  now,
       updated_at: now,
     }).eq("id", credential.id);
 
-    await supabaseAdmin.from("audit_events").insert({
-      actor_id: profile.id, action: "credential.activated",
-      resource_type: "credential", resource_id: credential.id,
-      change_after: { status: "active", issued_at: now },
-    }).catch(() => {});
+    if (activateErr) {
+      // Wallet passes are durably marked issued but credential activation failed.
+      // Log prominently — ops must manually activate. Return partial success so
+      // the nurse still gets wallet URLs.
+      console.error("wallet-issue: credential activation failed:", activateErr.message);
+      await supabaseAdmin.from("audit_events").insert({
+        actor_id: profile.id, action: "credential.activation_failed",
+        resource_type: "credential", resource_id: credential.id,
+        change_after: { error: activateErr.message },
+      }).catch(() => {});
+    } else {
+      await supabaseAdmin.from("audit_events").insert({
+        actor_id: profile.id, action: "credential.activated",
+        resource_type: "credential", resource_id: credential.id,
+        change_after: { status: "active", issued_at: now },
+      }).catch(() => {});
+    }
   }
 
   // ── 11. Return result ──────────────────────────────────────────────────────
+  // Response reflects durable DB state (persisted flags), not raw provider response.
   return json({
     credential_id:     credential.id,
     credential_status: credentialStatus,
     already_issued:    false,
-    apple: appleSuccess && appleResult.status === "fulfilled"
-      ? { status: "issued",  pass_url:  appleResult.value!.pass_url }
-      : { status: "error",   error: appleResult.status === "fulfilled" ? appleResult.value?.error : "network_error" },
-    google: googleSuccess && googleResult.status === "fulfilled"
-      ? { status: "issued",  save_url: googleResult.value!.save_url }
-      : { status: "error",   error: googleResult.status === "fulfilled" ? googleResult.value?.error : "network_error" },
+    apple:  applePersisted
+      ? { status: "issued", pass_url:  applePassUrl }
+      : { status: "error",  error: appleProviderSuccess ? "persistence_failed" : "provider_error" },
+    google: googlePersisted
+      ? { status: "issued", save_url: googleSaveUrl }
+      : { status: "error",  error: googleProviderSuccess ? "persistence_failed" : "provider_error" },
   }, 200);
 });
 
