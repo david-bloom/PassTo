@@ -4,6 +4,25 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Functions Deployed — 2026-06-02 — David / Claude
+
+**Task:** TASK-0048 — Edge Functions deployed  
+**Status:** All 5 deployed successfully  
+**Project:** `wvzjfxacykgsaffskgtr`
+
+| Function | Status |
+|---|---|
+| `license-lookup-start` | ✅ Deployed — v1 ACTIVE |
+| `license-lookup-status` | ✅ Deployed — v1 ACTIVE |
+| `license-lookup-select` | ✅ Deployed — v1 ACTIVE |
+| `confirm-info-status` | ✅ Deployed — v1 ACTIVE |
+| `confirm-info-complete` | ✅ Deployed — v1 ACTIVE |
+
+All functions use `verify_jwt: true`. No existing functions redeployed.  
+**Next:** Codex QA required before TASK-0048 is treated as complete.
+
+---
+
 ## Migration Applied — 2026-06-02 — David / Claude
 
 **Task:** TASK-0048 — Migration J applied  
