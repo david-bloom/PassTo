@@ -38,8 +38,6 @@ David should review the Phase 6 task specs and approve the first task to execute
 
 ---
 
----
-
 ## Phase 5 Tasks Created — 2026-06-02 — Codex
 
 **Scope:** PRD Phase 5 — Dashboard and Share-Link Verification  
