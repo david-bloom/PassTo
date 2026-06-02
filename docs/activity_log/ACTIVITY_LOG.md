@@ -4,6 +4,29 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Workflow Approval — 2026-06-02 — Codex
+
+**Task:** Standing approval lanes and David bottleneck reduction  
+**GitHub Checked:** Yes  
+**Status:** Approved by David and recorded  
+**Summary:** David approved the proposed operating model for reducing bottlenecks: standing approvals for low-risk recurring work, bounded batch approvals for scoped task packages, and explicit hard gates for production-impacting work, risk acceptance, Done decisions, and launch posture.
+
+### Files Created / Updated
+
+- `docs/team_charter/STANDING_APPROVAL_LANES.md`
+- `docs/activity_log/APPROVALS_LOG.md`
+- `docs/activity_log/ACTIVITY_LOG.md`
+
+### Approval Boundary
+
+- This workflow approval does not approve individual task execution beyond the documented standing lanes.
+- Hard gates remain required for migrations, deployments, secrets, RLS/live grants, Stripe live-mode/product/price changes, wallet certificates/private keys, credential/wallet launch, production launch, risk acceptance, Done decisions, closing tasks/issues, and moving deferred features into launch scope.
+
+**Next Owner:** Codex / Claude  
+**Next Required Action:** Use standing approvals for low-risk recurring work, use batch approvals for bounded packages, and request David approval at hard gates.
+
+---
+
 ## Workflow Update — 2026-06-02 — Codex
 
 **Task:** Shared PassTo agent operating model  
