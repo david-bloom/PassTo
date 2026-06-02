@@ -2988,3 +2988,88 @@ TASK-0056 QA (issue #11) and TASK-0057 QA (issue #12) still pending. Lovable pro
 Live UI QA for both pages — issue #14 opened for Codex.
 
 End-to-end `/dashboard` share-link creation → `/v/:token` verifier flow still deferred until TASK-0056 QA (issue #11) clears.
+
+---
+
+## Session Closeout — 2026-06-02 — Claude
+
+**Session type:** Extended execution session — Phase 5 backend + Lovable UI implementation
+**Closed by:** David
+
+---
+
+### Work Completed This Session
+
+#### Governance
+
+| Item | Action |
+|---|---|
+| APPROVAL-0020 missing from APPROVALS_LOG | Recorded (TASK-0055) |
+| Unapproved `share-link-create` found live on Supabase | Deleted (APPROVAL-0021); local source deleted; cleanup logged |
+| Unapproved `share-link-create` local source deleted before Supabase check | Error acknowledged; source recovered via `supabase functions download`; then deleted per David approval |
+
+#### Tasks Executed
+
+| Task | Deliverable | Status |
+|---|---|---|
+| TASK-0055 | `dashboard-status` Edge Function + Lovable prompt | Codex QA pass-with-gaps; Lovable applied; Live UI QA pending (issue #14) |
+| TASK-0056 | `share-link-create` Edge Function + `dashboard-status` real eligibility update | Codex QA pending (issue #11) |
+| TASK-0057 | `token-verify` Edge Function v3 (anonymous, fail-closed, rejection audits) | Codex QA pass-with-deferrals |
+| TASK-0058 | Verifier Lovable prompt + `token-verify` marketing_consent patch | Codex QA pass-with-deferrals; Lovable applied; Live UI QA pending (issue #14) |
+
+#### Approvals Recorded
+
+| Approval | Task | Decision |
+|---|---|---|
+| APPROVAL-0020 | TASK-0055 | Approved — "execute 0055" |
+| APPROVAL-0021 | TASK-0056 cleanup | Approved — delete unapproved Supabase function |
+| APPROVAL-0022 | TASK-0056 | Approved — "execute task 0057" + "Do 0056 first" |
+| APPROVAL-0023 | TASK-0057 | Approved — "execute task 0057" |
+| APPROVAL-0024 | TASK-0058 | Approved — "execute 0058" |
+
+#### Functions Deployed to Supabase
+
+| Function | Version | Change |
+|---|---|---|
+| `dashboard-status` | v3 | v1 new; v2 method guard; v3 real share-link eligibility |
+| `share-link-create` | v1 | Clean rewrite from spec; all prior P1 bugs fixed |
+| `token-verify` | v3 | v1 new; v2 marketing_consent; v3 verify_jwt:false + fail-closed writes + rejection audits |
+
+---
+
+### Open Issues at Session Close
+
+| Issue | Task | Owner | Blocking |
+|---|---|---|---|
+| [#14](https://github.com/david-bloom/PassTo/issues/14) | TASK-0055 + TASK-0058 Live UI QA | Codex | No — functional, pending UI verification |
+| [#11](https://github.com/david-bloom/PassTo/issues/11) | TASK-0056 Codex QA | Codex | Yes — blocks end-to-end share-link flow and `/v/:token` success state |
+| [#8](https://github.com/david-bloom/PassTo/issues/8) | TASK-0054 Codex QA | Codex | Pre-existing |
+| [#7](https://github.com/david-bloom/PassTo/issues/7) | TASK-0048 David Approval | David | Pre-existing |
+| [#6](https://github.com/david-bloom/PassTo/issues/6) | TASK-0040 Codex QA | Codex | Pre-existing |
+| [#5](https://github.com/david-bloom/PassTo/issues/5) | TASK-0047 Codex QA | Codex | Pre-existing |
+| [#4](https://github.com/david-bloom/PassTo/issues/4) | TASK-0047 David Approval | David | Pre-existing |
+| [#3](https://github.com/david-bloom/PassTo/issues/3) | TASK-0046 Live Re-QA | Codex | Pre-existing |
+| [#1](https://github.com/david-bloom/PassTo/issues/1) | TASK-0001 Codex QA | Codex | Pre-existing |
+
+---
+
+### What Needs to Happen Next
+
+**Priority 1 — Unblock end-to-end share-link flow:**
+Codex QA issue #11 (`share-link-create`) must resolve. Once it passes, the full `/dashboard` share-link creation → `/v/:token` verifier validation chain can be tested live.
+
+**Priority 2 — Live UI QA:**
+Codex issue #14 covers `/dashboard` and `/v/:token` live UI testing. Failure-state testing on `/v/:token` is available now. Success-state testing requires issue #11 to clear first.
+
+**Priority 3 — TASK-0059 (Phase 5 QA closure):**
+Once issues #11 and #14 resolve, TASK-0059 (Phase 5 Codex QA) can run to formally close Phase 5.
+
+**To resume:** David sends `C` to trigger a fresh GitHub scan and act on any Codex findings.
+
+---
+
+### Deployment Guard Notes
+
+- `SHARE_LINK_BASE_URL` secret not yet set in Supabase — defaults to `https://passtodigital.com/v`. Must be configured before production use.
+- Wallet signing (`APPLE_WWDR_PEM_BASE64`, `APPLE_CERT_PEM_BASE64`, `APPLE_KEY_PEM_BASE64`, `GOOGLE_SERVICE_ACCOUNT_JSON`) not yet configured — wallet passes will remain in error state until configured.
+- `TASK-0056` P2 hardening noted: if `verification_events` insert fails after `verifiers` insert, token is stranded. Not a launch blocker but should be addressed before production scale.
