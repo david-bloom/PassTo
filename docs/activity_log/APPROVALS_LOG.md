@@ -30,6 +30,35 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0022 — TASK-0056 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0056
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0056 for execution via "execute task 0057" followed by selecting "Do 0056 first" — confirming TASK-0056 should execute before TASK-0057.
+
+TASK-0056 — Implement Share-Link Token Creation Function. New `share-link-create` Edge Function + `dashboard-status` real eligibility update.
+
+### Approval Checklist
+
+- [x] I approve TASK-0056 for execution.
+- [x] I approve `share-link-create` writing to `verification_tokens` and `audit_events`.
+- [x] I approve `dashboard-status` being updated to return real share-link eligibility state.
+- [x] I understand raw tokens are never stored — only SHA-256 hash persisted.
+- [x] I understand this does not approve TASK-0057, Show QR, PDF export, or production launch.
+
+### Notes
+
+- Approved scope: `share-link-create` Edge Function + `dashboard-status` eligibility update only.
+- Not approved: TASK-0057, verifier token validation, Show QR, PDF export, employer dashboard, production launch, risk acceptance, Done decision.
+- Source pushed to GitHub before deployment per corrected workflow.
+
+---
+
 ## APPROVAL-0021 — Delete Unapproved share-link-create Supabase Function
 
 **Date:** 2026-06-02
