@@ -4,6 +4,37 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Flow Documentation Update — 2026-06-02 — David / Codex
+
+**Scope:** ID.me-first onboarding Lovable UX  
+**Status:** Documentation updated  
+**Approval Source:** David instructed Codex to update documentation after giving Lovable the combined `/confirm-info` + OTP behavior.
+
+### Summary
+
+Codex updated the onboarding docs to record the current Lovable UX decision: `/confirm-info` is now the visible combined page where the nurse reviews matched identity/license/contact data, clicks Confirm, receives the Twilio OTP, enters the OTP inline, and proceeds to `/account-select` only after OTP success.
+
+The backend trust states remain separate:
+
+```text
+confirm-info-complete → onboarding_step = phone
+phone-send-otp        → sends OTP from phone state
+phone-verify-otp      → verifies OTP, writes verified phone, advances to plan
+```
+
+### Files Updated
+
+- `docs/flows/IDME_FIRST_ONBOARDING.md`
+- `docs/tasks/TASK-0048.md`
+- `docs/tasks/TASK-0054.md`
+- `docs/prd/PASS_TO_PRD.md`
+
+### Approval Boundary
+
+This is a documentation and Lovable UX flow update only. It does not approve backend code changes, migrations, deployments, secret changes, QA pass decisions, task closure, risk acceptance, credential issuance launch, wallet issuance launch, or production launch.
+
+---
+
 ## David Completion Approval — 2026-06-02 — David / Codex
 
 **Tasks:** TASK-0040, TASK-0048  
