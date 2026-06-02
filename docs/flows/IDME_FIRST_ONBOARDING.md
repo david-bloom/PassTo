@@ -265,9 +265,9 @@ The page should show:
 
 Route sequence and backend gate chain implemented. See TASK-0048 for full implementation detail.
 
-**Migration J** (not yet applied): extends `license_lookups`, adds `license_checking`/`confirm` to `onboarding_step` CHECK constraint, updates `complete_license_verification()` RPC to advance to `confirm` instead of `phone`.
+**Migration J** (applied 2026-06-02): extends `license_lookups`, adds `license_checking`/`confirm` to `onboarding_step` CHECK constraint, updates `complete_license_verification()` RPC to advance to `confirm` instead of `phone`.
 
-**New Edge Functions** (not yet deployed): `license-lookup-start`, `license-lookup-status`, `license-lookup-select`, `confirm-info-status`, `confirm-info-complete`.
+**New Edge Functions** (deployed 2026-06-02): `license-lookup-start`, `license-lookup-status`, `license-lookup-select`, `confirm-info-status`, `confirm-info-complete`.
 
 **Existing functions unchanged**: `phone-send-otp`, `phone-verify-otp`, `account-select-status`, `plan-select`, `payment-status`, `selfie-status`, `success-status`.
 
