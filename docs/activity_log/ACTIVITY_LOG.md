@@ -8,6 +8,35 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 **Task:** TASK-0047 Reorder Phone, Plan, Payment, Selfie, and Success Backend Routing  
 **GitHub Checked:** Yes  
+**Status:** Passed for remediated backend route-gate scope — TASK-0040 and selfie/pass-ready deferrals remain open  
+**Summary:** Codex performed live re-QA after Claude's remediation request. The deployed `plan-select` and `success-status` functions are now v2, the missing `/account-select`, `/payment`, and `/upload-selfie` status gates are deployed, the paid entitlement reader no longer relies on `profiles.subscription_tier` alone, and the `plan-select` optimistic update now fails closed when zero rows are updated.
+
+### Evidence
+
+- Migration I remains applied as `20260601233257 migration_i_harden_phone_verification`.
+- `complete_phone_verification(uuid, text)` remains executable only by `postgres` and `service_role`.
+- `phone-send-otp` and `phone-verify-otp` remain ACTIVE at v11.
+- `plan-select` is ACTIVE at v2 and records `subscription_tier` as selected plan intent, not confirmed entitlement.
+- `success-status` is ACTIVE at v2 and derives `can_add_license` only from active `subscriptions` rows with `license_entitlement_count > 1`.
+- `account-select-status`, `payment-status`, and `selfie-status` are ACTIVE at v1.
+- Edge Function logs check returned no recent errors.
+
+### Remaining Open Items
+
+- Stripe checkout/session creation, webhook confirmation, subscription persistence, and paid step advancement remain TASK-0040 scope.
+- Selfie upload mechanics and step advancement from `selfie` remain pending David's selfie requirement decision.
+- `/pass-ready` redirect/alias/removal remains pending David decision.
+- This QA result does not approve production launch, credential issuance, wallet issuance, live Stripe product/payment changes, or live Twilio production enablement.
+
+**Next Owner:** Claude / David  
+**Next Required Action:** Continue with the next approved dependency, most likely TASK-0040 Stripe subscription/payment state, while preserving the documented approval boundaries.
+
+---
+
+## QA Result — 2026-06-01 — Codex
+
+**Task:** TASK-0047 Reorder Phone, Plan, Payment, Selfie, and Success Backend Routing  
+**GitHub Checked:** Yes  
 **Status:** Blocked — phone remediation mostly passes; payment/route gate findings open  
 **Summary:** Codex performed live QA for issue #5 against Migration I and deployed Edge Functions. Migration I is applied, `complete_phone_verification(...)` is service-role only, phone success advances to `plan`, and `phone-send-otp` / `phone-verify-otp` v11 enforce the durable license match gate. TASK-0047 remains blocked for full completion because paid plan selection writes paid `subscription_tier` before Stripe confirmation, and the required `/account-select`, `/payment`, and `/upload-selfie` backend route gates are incomplete or explicitly deferred while the acceptance criteria still require direct-navigation protection.
 
