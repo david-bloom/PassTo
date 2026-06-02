@@ -30,6 +30,39 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0023 — TASK-0057 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0057
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0057 for execution:
+
+```text
+execute task 0057
+```
+
+TASK-0057 — Implement Verifier Token Validation Function. New `token-verify` Edge Function: anonymous POST accepting raw token + verifier form, hashes server-side, validates token, creates verifiers row, writes verification_events, marks token used, returns safe credential display data.
+
+### Approval Checklist
+
+- [x] I approve TASK-0057 for execution.
+- [x] I approve `token-verify` writing to `verifiers`, `verification_events`, and `audit_events`, and marking `verification_tokens.status = 'used'`.
+- [x] I understand this is an anonymous endpoint — auth is via token hash, not Supabase JWT.
+- [x] I understand TASK-0056 Codex QA (issue #11) is still open — TASK-0057 proceeds with that as a noted dependency gap.
+- [x] I understand this does not approve TASK-0058, Show QR, PDF export, or production launch.
+
+### Notes
+
+- Approved scope: `token-verify` Edge Function only.
+- Not approved: TASK-0058, verifier UI, Show QR, PDF export, employer dashboard, production launch, risk acceptance, Done decision.
+- TASK-0056 Codex QA (issue #11) still pending — end-to-end token creation → validation chain testable only after #11 resolves.
+
+---
+
 ## APPROVAL-0022 — TASK-0056 Approved for Execution
 
 **Date:** 2026-06-02
