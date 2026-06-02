@@ -4,6 +4,40 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Phase 4 Task Inventory Sync — 2026-06-02 — Codex
+
+**Scope:** PRD Phase 4 — Credential and Wallet Issuance  
+**Status:** Task inventory updated  
+**Approval Lane:** Standing approval — documentation/task inventory sync only
+
+### Summary
+
+Codex confirmed that PRD Phase 4 task records already exist as:
+
+| Phase Item | Task | Current Source-of-Truth Status |
+|---|---|---|
+| 4.1 | TASK-0049 — Implement Credential Creation Gate | Ready for Codex Re-QA — P2 remediated |
+| 4.2 | TASK-0050 — Define Wallet Signing and Issuance Contract | Codex QA Complete — Ready for David Review |
+| 4.3 | TASK-0051 — Persist Wallet Provider State to Supabase | Codex QA Complete — Ready for David Review |
+| 4.4 | TASK-0052 — Implement Success / PassReady Credential Status Flow | Codex QA Complete — Ready for David Review |
+| 4.5 | TASK-0053 — Codex QA Phase 4 Credential and Wallet Issuance | Codex QA Complete — Ready for David Review, with TASK-0049 re-QA status to reconcile |
+
+Updated `docs/tasks/PRD_PHASE_04_CREDENTIAL_WALLET_TASK_LIST.md` so the Phase 4 inventory points to the created tasks and no longer presents them as draft-only records.
+
+### Open Reconciliation
+
+`TASK-0053` says Phase 4 QA is complete, but its own task table still lists `TASK-0049` as Ready for Codex Re-QA. The previous session closeout also lists `TASK-0049` re-QA as the next required action before Phase 4 QA closure.
+
+### Approval Boundary
+
+This is a documentation-only inventory sync. It does not approve backend code changes, migrations, deployments, secret changes, wallet provider setup, certificate/private-key handling, credential issuance launch, wallet issuance launch, task Done decisions, issue closure, risk acceptance, or production launch.
+
+### Next Recommended Action
+
+Codex should reconcile whether `TASK-0049` re-QA is still pending or already complete. If pending, run or route the re-QA. If already complete, update `TASK-0049`, `TASK-0053`, and the activity log consistently before routing Phase 4 to David for Done review.
+
+---
+
 ## Flow Documentation Update — 2026-06-02 — David / Codex
 
 **Scope:** ID.me-first onboarding Lovable UX  
