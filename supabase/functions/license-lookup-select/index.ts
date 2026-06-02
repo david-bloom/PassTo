@@ -75,13 +75,23 @@ serve(async (req) => {
   // Validate lookup belongs to this profile and is in needs_selection state
   const { data: lookup } = await supabaseAdmin
     .from("license_lookups")
-    .select("id, submitted_state, submitted_license_type, result")
+    .select("id, submitted_state, submitted_license_type, result, candidate_data")
     .eq("id", lookup_id)
     .eq("profile_id", profile.id)
     .eq("result", "needs_selection")
     .maybeSingle();
 
   if (!lookup) return json({ error: "lookup_not_found_or_invalid" }, 404);
+
+  // P2 fix: verify the selected license_number is one of the stored candidates.
+  // Prevents a client from bypassing candidate selection and submitting an arbitrary number.
+  const storedCandidates = (lookup.candidate_data ?? []) as Array<{ license_number: string }>;
+  const isValidCandidate = storedCandidates.some(
+    (c) => normLicNum(c.license_number) === selected_license_number,
+  );
+  if (!isValidCandidate) {
+    return json({ error: "invalid_candidate_selection", message_code: "candidate_not_in_list" }, 400);
+  }
 
   const licenseState = lookup.submitted_state ?? "";
   const licenseType  = lookup.submitted_license_type ?? "";

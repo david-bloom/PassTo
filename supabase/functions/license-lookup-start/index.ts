@@ -269,21 +269,42 @@ async function runSearch(
   const candidates = results.slice(0, 10).map((r) => ({
     license_number: String(r.license_number ?? ""),
     license_type:   String(r.license_type   ?? ""),
-    holder_name:    String(r.full_name       ?? ""),  // full name per David's decision
+    holder_name:    String(r.full_name       ?? ""),
   })).filter(c => c.license_number);
 
-  // Store allowlisted candidates and advance to license_checking
+  const now = new Date().toISOString();
+
+  // Store allowlisted candidates
   await admin.from("license_lookups")
-    .update({ result: "needs_selection", candidate_data: candidates, completed_at: new Date().toISOString() })
+    .update({ result: "needs_selection", candidate_data: candidates, completed_at: now })
     .eq("id", lookupId);
 
-  await admin.from("profiles")
-    .update({ onboarding_step: "license_checking", updated_at: new Date().toISOString() })
+  // P2 fix: verify the profile step was actually updated before returning success
+  const { data: stepRow, error: stepErr } = await admin.from("profiles")
+    .update({ onboarding_step: "license_checking", updated_at: now })
     .eq("id", profile.id)
-    .eq("onboarding_step", "license");
+    .eq("onboarding_step", "license")
+    .select("id")
+    .single();
 
-  await writeAudit(admin, profile.id as string, "license.search_needs_selection",
-    { candidate_count: candidates.length, lookup_id: lookupId });
+  if (stepErr || !stepRow) {
+    console.error("license-lookup-start: license_checking step advance failed:", stepErr);
+    await admin.from("license_lookups")
+      .update({ result: "failed", completed_at: now, error_message: "step_transition_failed" })
+      .eq("id", lookupId);
+    return json({ error: "server_error" }, 500);
+  }
+
+  // P1 fix: audit is fail-closed for this terminal transition
+  const { error: auditErr } = await admin.from("audit_events").insert({
+    actor_id: profile.id, action: "license.search_needs_selection",
+    resource_type: "license", resource_id: profile.id as string,
+    change_after: { candidate_count: candidates.length, lookup_id: lookupId },
+  });
+  if (auditErr) {
+    console.error("license-lookup-start: terminal audit write failed:", auditErr.message);
+    return json({ error: "server_error" }, 500);
+  }
 
   return json({ result: "needs_selection", candidates, lookup_id: lookupId }, 200);
 }
@@ -457,8 +478,16 @@ async function processVerifyResult(
     .eq("id", profileId)
     .in("onboarding_step", ["phone", "confirm"]); // RPC may have set 'phone'; correct to 'confirm'
 
-  await writeAudit(admin, profileId, "license.lookup_success",
-    { lookup_id: lookupId, license_id: licenseId, normalized_status: statusResult.normalized, match_result: matchResult });
+  // P1 fix: audit is fail-closed for this terminal transition
+  const { error: successAuditErr } = await admin.from("audit_events").insert({
+    actor_id: profileId, action: "license.lookup_success",
+    resource_type: "license", resource_id: profileId,
+    change_after: { lookup_id: lookupId, license_id: licenseId, normalized_status: statusResult.normalized, match_result: matchResult },
+  });
+  if (successAuditErr) {
+    console.error("license-lookup-start: terminal audit write failed:", successAuditErr.message);
+    return json({ error: "server_error" }, 500);
+  }
 
   return json({ success: true, credential_eligible: true, next_step: "confirm" }, 200);
 }

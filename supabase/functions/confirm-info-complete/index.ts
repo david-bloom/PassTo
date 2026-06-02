@@ -67,6 +67,20 @@ serve(async (req) => {
 
   const now = new Date().toISOString();
 
+  // P1 fix: write audit BEFORE advancing step.
+  // If audit fails, return error without touching onboarding_step.
+  const { error: auditErr } = await supabaseAdmin.from("audit_events").insert({
+    actor_id: profile.id,
+    action: "confirm.info_confirmed",
+    resource_type: "profile",
+    resource_id: profile.id,
+    change_after: { onboarding_step: "phone", phone_intent: confirmed_phone },
+  });
+  if (auditErr) {
+    console.error("confirm-info-complete: audit write failed — aborting step advance:", auditErr.message);
+    return json({ error: "server_error" }, 500);
+  }
+
   // Advance step to 'phone'. Store phone as intent (not verified).
   // phone-verify-otp writes profiles.phone only after Twilio OTP success.
   const { data: updatedRow, error: updateErr } = await supabaseAdmin
@@ -81,17 +95,6 @@ serve(async (req) => {
     console.error("confirm-info-complete: update failed:", updateErr);
     return json({ error: "invalid_step_conflict" }, 409);
   }
-
-  // Store phone intent for prefill on /phone-check.
-  // This is the phone the nurse wants to use — it is NOT verified here.
-  // We store it in a separate notification_events record to avoid marking profiles.phone as verified.
-  await supabaseAdmin.from("audit_events").insert({
-    actor_id: profile.id,
-    action: "confirm.info_confirmed",
-    resource_type: "profile",
-    resource_id: profile.id,
-    change_after: { onboarding_step: "phone", phone_intent: confirmed_phone },
-  });
 
   return json({ success: true, next_step: "phone", phone_intent: confirmed_phone }, 200);
 });
