@@ -39,6 +39,35 @@ Applied via Supabase SQL Editor. Three parts executed:
 
 ---
 
+## QA Result — 2026-06-02 — Claude (Conductor)
+
+**Task:** TASK-0040 — Implement Stripe Subscription State and Entitlement Gating  
+**Status:** Codex QA Complete — Ready for David Review  
+**Verdict:** QA gate cleared — test-mode replay complete, all findings remediated
+
+### Stripe Test-Mode Replay Results
+
+All 5 required event types confirmed delivered via Stripe CLI Shell and Dashboard resend. `stripe_events` table evidence reviewed in Supabase SQL Editor.
+
+| Event | Outcome |
+|---|---|
+| Bad signature | ✅ 400 rejected, no row written |
+| `checkout.session.completed` | ✅ processed=true, sig verified, non-subscription mode correctly skipped |
+| `customer.subscription.created` | ✅ processed=false, hardening throws on missing profile_id |
+| `customer.subscription.updated` | ✅ processed=false, same |
+| `customer.subscription.deleted` | ✅ processed=true, early return on unknown subscription |
+| `invoice.payment_failed` | ✅ processed=true, early return on unknown customer |
+| Duplicate resend (same evt_ID) | ✅ One row only — idempotency confirmed |
+
+### Remaining Pre-Production Gap
+
+CLI fixture subscriptions carry no `profile_id` in metadata. Full subscription persistence (creating real `subscriptions`/`payments` rows) requires a real test nurse going through Stripe checkout in the Lovable test environment with card `4242 4242 4242 4242`. Required before production launch, not blocking the current QA gate.
+
+**Next Owner:** David — review + Done decision  
+**Hard gates remain:** production launch, live-mode cutover, live Stripe product/pricing changes, credential/wallet launch, risk acceptance, task closure.
+
+---
+
 ## Remediation — 2026-06-02 — Claude
 
 **Task:** TASK-0040 — Codex QA P1 remediation  
