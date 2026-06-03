@@ -800,3 +800,47 @@ This approval explicitly does NOT cover:
 - Database migrations, RLS, secrets.
 - Production launch, task Done decisions, or issue closure.
 - Broad wildcard redirect allow-list entries beyond trusted PassTo domains.
+
+---
+
+## APPROVAL-0027 — TASK-0066 Execution Approved (CORS Update + Redeploy)
+
+**Date:** 2026-06-02
+**Approved By:** David (relayed in Claude session)
+**Related Task:** TASK-0066
+**Decision:** Approved — Option A for token-verify
+
+### Summary
+
+David approved TASK-0066 execution after a live `/dashboard` load on `app.passtodigital.com` failed with "Something went wrong" and Claude diagnosed the root cause as `dashboard-status` Edge Function CORS still returning `access-control-allow-origin: https://enroll.passtodigital.com`. APPROVAL-0026 explicitly excluded Edge Function changes, requiring this separate approval.
+
+For the `token-verify` CORS sub-decision flagged in the TASK-0066 spec (Option A lock to app.passtodigital.com vs Option B keep `*`), David chose **Option A** per Claude's recommendation.
+
+### Approval Checklist
+
+- [x] Approve `dashboard-status` CORS allow-origin change to `https://app.passtodigital.com`.
+- [x] Approve `share-link-create` CORS allow-origin change to `https://app.passtodigital.com`.
+- [x] Approve `token-verify` CORS allow-origin change to `https://app.passtodigital.com` (Option A — locked to App domain, NOT keep `*`).
+- [x] Approve push to GitHub `main` before deployment.
+- [x] Approve redeploy of all 3 functions to Supabase project `wvzjfxacykgsaffskgtr` (verify_jwt preserved per function).
+- [x] Approve live CORS preflight verification.
+
+### Execution Trail
+
+Initial deploy was applied 2026-06-02 (commits `b7c760cb`, `e828de23`, `e0835dca`; deploys: dashboard-status v4, share-link-create v2, token-verify v4). David subsequently directed a rollback (deploy versions v5/v3/v5) based on an initial misattribution of the dashboard fix to a Lovable publish event. Edge Function logs evidence then demonstrated the CORS fix was the actual unblocker, and David authorized re-apply of the same TASK-0066 policy. Final live state matches Option A as originally approved: dashboard-status v6, share-link-create v4, token-verify v6.
+
+The re-apply did not require a new approval — it restored the originally-approved final state, just via a longer path.
+
+### Notes
+
+Live CORS preflight verified post-deploy for all 3 functions: `access-control-allow-origin: https://app.passtodigital.com` returned for `Origin: https://app.passtodigital.com` requests. `token-verify` POST without auth returned `400 missing_token` confirming `verify_jwt` remained `false` throughout.
+
+This approval explicitly does NOT cover:
+
+- Database migrations, RLS, secrets.
+- Other Edge Function changes (beyond the 3 named).
+- Production launch, task Done decisions, or issue closure.
+- Broadening any allow-list beyond the App domain.
+- Frontend launch-readiness items surfaced during QA (see `LOVABLE_PROMPT_2026-06-02_APP_LAUNCH_READINESS.md`).
+
+Codex QA on the implementation remains required before TASK-0066 can be marked Done. End-to-end share-link → verifier exercise blocked on Lovable applying the Share Credential button wiring (see launch-readiness prompt).
