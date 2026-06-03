@@ -19,7 +19,7 @@ finding to `closed`.
 
 **Date:** 2026-06-03
 **Severity:** P0
-**Status:** `codex_verification_requested`
+**Status:** `codex_verified`
 **Surface:** App project (`9a223cc4-ef58-43d4-929a-4c0424b586c2`) — `/dashboard`
 **Route:** `https://app.passtodigital.com/dashboard`
 **Owner:** Lovable App project
@@ -46,6 +46,22 @@ correct URL host and "Expires in 3 days" copy.
 **Codex verification scope:** Confirm `share_link_eligible: false` states render
 disabled button with reason tooltip; confirm single-use token enforced server-side
 (separately verified in QA-A9).
+
+**Codex verification (2026-06-03):** Verified against current live App deployment
+`a165c9f0-c957-4e51-b99a-179309c3736f` and deployed bundle
+`https://app.passtodigital.com/assets/index-iQrrPsvl.js`. Old disabled-state copy
+("Coming Soon" / "Shareable credential links will be available soon") is absent.
+The dashboard share component reads `share_link_eligible` and `share_link_reason`,
+disables the button with reason text when ineligible, POSTs to `share-link-create`
+with the Supabase session bearer token when eligible, and renders returned
+`share_url`, expiry, Copy link, and Open actions. GitHub source for
+`share-link-create` stores only SHA-256 token hashes and returns the raw token once;
+GitHub source for `token-verify` rejects `used` tokens and uses the
+`verifiers.token_id` unique guard before marking tokens used. Live CORS preflights
+for both functions accept `https://app.passtodigital.com`. Codex did not create a
+fresh authenticated share link in this session because no nurse auth token was
+available; verification relies on current deployed UI/source plus prior QA Agent
+end-to-end generated-token evidence. Proposed status: `codex_verified`.
 
 ---
 
@@ -297,7 +313,7 @@ stable PassTo-controlled URL, update `og:image` and `twitter:image` in `index.ht
 
 **Date:** 2026-06-03
 **Severity:** P2
-**Status:** `codex_verification_requested`
+**Status:** `codex_verified`
 **Surface:** App project — per-route `document.title`
 **Routes:** `https://app.passtodigital.com/`, `/reset-password`, `/update-password`
 **Owner:** Lovable App project
@@ -322,6 +338,16 @@ All three previously-broken routes fully verified by QA Agent.
 
 **Codex verification scope:** Confirm title updates persist on back-navigation and
 route changes without full page reload (SPA navigation).
+
+**Codex verification (2026-06-03):** Verified against current live App deployment
+`a165c9f0-c957-4e51-b99a-179309c3736f` using headless Chrome. Direct route titles
+resolved as expected: `/` → "Sign In — PassTo", `/reset-password` →
+"Reset Password — PassTo", and `/update-password` → "Set New Password — PassTo".
+SPA navigation from `/` to `/reset-password` preserved "Reset Password — PassTo",
+and browser back-navigation restored "Sign In — PassTo" without a full-page title
+regression. Current deployed bundle also sets `/dashboard` to
+"Your Credential — PassTo" and `/v/:token` to "Verify Credential — PassTo".
+Proposed status: `codex_verified`.
 
 ---
 
@@ -413,18 +439,18 @@ or to `app.passtodigital.com/dashboard` if `onboarding_step` is complete.
 
 | Severity | Total | `codex_verified` | `codex_verification_requested` | `applied` | `applied_partial` | `open` | `decision_pending` |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| P0 | 4 | 2 | 1 | 1 | 0 | 0 | 0 |
+| P0 | 4 | 3 | 0 | 1 | 0 | 0 | 0 |
 | P1 | 5 | 2 | 0 | 0 | 0 | 2 | 1 |
-| P2 | 2 | 0 | 1 | 0 | 1 | 0 | 0 |
-| **Total** | **11** | **4** | **2** | **1** | **1** | **2** | **1** |
+| P2 | 2 | 1 | 0 | 0 | 1 | 0 | 0 |
+| **Total** | **11** | **6** | **0** | **1** | **1** | **2** | **1** |
 
 **All 11 findings:** QA-001 through QA-011.
 
-**Codex verified:** QA-002, QA-007, QA-010, QA-011.
+**Codex verified:** QA-001, QA-002, QA-007, QA-009, QA-010, QA-011.
 
 **Applied, verification limited:** QA-003 (App-host share URL observed by QA Agent/David; Codex verified live App-domain CORS but could not independently read Supabase secret or create a fresh authenticated link).
 
-**Awaiting Codex verification:** QA-001, QA-009.
+**Awaiting Codex verification:** None.
 
 **Open — require Lovable action:** QA-004, QA-005.
 
