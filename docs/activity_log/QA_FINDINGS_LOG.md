@@ -11,6 +11,7 @@ finding to `closed`.
 - `applied_partial` — fix partially applied; at least one acceptance criterion still unmet
 - `decision_pending` — blocked on a human decision before a fix path is known
 - `codex_verification_requested` — fix applied; QA Agent recommends Codex verify before status moves to `closed`
+- `codex_verified` — Codex independently verified applied fix against source/live evidence; not equivalent to `closed`, Done, QA pass, or launch readiness
 
 ---
 
@@ -52,7 +53,7 @@ disabled button with reason tooltip; confirm single-use token enforced server-si
 
 **Date:** 2026-06-03
 **Severity:** P0
-**Status:** `codex_verification_requested`
+**Status:** `codex_verified`
 **Surface:** App project — post-`signInWithPassword` profile fetch handler
 **Route:** `https://app.passtodigital.com/` (login)
 **Owner:** Lovable App project
@@ -83,13 +84,15 @@ then full dashboard-status chain all 200s. No 400s since fix.
 **Codex verification scope:** Confirm the fix is the only profiles SELECT call site
 in the App project — no other component still references `license_id` from `profiles`.
 
+**Codex verification (2026-06-03):** Verified from deployed App bundle `https://app.passtodigital.com/assets/index-CaQkCb7v.js`. The fresh login handler no longer queries `profiles.license_id`; it loads profile fields, then separately queries `licenses` for `id, normalized_status, data_match_passed`. Proposed status: `codex_verified`.
+
 ---
 
 ## QA-003
 
 **Date:** 2026-06-03
 **Severity:** P0
-**Status:** `codex_verification_requested`
+**Status:** `applied`
 **Surface:** Supabase Edge Function `share-link-create` — `SHARE_LINK_BASE_URL` environment variable / function default
 **Route:** Share URL returned in function response body
 **Owner:** David (Supabase secret config)
@@ -122,6 +125,8 @@ Prior token manually rewritten to App host and exercised end-to-end in QA-A7/A8/
 in Supabase project `wvzjfxacykgsaffskgtr` secrets. Confirm no other Edge Function
 or code path still references the marketing domain for share URLs. Confirm
 APPROVAL-0028 and ACTIVITY_LOG entry are present and accurate.
+
+**Codex verification (2026-06-03):** Live `share-link-create` preflight from `Origin: https://app.passtodigital.com` returned `Access-Control-Allow-Origin: https://app.passtodigital.com`, and Claude/David QA evidence records generated share URLs using `https://app.passtodigital.com/v/...`. Codex could not independently read the Supabase secret or create a fresh authenticated share link because Supabase MCP auth was expired and no test auth token was available. Proposed status: `applied` pending direct secret-read or fresh authenticated link creation verification.
 
 ---
 
@@ -211,7 +216,7 @@ available in `docs/tasks/LOVABLE_PROMPT_2026-06-02_APP_LAUNCH_READINESS.md`.
 
 **Date:** 2026-06-03
 **Severity:** P1
-**Status:** `codex_verification_requested`
+**Status:** `codex_verified`
 **Surface:** App project — `/dashboard` wallet status cards
 **Route:** `https://app.passtodigital.com/dashboard`
 **Owner:** Lovable App project
@@ -243,6 +248,8 @@ with test-nurse-001 signed in confirmed:
 **Codex verification scope:** Confirm `pending`, `issued`, `voided`, and `error`
 wallet states also render correctly (cannot be exercised without PassKit integration
 active; recommend code-level review of the conditional logic).
+
+**Codex verification (2026-06-03):** Verified from deployed App bundle `https://app.passtodigital.com/assets/index-CaQkCb7v.js`. Dashboard renders `Wallet Passes`, separate Apple/Google cards, and exact neutral copy for `not_attempted`: `[Provider] Wallet pass not yet created` plus `We'll generate this when wallet issuance is configured. No action needed right now.` Proposed status: `codex_verified`.
 
 ---
 
@@ -322,7 +329,7 @@ route changes without full page reload (SPA navigation).
 
 **Date:** 2026-06-03
 **Severity:** P1
-**Status:** `codex_verification_requested`
+**Status:** `codex_verified`
 **Surface:** App project — authenticated route header / sign-out
 **Route:** `https://app.passtodigital.com/dashboard` (and other authenticated routes)
 **Owner:** Lovable App project
@@ -352,13 +359,15 @@ with test-nurse-001 signed in confirmed:
 to `/`, browser back-button does not re-authenticate. Confirm header does not render
 on `/v/:token`.
 
+**Codex verification (2026-06-03):** Verified from deployed App bundle `https://app.passtodigital.com/assets/index-CaQkCb7v.js`. Dashboard renders `AppHeader`, including PassTo wordmark, email chip/account menu, and `Sign out` action calling Supabase `auth.signOut()` then navigating to `/`. Proposed status: `codex_verified`.
+
 ---
 
 ## QA-011
 
 **Date:** 2026-06-03
 **Severity:** P0
-**Status:** `codex_verification_requested`
+**Status:** `codex_verified`
 **Surface:** Enroll project (`d279ccd3-8397-4e7b-933c-8f5c8468d19e`) — missing route `/post-login`
 **Route:** `https://enroll.passtodigital.com/post-login`
 **Owner:** Lovable enroll project
@@ -396,28 +405,34 @@ or to `app.passtodigital.com/dashboard` if `onboarding_step` is complete.
   `https://app.passtodigital.com/dashboard`, not to an enroll route.
 - Verify `/post-login` uses replace-navigate (no back-button trap).
 
+**Codex verification (2026-06-03):** Verified from deployed Enroll bundle `https://enroll.passtodigital.com/assets/index-CjBZPVJl.js` and live route headers. `/post-login` returns HTTP 200 and is wired to a one-shot router that reads profile state, sends incomplete users to enrollment steps, and routes `pass` / `complete` users to `https://app.passtodigital.com/dashboard`. Proposed status: `codex_verified`.
+
 ---
 
 ## Aggregate counts (2026-06-03 session)
 
-| Severity | Total | `codex_verification_requested` | `applied_partial` | `open` | `decision_pending` |
-|---|---|---|---|---|---|
-| P0 | 4 | 4 | 0 | 0 | 0 |
-| P1 | 5 | 2 | 0 | 2 | 1 |
-| P2 | 2 | 1 | 1 | 0 | 0 |
-| **Total** | **11** | **7** | **1** | **2** | **1** |
+| Severity | Total | `codex_verified` | `codex_verification_requested` | `applied` | `applied_partial` | `open` | `decision_pending` |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| P0 | 4 | 2 | 1 | 1 | 0 | 0 | 0 |
+| P1 | 5 | 2 | 0 | 0 | 0 | 2 | 1 |
+| P2 | 2 | 0 | 1 | 0 | 1 | 0 | 0 |
+| **Total** | **11** | **4** | **2** | **1** | **1** | **2** | **1** |
 
 **All 11 findings:** QA-001 through QA-011.
+
+**Codex verified:** QA-002, QA-007, QA-010, QA-011.
+
+**Applied, verification limited:** QA-003 (App-host share URL observed by QA Agent/David; Codex verified live App-domain CORS but could not independently read Supabase secret or create a fresh authenticated link).
+
+**Awaiting Codex verification:** QA-001, QA-009.
 
 **Open — require Lovable action:** QA-004, QA-005.
 
 **Decision pending:** QA-006 (David to choose `/verify-demo` disposition).
 
-**Partially applied — follow-up required:** QA-008 (OG/Twitter image URL still on
-Lovable CDN).
+**Partially applied — follow-up required:** QA-008 (OG/Twitter image URL still on Lovable CDN).
 
-**Source-of-truth gap resolved this commit:** QA-003 (APPROVAL-0028 recorded in
-APPROVALS_LOG; activity log entry added).
+**Source-of-truth gap resolved in original QA log commit:** QA-003 (APPROVAL-0028 recorded in APPROVALS_LOG; activity log entry added).
 
 ---
 
