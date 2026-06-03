@@ -3205,3 +3205,56 @@ Codex required Edge Function CORS allow-list changes for `dashboard-status`, `sh
 2. Lovable applies the two redirect prompts to the enrollment and app projects.
 3. Live QA: password reset round-trip on the app; sign-up round-trip on the enrollment app; mid-onboarding sign-in stays on enroll.
 4. Codex re-QA on TASK-0065 after the full chain is verified live.
+
+---
+
+## TASK-0066 Executed — Edge Function CORS Allow-List for App Domain — 2026-06-02 — Claude
+
+**Approval:** APPROVAL-0027 (Codex Approve-With-Modifications via APPROVAL-0026 spec + David execution authorization + Option A for token-verify).
+**Scope:** Edge Function CORS allow-list correction. No database, no RLS, no secrets.
+
+### Context
+
+Block A SQL seed (david@passtodigital.com promoted to verified IAL2 + synthetic license + active credential) was applied earlier in the session, and the gate chain verified READY for share-link-create. When David signed in on app.passtodigital.com and visited /dashboard, the App displayed "Something went wrong." Live `OPTIONS` preflight against `dashboard-status` returned `access-control-allow-origin: https://enroll.passtodigital.com`, confirming CORS as the root cause — the App browser at app.passtodigital.com was being blocked from reading the function's responses.
+
+### What was changed (final live state)
+
+| Function | Final version | CORS allow-origin | verify_jwt |
+|---|---|---|---|
+| `dashboard-status` | v6 | `https://app.passtodigital.com` | true |
+| `share-link-create` | v4 | `https://app.passtodigital.com` | true |
+| `token-verify` | v6 | `https://app.passtodigital.com` (Option A) | false (preserved) |
+
+GitHub source for all 3 updated on `main` to match deployed state.
+
+### In-session deploy → rollback → re-apply trail (lessons learned)
+
+The CORS deployment happened three times this session due to an evidence/attribution mistake:
+
+1. **Initial deploy (TASK-0066 execution).** David approved Option A. Claude pushed source + deployed. Live state: app origin on all 3. Dashboard worked. David confirmed "IT WORKED."
+
+2. **Rollback (David's instruction).** David noted that publishing the Lovable App project had been the actual fix for the "Something went wrong" error and directed a rollback of TASK-0066, treating the CORS deploy as a red herring. Claude executed the rollback — restored prior CORS values (enroll origin / `*`) on GitHub + Supabase.
+
+3. **Re-apply (after evidence).** Subsequent test sign-in by David surfaced "Could not load your profile" — same symptom class as before. Edge Function log review showed that the two successful `dashboard-status` 200 GETs during the "IT WORKED" window had ALL occurred against v4 (the CORS = app deployment). Post-rollback, no successful GETs. This evidence demonstrated the CORS fix was actually required — the Lovable publish was a necessary but insufficient fix. Claude re-applied TASK-0066 (commits `aa53f734`, `9f46ec2a`, `36effc56`; deploys v6/v4/v6). Live state matches the originally-approved policy.
+
+**Lesson:** When David and Claude disagree on root cause, cross-check against Edge Function logs / server evidence BEFORE rolling back working code. Claude's mistake was acting on the rollback request without first asking Edge Function logs whether the dashboard had actually been hitting the function during the "IT WORKED" window.
+
+### Companion artifacts
+
+- `docs/tasks/LOVABLE_PROMPT_2026-06-02_APP_LAUNCH_READINESS.md` — consolidated Lovable prompt covering 8 launch-readiness items (P0 share-link UI, P1 routing/copy/recovery-context fixes, P2 metadata/titles/header) surfaced during this session's QA. /verify-demo decision pending David.
+- `docs/activity_log/APPROVALS_LOG.md` — APPROVAL-0027 entry recording the David approval + execution scope.
+
+### What did NOT happen this session
+
+- No database migrations, RLS changes, or secrets changes.
+- No Lovable code changes from Claude (Lovable applies frontend changes; Claude produced the prompt only).
+- No production launch decision.
+- No TASK-0066 Done decision (pending Codex re-QA after Lovable applies launch-readiness fixes and the share-link → verifier round-trip is exercisable end-to-end).
+- No changes to `david@passtodigital.com` or `test-nurse-001@passtodigital.com` test-data seeds (Block A and Block B remain in place).
+
+### Outstanding work (gating Done)
+
+1. David decides `/verify-demo` route disposition (remove / gate / keep).
+2. Lovable applies the launch-readiness prompt to the App project.
+3. End-to-end share-link → verifier round-trip exercised on app.passtodigital.com.
+4. Codex re-QA against the live App + Edge Function state.
