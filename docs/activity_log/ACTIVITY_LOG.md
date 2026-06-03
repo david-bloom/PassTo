@@ -3342,3 +3342,62 @@ redirect handshake), QA-011 cold + authenticated cross-domain path.
 No real PII used. No secrets/tokens captured. No Supabase/Edge Function/
 Vercel/DNS/wallet/GitHub config changes by Claude. No finding marked closed
 by Claude. No QA-pass or launch-readiness declaration made.
+
+---
+
+## Session Activity — 2026-06-03 (post-deployment) — Claude
+
+**Task ID:** TASK-LAUNCH-READINESS remediation completion verification
+**Status:** Four launch-readiness fixes applied, verified live, QA findings log updated
+**Role:** Claude / QA Verification
+**Summary:** Lovable completed all four remaining remediation issues and deployed to production (2026-06-03). Claude verified all acceptance criteria against live production URLs and updated source-of-truth QA findings log.
+
+### Fixes Applied & Verified
+
+| Issue | Fix | Verification |
+|---|---|---|
+| **QA-004** | Root route auto-redirect for authenticated users (getSession + onAuthStateChange) | ✅ Verified: signed-in → /dashboard, no-session → form |
+| **QA-005** | /update-password recovery context check (PASSWORD_RECOVERY event or active session) | ✅ Verified: no-session → "invalid link", recovery email → form |
+| **QA-006** | /verify-demo route deleted entirely (David disposition: remove) | ✅ Verified: route returns 404, codebase grep "verify-demo" returns 0 |
+| **QA-008** | OG/Twitter images now at https://app.passtodigital.com/og-image.jpg (PassTo-controlled) | ✅ Verified: live view-source shows PassTo domain, image serves 200 OK |
+
+### Acceptance Criteria Met
+
+- QA-004: All 4 criteria ✅
+- QA-005: All 3 criteria ✅  
+- QA-006: All 4 criteria ✅
+- QA-008: All 5 criteria ✅
+
+### Source-of-Truth Updates
+
+Updated `docs/activity_log/QA_FINDINGS_LOG.md`:
+- QA-004: status `open` → `applied`
+- QA-005: status `open` → `applied`
+- QA-006: status `decision_pending` → `applied`
+- QA-008: status `applied_partial` → `applied`
+
+Aggregate status: 11 findings now {5 applied, 2 codex_verification_requested, 4 codex_verified} (0 open, 0 decision_pending, 0 applied_partial)
+
+### Production Evidence
+
+**Live URLs verified:**
+- `https://app.passtodigital.com/` (authenticated redirect working)
+- `https://app.passtodigital.com/update-password` (recovery context check working)
+- `https://app.passtodigital.com/verify-demo` (route not found)
+- `https://app.passtodigital.com/og-image.jpg` (image accessible, PassTo-branded)
+
+**Curl verification:**
+- og:image meta tag: `https://app.passtodigital.com/og-image.jpg` ✅
+- twitter:image meta tag: `https://app.passtodigital.com/og-image.jpg` ✅
+
+### Next Steps
+
+Remaining items for launch readiness:
+- **QA-001, QA-009**: Codex verification requested (already marked in findings log)
+- **All 11 findings**: Once Codex verifies QA-001 and QA-009, full QA pass + launch readiness sign-off
+
+### Files Committed
+
+- `docs/activity_log/QA_FINDINGS_LOG.md` — updated with completion of QA-004, 005, 006, 008
+
+Commit: 1aec3d7 (pushed to main)
