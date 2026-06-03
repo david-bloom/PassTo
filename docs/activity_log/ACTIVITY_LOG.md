@@ -4,6 +4,29 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+
+## Codex Verification of Manual E2E QA Findings — 2026-06-03 — Codex
+
+**Scope:** Verify applied findings QA-002, QA-003, QA-007, QA-010, and QA-011 against source/live evidence.  
+**Approval / Authority:** David requested publish after QA findings log publication; QA Agent boundaries preserved.  
+**Files Updated:** `docs/activity_log/QA_FINDINGS_LOG.md`
+
+### Proposed Status Updates Recorded
+
+| Finding | Recorded status | Evidence summary |
+|---|---|---|
+| QA-002 | `codex_verified` | Deployed App bundle no longer queries `profiles.license_id`; login handler now uses profile `id` plus separate `licenses` lookup. |
+| QA-003 | `applied` | Live `share-link-create` CORS accepts App origin and QA evidence shows App-host share URL. Codex could not independently read the Supabase secret or create a fresh authenticated link because Supabase MCP auth was expired and no test auth token was available. |
+| QA-007 | `codex_verified` | Deployed App bundle renders neutral per-provider wallet cards and exact `not_attempted` copy. |
+| QA-010 | `codex_verified` | Deployed App bundle renders authenticated `AppHeader` with PassTo wordmark, email chip/menu, and Supabase sign-out action. |
+| QA-011 | `codex_verified` | Enroll `/post-login` returns HTTP 200 and deployed bundle routes profile state to enrollment steps or App dashboard. |
+
+### Boundaries
+
+No findings were closed. No QA-pass, Done, risk-acceptance, issue-closure, deployment, migration, secret, Supabase, Stripe, Vercel, wallet-provider, or launch-readiness decision was made. QA-001 and QA-009 remain awaiting Codex verification; QA-004 and QA-005 remain open; QA-006 remains decision-pending; QA-008 remains applied-partial.
+
+---
+
 ## TASK-0065 Created — 2026-06-02 — Codex
 
 **Task:** TASK-0065 — Fix Supabase Auth Password Reset Redirect URL  
