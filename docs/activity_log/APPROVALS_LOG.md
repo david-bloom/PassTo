@@ -844,3 +844,51 @@ This approval explicitly does NOT cover:
 - Frontend launch-readiness items surfaced during QA (see `LOVABLE_PROMPT_2026-06-02_APP_LAUNCH_READINESS.md`).
 
 Codex QA on the implementation remains required before TASK-0066 can be marked Done. End-to-end share-link → verifier exercise blocked on Lovable applying the Share Credential button wiring (see launch-readiness prompt).
+
+---
+
+## APPROVAL-0028 — QA-003 Remediation: SHARE_LINK_BASE_URL Supabase Secret Set
+
+**Date:** 2026-06-03
+**Approved By:** David (applied directly during QA run)
+**Related Task:** QA-003 (share-link-create returning wrong host in share_url)
+**Decision:** Applied — Supabase secret configured
+
+### Summary
+
+During the 2026-06-03 manual E2E QA run, QA finding QA-003 identified that the
+`share-link-create` Edge Function was returning `share_url` values pointing to
+`https://passtodigital.com/v/…` (the marketing domain) rather than
+`https://app.passtodigital.com/v/…` (the App domain where `/v/:token` is
+deployed). The root cause was the Supabase secret `SHARE_LINK_BASE_URL` not
+being set, causing the function to fall through to its hardcoded default
+(`https://passtodigital.com/v`).
+
+David set the secret directly in the Supabase dashboard during the QA run.
+No Edge Function code change or redeployment was required — the function
+reads the env var fresh on each invocation.
+
+### Approval Checklist
+
+- [x] Confirmed root cause: `SHARE_LINK_BASE_URL` secret absent from project
+  `wvzjfxacykgsaffskgtr`.
+- [x] Set `SHARE_LINK_BASE_URL = https://app.passtodigital.com/v` in Supabase
+  project secrets.
+- [x] Verified: new share link generated after secret set shows
+  `https://app.passtodigital.com/v/…` host (QA Agent confirmed via URL pattern).
+- [x] Verified: prior token exercised end-to-end by rewriting host; verifier
+  flow confirmed working (QA-A7, QA-A8, QA-A9 all passed).
+
+### Notes
+
+This approval covers the secret configuration change only. It does not cover:
+
+- Any Edge Function source changes (none were made).
+- Production launch or task Done decisions.
+- Changes to the hardcoded default in function source (recommend updating
+  source default to `https://app.passtodigital.com/v` as a belt-and-suspenders
+  fix in a future Lovable/Edge Function cycle — not required given secret is
+  now set).
+
+Codex should verify the secret is present and correct in the Supabase project
+secrets list as part of QA-003 codex_verification_requested review.
