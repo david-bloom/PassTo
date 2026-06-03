@@ -3141,3 +3141,67 @@ Task spec target was `enroll.passtodigital.com`. Live app is at `app.passtodigit
 ### Outstanding QA
 
 Live password reset email test required — trigger reset, inspect link host, confirm `app.passtodigital.com` not `localhost`, verify update-password route works.
+
+---
+
+## TASK-0065 Remediation + TASK-0066 Spawned — 2026-06-02 — Claude
+
+**Approval:** APPROVAL-0026 (Codex Approve-With-Modifications, relayed by David)
+**Scope:** Supabase Auth URL Configuration correction + Lovable instruction prompts. No Edge Function deployments. No code changes.
+
+### Context: 3-app architecture clarified
+
+David clarified that PassTo MVP runs across three Lovable projects:
+
+| Project | Lovable ID | Domain | Purpose |
+|---|---|---|---|
+| Marketing | `6c973fd1-2dcd-4377-8c98-4d2f0d68732e` | (TBD) | Landing |
+| Enrollment | `d279ccd3-8397-4e7b-933c-8f5c8468d19e` | `enroll.passtodigital.com` | Sign-up, ID verification, license, wallet pass setup |
+| App | `9a223cc4-ef58-43d4-929a-4c0424b586c2` | `app.passtodigital.com` | Nurse dashboard, share-link, `/v/:token`, password reset, account |
+
+### What went wrong
+
+After TASK-0065's initial implementation set Site URL to `https://app.passtodigital.com`, David reported a 404 at `https://app.passtodigital.com/id-verification` after login. Claude misdiagnosed this as the Lovable dashboard and verifier prompts having been applied to the wrong project. Claude began reverting Supabase Auth URL Configuration toward `enroll.passtodigital.com`; changed Site URL back to `enroll`, did not touch the redirect URLs. This produced an inconsistent half-state.
+
+David's architecture clarification confirmed the original `app.passtodigital.com` Site URL was correct. The 404 root cause is the enrollment-app routing nurses to the Site URL host (which does not own `/id-verification`), and the fix is explicit Lovable `redirectTo` values, not further Supabase URL config changes.
+
+### What Codex approved (APPROVAL-0026)
+
+Final Supabase Auth URL Configuration applied 2026-06-02:
+
+| Setting | Final value |
+|---|---|
+| Site URL | `https://app.passtodigital.com` |
+| Redirect URL 1 | `https://app.passtodigital.com/update-password` |
+| Redirect URL 2 | `https://app.passtodigital.com/reset-password` |
+| Redirect URL 3 | `https://app.passtodigital.com/dashboard` |
+| Redirect URL 4 | `https://enroll.passtodigital.com/post-login` |
+| Redirect URL 5 | `https://enroll.passtodigital.com/id-verification` |
+
+`app.passtodigital.com/**` wildcard removed per Codex guidance against broad production wildcards.
+
+Verification: dashboard reported "Successfully updated site URL" and "Successfully removed URL(s)" toasts; final state shows "Total URLs: 5".
+
+### Companion Lovable prompts produced (not yet applied)
+
+- `docs/tasks/LOVABLE_PROMPT_2026-06-02_TASK0065_ENROLLMENT_REDIRECT.md` — instructs the Enrollment Lovable project to pass explicit `emailRedirectTo` at every Supabase Auth call site so mid-onboarding nurses stay on `enroll.passtodigital.com`.
+- `docs/tasks/LOVABLE_PROMPT_2026-06-02_TASK0065_APP_RESET.md` — instructs the App Lovable project to pass explicit `redirectTo` for `resetPasswordForEmail` and to route partially-enrolled nurses back to `enroll.passtodigital.com/post-login` after sign-in.
+
+### TASK-0066 spawned
+
+Codex required Edge Function CORS allow-list changes for `dashboard-status`, `share-link-create`, and `token-verify` to be routed to a separate approved task. Spec drafted at `docs/tasks/TASK-0066.md` — Status: Spec Drafted — Awaiting David Approval. TASK-0066 includes a David decision gate on whether `token-verify` should lock to `app.passtodigital.com` (Claude's recommendation) or retain `*` as an intentional public anonymous endpoint.
+
+### What did NOT happen this session
+
+- No Edge Function source changes.
+- No Edge Function redeployments.
+- No database migrations, RLS changes, or secrets changes.
+- No Lovable code changes — only instruction prompts produced for Lovable.
+- No production launch decision; no Done/closure decision on TASK-0065.
+
+### Outstanding work
+
+1. David approves TASK-0066 (and chooses `token-verify` CORS option A vs B). Claude executes once approved.
+2. Lovable applies the two redirect prompts to the enrollment and app projects.
+3. Live QA: password reset round-trip on the app; sign-up round-trip on the enrollment app; mid-onboarding sign-in stays on enroll.
+4. Codex re-QA on TASK-0065 after the full chain is verified live.
