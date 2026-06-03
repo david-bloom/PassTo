@@ -756,3 +756,47 @@ David approved TASK-0004 — Create Lovable/Supabase/Vercel Responsibility Map a
 ### Notes
 
 Approval captured from David’s confirmation: “TASK-0004 — Create Lovable/Supabase/Vercel Responsibility Map Approved” and follow-up instruction: “restart creating TASK-0004 as a documentation/architecture task, then add the responsibility map that defines what Lovable, Supabase, and Vercel each own for MVP.”
+
+---
+
+## APPROVAL-0026 — TASK-0065 Remediation Approve-With-Modifications (Codex)
+
+**Date:** 2026-06-02
+**Approved By:** Codex (technical), David (relayed)
+**Related Task:** TASK-0065 remediation; spawns TASK-0066
+**Decision:** Approve With Modifications
+
+### Summary
+
+Codex reviewed Claude's proposed correction of TASK-0065 after an in-session misdiagnosis left the Supabase Auth URL Configuration in a half-state. Codex approved the App-domain Site URL target with modifications: replace `app.passtodigital.com/**` wildcard with exact production paths, add enrollment-domain redirects so the Enrollment Lovable project's auth callbacks land on their own domain, and route Edge Function CORS changes to a separate approved task because they are outside TASK-0065's approval boundary.
+
+### Approval Checklist
+
+- [x] Approve Supabase Site URL `https://app.passtodigital.com` (post-onboarding nurse app).
+- [x] Approve redirect allow-list of exact production paths only (no broad wildcards):
+  - `https://app.passtodigital.com/update-password`
+  - `https://app.passtodigital.com/reset-password`
+  - `https://app.passtodigital.com/dashboard`
+  - `https://enroll.passtodigital.com/post-login`
+  - `https://enroll.passtodigital.com/id-verification`
+- [x] Approve Lovable enrollment project (`d279ccd3-…`) `emailRedirectTo` correction targeting `enroll.passtodigital.com/post-login` (or `/id-verification` fallback) at every Supabase Auth call site.
+- [x] Approve Lovable app project (`9a223cc4-…`) `resetPasswordForEmail` `redirectTo` set to `https://app.passtodigital.com/update-password`.
+- [x] Approve client-side post-`signInWithPassword` routing based on profile/onboarding state, not Site URL fallback.
+- [x] Route Edge Function CORS allow-list changes to a separate task (TASK-0066) requiring its own David approval.
+
+### Notes
+
+Codex verdict text was relayed by David in the Claude session. Codex referenced Supabase Redirect URLs documentation, Supabase `redirectTo` troubleshooting, and Supabase password reset docs as sources for the wildcard guidance.
+
+This approval covers:
+
+- Supabase Auth URL Configuration change for project `wvzjfxacykgsaffskgtr` (applied 2026-06-02 — verified Total URLs: 5).
+- Lovable instruction prompts produced for both the enrollment and app projects.
+- Documentation updates to TASK-0065, ACTIVITY_LOG, and this APPROVALS_LOG.
+
+This approval explicitly does NOT cover:
+
+- Edge Function source changes, redeployments, or CORS allow-list updates (route to TASK-0066).
+- Database migrations, RLS, secrets.
+- Production launch, task Done decisions, or issue closure.
+- Broad wildcard redirect allow-list entries beyond trusted PassTo domains.
