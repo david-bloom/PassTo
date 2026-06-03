@@ -1,7 +1,7 @@
 # PRD Phase 5 Task List — Dashboard and Share-Link Verification
 
 **Phase:** Phase 5 — Dashboard and Share-Link Verification  
-**Status:** Created — Awaiting David Approval for Execution  
+**Status:** Execution and QA Evidence Reconciled — Awaiting David Review  
 **Created:** 2026-06-02  
 **Owner:** David Bloom  
 **Execution Support:** Codex and Claude  
@@ -19,11 +19,11 @@ This document does not authorize implementation, migration execution, deployment
 
 | Phase Item | Task ID | Task | Owner | Status | Depends On |
 |---|---|---|---|---|---|
-| 5.1 | TASK-0055 | Implement Nurse Dashboard Launch-Critical Status View | Claude / Lovable | Spec Drafted — Awaiting David Approval | Phase 4, TASK-0052 |
-| 5.2 | TASK-0056 | Implement Share-Link Token Creation Function | Claude | Spec Drafted — Awaiting David Approval | TASK-0055, TASK-0040 entitlement state |
-| 5.3 | TASK-0057 | Implement Verifier Token Validation Function | Claude | Spec Drafted — Awaiting David Approval | TASK-0056 |
-| 5.4 | TASK-0058 | Implement `/v/{token}` Verifier Flow | Claude / Lovable | Spec Drafted — Awaiting David Approval | TASK-0057 |
-| 5.5 | TASK-0059 | Codex QA Phase 5 Dashboard and Share-Link Verification | Codex | Spec Drafted — Awaiting David Approval | TASK-0055 through TASK-0058 |
+| 5.1 | TASK-0055 | Implement Nurse Dashboard Launch-Critical Status View | Claude / Lovable | Live UI QA Verified — Awaiting David Review | Phase 4, TASK-0052 |
+| 5.2 | TASK-0056 | Implement Share-Link Token Creation Function | Claude | Live E2E Exercised — Awaiting David Review | TASK-0055, TASK-0040 entitlement state |
+| 5.3 | TASK-0057 | Implement Verifier Token Validation Function | Claude | Live Verifier Flow Exercised — Awaiting David Review | TASK-0056 |
+| 5.4 | TASK-0058 | Implement `/v/{token}` Verifier Flow | Claude / Lovable | Live UI QA Verified — Awaiting David Review | TASK-0057 |
+| 5.5 | TASK-0059 | Codex QA Phase 5 Dashboard and Share-Link Verification | Codex | QA Evidence Recorded — Awaiting David Review | TASK-0055 through TASK-0058 |
 
 ## Relationship to Earlier Tasks
 
@@ -52,6 +52,13 @@ This Phase 5 task set supersedes those high-level drafts for execution granulari
 - `/v/{token}` handles valid, expired, used, revoked, malformed, and unknown tokens safely.
 - Verifier and verification event records are written in backend-owned state.
 - Codex QA passes the full Phase 5 scope or records blockers/deferrals.
+
+
+## Status Reconciliation - 2026-06-03 - Codex
+
+Phase 5 execution and QA evidence have been recorded in the individual task files, 'docs/activity_log/ACTIVITY_LOG.md', and 'docs/activity_log/QA_FINDINGS_LOG.md'. The phase inventory now reflects the current state as awaiting David review rather than awaiting initial execution approval.
+
+No Phase 5 task is marked Done by this reconciliation.
 
 ## Approval Boundary
 
