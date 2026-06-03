@@ -1,0 +1,145 @@
+API Overview
+Stop letting non-compliant nurse hires sit in your pipeline. The Nurse License Verification API returns real-time RN, APRN, and LVN license status from official state nursing board portals across 31 states in a single call. Replace hours of manual board-by-board lookups with a structured JSON response your credentialing or staffing workflow can act on in milliseconds.
+Compliance and revenue are the same problem. A travel nurse with a lapsed Texas RN sitting on a contracted shift is a clawback waiting to happen. A psychiatric NP placed in New York without an active 040 specialty registration is a Joint Commission audit finding. A staffing agency that submits a credentialing packet with stale license data eats the rebill. This API exists so the verification step in front of those failure modes is a function call instead of a person manually loading 31 different state board websites.
+Coverage, stated honestly:
+	•	Full RN and APRN verification in New York (16 NP specialties including Psychiatry, code 040) and California (RN, NP, and LVN by license type).
+	•	RN-only verification in Florida, Texas, and 28 additional states.
+	•	31 states confirmed live and covered by nightly smoke tests.
+	•	19 states are excluded by structural blockers we will not work around silently. Cloudflare WAF, FormShield, Incapsula, reCAPTCHA, and similar bot-mitigation layers prevent reliable scraping. We would rather you self-select on accurate scope than discover a gap in production.
+What you get back on every verify call:
+	•	License number, full name, license type, status (Active, Inactive, Expired, Suspended, etc.), issue date, expiration date, and discipline data when the state board exposes it.
+	•	A single normalized response shape across all 31 states. State boards present this data in 31 different ways. We do not pass that mess to you.
+	•	Source URL pointing at the underlying state board record, so your audit trail terminates at a public, citable government source.
+When to use which endpoint:
+	•	Use /verify when you have a license number. This is the fast path, hits the state board directly, and returns the full record. Hard recommendation for batch credentialing workflows.
+	•	Use /search when you only have a name. Returns matching records you then resolve down with /verify. Slower (some states require CAPTCHA solves) and not all states return complete fields on search.
+Common integration patterns:
+	•	Pre-hire credentialing: call /verify on every license number in an applicant packet before the recruiter ever opens the file.
+	•	Ongoing roster monitoring: re-verify your active nurse roster on a 30 or 60 day cadence to catch lapses before the next pay period.
+	•	Pre-shift compliance gates: insert a /verify call into your scheduling system so an expired license cannot be assigned to a covered shift.
+	•	Audit prep: pull a fresh verification record on every active credential 7 days before a Joint Commission, NCQA, or payer delegation audit.
+Built and maintained by AG Global Innovations LLC. Real-time scraping against official state nursing board portals, no stale third-party database, no resold dataset, no PHI ever touched. Status page at api.licenseapi.dev. Direct support at contact@licenseapi.dev for rate limit increases, additional state requests, and enterprise pilots.
+Verify RN, APRN, and LVN licenses across 31 states in one API call. Catch lapsed, suspended, or fake credentials before a non-compliant hire costs you the contract.
+Nurse License Verification API
+Real-time RN, APRN, and LVN license verification across 31 US states. Replace manual state-board lookups with a single normalized API call.
+Quick Start
+The Nurse License Verification API returns real-time license status (Active, Inactive, Expired, Suspended) from official state nursing board portals. Authenticate every request with the standard RapidAPI headers X-RapidAPI-Key and X-RapidAPI-Host. The Free (BASIC) tier includes 50 requests per month and full access to all 31 supported states, which is sufficient for evaluation and integration testing. When you have a license number, use POST /verify; when you only have a name, use GET /search.
+Authentication
+All requests are authenticated via RapidAPI's standard gateway headers. No separate API key is required beyond your RapidAPI key.
+X-RapidAPI-Key: YOUR_RAPIDAPI_KEY
+X-RapidAPI-Host: nurse-license-verification.p.rapidapi.com
+Your RapidAPI key is available in your RapidAPI dashboard. The host header must match the listing exactly.
+Endpoints
+POST /verify
+Verify a nurse license by license number and state. Returns the full structured license record including license number, full name, license type (RN, NP, APRN, LVN, CN), status, issue and expiration dates, and discipline data when the state board exposes it. This is the fast path and the recommended primary endpoint for credentialing workflows. Expect 200ms to 1.5s on warm states, longer on states with CAPTCHA challenges.
+curl example:
+curl -X POST 'https://nurse-license-verification.p.rapidapi.com/verify' \
+  -H 'X-RapidAPI-Key: YOUR_RAPIDAPI_KEY' \
+  -H 'X-RapidAPI-Host: nurse-license-verification.p.rapidapi.com' \
+  -H 'Content-Type: application/json' \
+  -d '{"state": "TX", "license_number": "751234"}'
+JavaScript fetch example:
+const response = await fetch('https://nurse-license-verification.p.rapidapi.com/verify', {
+  method: 'POST',
+  headers: {
+    'X-RapidAPI-Key': 'YOUR_RAPIDAPI_KEY',
+    'X-RapidAPI-Host': 'nurse-license-verification.p.rapidapi.com',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ state: 'TX', license_number: '751234' })
+});
+const data = await response.json();
+Sample JSON response:
+{
+  "state": "TX",
+  "license_number": "751234",
+  "full_name": "JANE A SMITH",
+  "license_type": "RN",
+  "license_status": "Active",
+  "issue_date": "2015-06-12",
+  "expiration_date": "2026-08-31",
+  "discipline": [],
+  "source_url": "https://www.bon.texas.gov/..."
+}
+GET /search
+Search a state's nursing board by name. Returns matching license records you then resolve down with /verify. Use this when you do not have a license number in hand. Some states (notably NY) do not return status or expiration on search alone. California requires up to 3 CAPTCHA solves per search and can take 15 to 70 seconds.
+curl example:
+curl -X GET 'https://nurse-license-verification.p.rapidapi.com/search?state=NY&name=Smith' \
+  -H 'X-RapidAPI-Key: YOUR_RAPIDAPI_KEY' \
+  -H 'X-RapidAPI-Host: nurse-license-verification.p.rapidapi.com'
+JavaScript fetch example:
+const url = 'https://nurse-license-verification.p.rapidapi.com/search?state=NY&name=Smith';
+const response = await fetch(url, {
+  method: 'GET',
+  headers: {
+    'X-RapidAPI-Key': 'YOUR_RAPIDAPI_KEY',
+    'X-RapidAPI-Host': 'nurse-license-verification.p.rapidapi.com'
+  }
+});
+const data = await response.json();
+Sample JSON response:
+{
+  "state": "NY",
+  "query": "Smith",
+  "results": [
+    {
+      "license_number": "612345",
+      "full_name": "SMITH, JANE A",
+      "license_type": "RN"
+    },
+    {
+      "license_number": "612801",
+      "full_name": "SMITH, JOHN B",
+      "license_type": "NP"
+    }
+  ],
+  "result_count": 2
+}
+GET /states
+List all supported states and the verification capabilities available for each (RN, NP, APRN, LVN). Call this at integration time to understand exactly what is and is not in scope before your workflow hits an unsupported_state error in production.
+curl example:
+curl -X GET 'https://nurse-license-verification.p.rapidapi.com/states' \
+  -H 'X-RapidAPI-Key: YOUR_RAPIDAPI_KEY' \
+  -H 'X-RapidAPI-Host: nurse-license-verification.p.rapidapi.com'
+JavaScript fetch example:
+const response = await fetch('https://nurse-license-verification.p.rapidapi.com/states', {
+  method: 'GET',
+  headers: {
+    'X-RapidAPI-Key': 'YOUR_RAPIDAPI_KEY',
+    'X-RapidAPI-Host': 'nurse-license-verification.p.rapidapi.com'
+  }
+});
+const data = await response.json();
+Sample JSON response:
+{
+  "supported_states": [
+    {"code": "NY", "capabilities": ["RN", "NP", "APRN"]},
+    {"code": "CA", "capabilities": ["RN", "NP", "LVN"]},
+    {"code": "TX", "capabilities": ["RN"]},
+    {"code": "FL", "capabilities": ["RN"]}
+  ],
+  "total_states": 31
+}
+GET /health
+Liveness probe. Returns 200 when the API is reachable. Use this in your monitoring stack to confirm dependency availability.
+curl example:
+curl -X GET 'https://nurse-license-verification.p.rapidapi.com/health' \
+  -H 'X-RapidAPI-Key: YOUR_RAPIDAPI_KEY' \
+  -H 'X-RapidAPI-Host: nurse-license-verification.p.rapidapi.com'
+Sample JSON response:
+{"status": "ok"}
+Common Errors
+	•	unsupported_state: Returned when the requested state is not in the supported set (19 states are excluded by structural blockers like Cloudflare WAF, FormShield, Incapsula, or reCAPTCHA). Call /states to see the current supported list before retrying.
+	•	400 invalid_input: Missing or malformed required fields (state must be a two-letter code, license_number must be present). The error body indicates which field failed validation. Fix the request payload and resubmit.
+	•	404 not_found: The state board returned no matching record for the supplied license number. Confirm the license number and state with the caller, or fall back to /search by name.
+	•	429 rate_limited: You exceeded your tier's per-minute or per-month request quota. Back off and retry, or upgrade your tier in the RapidAPI Monetize tab.
+	•	5xx upstream_unavailable: The state board portal is down, in maintenance, or rate-limiting our scraper. State boards do not publish maintenance schedules. Retry with exponential backoff; persistent failures should be reported to contact@licenseapi.dev.
+Rate Limits
+Per-tier monthly quotas are BASIC 50, PRO 2,000, ULTRA 10,000, and MEGA 50,000 requests per month. Soft per-minute caps apply on lower tiers (BASIC and PRO are throttled more aggressively to protect upstream state boards). Overage pricing scales down at higher tiers. See the Monetize tab for the canonical pricing table and overage rates.
+Coverage
+	•	Full RN and APRN verification: New York (16 NP specialties including Psychiatry code 040), California (RN, NP, LVN by license type).
+	•	RN verification: Florida, Texas, and 28 additional states.
+	•	31 states total, smoke-confirmed nightly.
+	•	19 states excluded by structural blockers (Cloudflare WAF, FormShield, Incapsula, reCAPTCHA, persistent 5xx). Call GET /states for the live supported list.
+Changelog
+	•	2026-04-25: Initial public listing.
