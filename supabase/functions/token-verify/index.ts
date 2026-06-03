@@ -36,8 +36,11 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  // Public verifier endpoint — no credential cookies; token hash provides auth.
-  "Access-Control-Allow-Origin":  "*",
+  // Public verifier endpoint — token hash provides auth. CORS locked to App domain
+  // (TASK-0066 Option A, 2026-06-02). MVP scope: /v/:token surface hosted on
+  // app.passtodigital.com only. Revisit if a documented third-party integration
+  // needs direct cross-origin access.
+  "Access-Control-Allow-Origin":  "https://app.passtodigital.com",
   "Access-Control-Allow-Headers": "content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
