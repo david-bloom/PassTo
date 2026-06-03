@@ -3258,3 +3258,64 @@ The CORS deployment happened three times this session due to an evidence/attribu
 2. Lovable applies the launch-readiness prompt to the App project.
 3. End-to-end share-link → verifier round-trip exercised on app.passtodigital.com.
 4. Codex re-QA against the live App + Edge Function state.
+
+---
+
+## Manual E2E QA Run — 2026-06-03 — Claude (QA Agent)
+
+**Scope authority:** `docs/team_charter/PASSTO_MANUAL_E2E_QA_SCOPE.md` v3,
+commit `085104a` (branch `codex/manual-e2e-qa-scope`)
+**Domains tested:** `app.passtodigital.com`, `enroll.passtodigital.com`
+**Test identities:** `test-nurse-001@passtodigital.com` (Block-B seeded),
+`test-nurse-002@passtodigital.com` (fresh auth user, no seed)
+
+### 11 findings raised
+
+See `docs/activity_log/QA_FINDINGS_LOG.md` for full finding records.
+
+| ID | Severity | Title | Final Status |
+|---|---|---|---|
+| QA-001 | P0 | Share Credential UI was "Coming Soon" | `codex_verification_requested` |
+| QA-002 | P0 | `profiles.license_id` 400 bug — blocked every fresh login | `codex_verification_requested` |
+| QA-003 | P0 | `share-link-create` returned wrong host in share_url | `codex_verification_requested` |
+| QA-004 | P1 | `/` no redirect for signed-in users | `open` |
+| QA-005 | P1 | `/update-password` no recovery-context check | `open` |
+| QA-006 | P1 | `/verify-demo` exposes fabricated credentials | `decision_pending` |
+| QA-007 | P1 | "Wallet Passes Preparing" copy for not_attempted state | `codex_verification_requested` |
+| QA-008 | P2 | Lovable default metadata — partial fix (OG image URL remaining) | `applied_partial` |
+| QA-009 | P2 | Inconsistent page titles per route | `codex_verification_requested` |
+| QA-010 | P1 | No header / nav / sign-out on /dashboard | `codex_verification_requested` |
+| QA-011 | P0 | enroll `/post-login` route missing — 404 on partial-nurse cross-domain handoff | `codex_verification_requested` |
+
+### Tests that passed (within scope)
+
+QA-A1, QA-A3, QA-A4, QA-A5, QA-A6 (post-fix), QA-A7, QA-A8, QA-A9,
+QA-A10, QA-A12, QA-A13 (inspect-only), QA-E1, QA-E2 (ID.me sandbox
+redirect handshake), QA-011 cold + authenticated cross-domain path.
+
+### Fixes applied during run
+
+- **QA-002** (Lovable): `profiles.license_id` removed from App post-signin
+  SELECT. Verified live at 15:10 UTC.
+- **QA-003** (David): `SHARE_LINK_BASE_URL` Supabase secret set to
+  `https://app.passtodigital.com/v`. Approval recorded as APPROVAL-0028.
+- **QA-011** (Lovable enroll): `/post-login` route implemented. Verified
+  cold + authenticated paths both resolve to `/id-verification`.
+- **QA-007, QA-009, QA-010** (Lovable App): Wallet copy rewritten per-provider;
+  per-route titles set; AppHeader with sign-out added. All visually verified
+  by QA Agent.
+- **QA-008** (Lovable App): Partial fix — title/og-title/badge resolved;
+  OG/Twitter image URL still on Lovable CDN (remaining gap).
+- **QA-001** (Lovable App, pre-run): Share Credential button wired to
+  share-link-create Edge Function. Verified working during run.
+
+### Deferred scopes
+
+- Block E (ID.me sandbox completion past IAL1 wall)
+- Block S (Stripe sandbox — no upgrade surface reachable from current App)
+
+### Scope compliance
+
+No real PII used. No secrets/tokens captured. No Supabase/Edge Function/
+Vercel/DNS/wallet/GitHub config changes by Claude. No finding marked closed
+by Claude. No QA-pass or launch-readiness declaration made.
