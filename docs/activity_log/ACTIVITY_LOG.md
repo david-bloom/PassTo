@@ -4,6 +4,34 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0060 Authentication Blocker Identified - 2026-06-04 (Afternoon) - Claude
+
+**Task:** TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness
+**Status:** Blocked on user authentication
+**Blocker Type:** Supabase Auth JWT unavailable in Lovable
+**Files Updated:** `docs/tasks/TASK-0060.md`
+
+### Summary
+
+Claude positioned test profile into payment-ready state (`onboarding_step = payment`, `subscription_tier = standard`) and verified Edge Function readiness. All infrastructure is in place: `stripe-checkout-create` is live v13, all Stripe secrets are configured, and the database profile is correctly positioned.
+
+However, the user cannot authenticate into Lovable to initiate the Stripe checkout because Supabase Auth JWT generation is failing. Edge Function logs show all recent POST requests from Lovable return 401 Unauthorized.
+
+### Root Cause
+
+1. Password-based login does not work (previous password hash compatibility issue)
+2. Password recovery email API is returning "Unable to process request"
+3. Frontend provides no login form; redirect loops to ID.me flow
+
+### Blocking Path Forward
+
+User authentication must be re-established before real Stripe checkout can be exercised. Unblock requires one of:
+- User re-enrolls through ID.me flow (but license lookup may fail per user report)
+- Password recovery email is fixed and new password set
+- Direct admin session generation is explicitly approved by David
+
+---
+
 ## TASK-0060 Live Recheck - 2026-06-04 - Codex
 
 **Task:** TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness
