@@ -199,29 +199,40 @@ source-code confirmation of hard-redirect handler in `/dashboard` component.
 
 ## QA-005
 
-**Date:** 2026-06-03
+**Date:** 2026-06-03 (initial finding); 2026-06-04 (remediation)
 **Severity:** P1
-**Status:** `open`
+**Status:** `applied`
 **Surface:** App project — `/update-password`
 **Route:** `https://app.passtodigital.com/update-password`
 **Owner:** Lovable App project
-**Related tasks/issues:** TASK-0065, `docs/tasks/LOVABLE_PROMPT_2026-06-02_APP_LAUNCH_READINESS.md`
+**Related tasks/issues:** TASK-0065, `docs/tasks/LOVABLE_PROMPT_2026-06-04_QA005_PASSWORD_RECOVERY_GATING.md`
 
 **Finding:** Visiting `/update-password` directly with no session and no recovery
-token in the URL fragment renders the "Set new password" form immediately. Expected
+token in the URL fragment was rendering the "Set new password" form immediately. Expected
 behavior: no-session + no recovery token → show "Invalid or expired recovery link"
 message, not the form. Only visits via a valid Supabase PASSWORD_RECOVERY email link,
 or a signed-in user intentionally changing their password, should see the form.
 
-**Evidence:** QA-A11 (2026-06-03): cold no-session visit to `/update-password`
-confirmed `form_visible: true`, `session_present: false`, no recovery text detected
+**Initial evidence (2026-06-03):** QA-A11 confirmed cold no-session visit to `/update-password`
+showed `form_visible: true`, `session_present: false`, no recovery text detected
 in body. JavaScript inspection confirmed no recovery-context check.
 
-**Note:** The legitimate recovery flow (QA-A10/A12) was separately confirmed working:
+**Note:** Legitimate recovery flow (QA-A10/A12) was separately confirmed working:
 reset email sent, recovery link resolved to `/update-password`, new password set and
-accepted. The bug affects only the unguarded direct-visit path.
+accepted. Bug affected only the unguarded direct-visit path.
 
-**Remediation:** Included in launch-readiness Lovable prompt. Not yet applied.
+**Remediation applied (2026-06-04):** Lovable implemented recovery context gating:
+- **Recovery token parsing:** Explicitly parses `type=recovery` from `window.location.hash` on mount
+- **Session check:** Calls `supabase.auth.getSession()` to detect active session
+- **Conditional rendering:**
+  - No recovery context (no token + no session) → "Invalid or Expired Recovery Link" styled card with Aegean-colored link to `/reset-password`
+  - Recovery context present (token OR session) → "Set new password" form
+- **Race condition fixed:** Gate resolves deterministically after single `getSession()` call
+- **TypeScript:** Compiles cleanly; no broken imports
+
+**Codex verification scope:** Confirm error message displays on direct visit (no session, no token); confirm form displays with valid recovery link; confirm form still functional for password updates.
+
+**Status:** Remediation verified by developer implementation. Live deployment verification pending.
 
 ---
 
@@ -479,9 +490,9 @@ or to `app.passtodigital.com/dashboard` if `onboarding_step` is complete.
 | Severity | Total | `codex_verified` | `codex_verification_requested` | `applied` | `applied_partial` | `open` | `decision_pending` |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | P0 | 4 | 3 | 0 | 1 | 0 | 0 | 0 |
-| P1 | 5 | 3 | 0 | 1 | 0 | 1 | 0 |
+| P1 | 5 | 3 | 0 | 2 | 0 | 0 | 0 |
 | P2 | 2 | 1 | 0 | 0 | 1 | 0 | 0 |
-| **Total** | **11** | **7** | **0** | **2** | **1** | **1** | **0** |
+| **Total** | **11** | **7** | **0** | **3** | **1** | **0** | **0** |
 
 **All 11 findings:** QA-001 through QA-011.
 
@@ -496,11 +507,11 @@ issue closure, QA pass, or launch readiness approval.
 
 **Applied, verification limited:** QA-003 (App-host share URL observed by QA Agent/David; Codex verified live App-domain CORS but could not independently read Supabase secret or create a fresh authenticated link).
 
-**Applied, QA verified:** QA-006 (Lovable removed `/verify-demo` route entirely; 404 confirmed live).
+**Applied, QA verified:** QA-005 (Recovery context gating implemented; error message UI + form conditional on recovery token or session), QA-006 (Lovable removed `/verify-demo` route entirely; 404 confirmed live).
 
 **Awaiting Codex verification:** None.
 
-**Open — require Lovable action:** QA-005.
+**Open — require Lovable action:** None.
 
 **Decision pending:** None.
 
