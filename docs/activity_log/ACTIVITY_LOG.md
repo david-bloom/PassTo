@@ -4,6 +4,44 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0060 Execution Attempt Blocked - 2026-06-04 - Codex
+
+**Task:** TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness
+**Status:** Blocked — Payment-step test profile required
+**Approval Record:** APPROVAL-0031
+**Files Updated:** `docs/tasks/HANDOFF_PACKET_2026-06-04_TASK0060.md`, `docs/tasks/TASK-0060.md`, `docs/tasks/PRD_PHASE_06_STRIPE_ENTITLEMENTS_TASK_LIST.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Execution Summary
+
+Codex performed the approved TASK-0060 execution prep and live-state verification, but could not complete a real Stripe Checkout because the live Supabase project currently has no eligible authenticated paid-plan profile at `onboarding_step = payment`.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| `stripe-checkout-create` | ACTIVE v7, `verify_jwt: true` |
+| `stripe-webhook` | ACTIVE v8, `verify_jwt: false` |
+| `payment-status` | ACTIVE v5 |
+| `payments.action_type` constraint | Includes `subscription_start` and `subscription_renewal` |
+| Payment-ready profiles | 0 |
+| Subscriptions | 0 rows |
+| Payments | 0 rows |
+| Stripe events | 21 prior fixture/replay rows; no new real checkout evidence |
+
+### Blocker
+
+TASK-0060 requires a real checkout for a real Supabase profile/session. No current live profile is at `onboarding_step = payment` with a paid `subscription_tier`, and Codex did not have an approved/authenticated paid-plan session to call `stripe-checkout-create`.
+
+### Approval Boundary
+
+No profile was mutated, no Stripe resource was created, no webhook was replayed, no live-mode Stripe setting was changed, and the task was not marked passed/Done.
+
+### Next Recommended Action
+
+Create or route a disposable test nurse to the paid-plan payment step, preferably through Lovable onboarding or a sanctioned `payment-pending` dev persona, then rerun TASK-0060 checkout with Stripe test card `4242 4242 4242 4242`.
+
+---
+
 ## Phase 5 / Phase 6 David Approvals - 2026-06-04 - David / Codex
 
 **Task:** TASK-0055, TASK-0057, TASK-0058, TASK-0059, TASK-0060, TASK-0061, TASK-0062, TASK-0063
