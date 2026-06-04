@@ -346,7 +346,7 @@ async function handleSubscriptionDeleted(
 
   await admin.from("audit_events").insert({
     actor_id:      subRow.profile_id,
-    action:        "subscription.canceled",
+    action:        "subscription.lapsed",
     resource_type: "profile",
     resource_id:   subRow.profile_id,
     change_after:  { subscription_tier: "free", stripe_subscription_id: stripeSubId },
