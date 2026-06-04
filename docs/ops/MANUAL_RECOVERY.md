@@ -121,7 +121,7 @@ insert into audit_events (
 ## Recovery 2: Subscription Status Mismatch
 
 ### Scenario
-A nurse's subscription status in PassTo doesn't match Stripe. Example: PassTo says "active" but Stripe says "cancelled".
+A nurse's subscription status in PassTo doesn't match Stripe. Example: PassTo says "active" but Stripe says "canceled".
 
 ### Investigation
 
@@ -145,8 +145,8 @@ A nurse's subscription status in PassTo doesn't match Stripe. Example: PassTo sa
 
 | Scenario | Root Cause | Fix |
 |---|---|---|
-| PassTo "active" but Stripe "cancelled" | Webhook didn't process | See Recovery 1 (replay webhook) |
-| PassTo "cancelled" but Stripe "active" | Stripe status changed after PassTo recorded | Update PassTo (see Recovery 2B below) |
+| PassTo "active" but Stripe "canceled" | Webhook didn't process | See Recovery 1 (replay webhook) |
+| PassTo "canceled" but Stripe "active" | Stripe status changed after PassTo recorded | Update PassTo (see Recovery 2B below) |
 | PassTo tier wrong | Webhook processed but didn't downgrade | Manual fix (see Recovery 2B below) |
 
 ### Recovery 2A: Replay Missing Webhook
@@ -198,7 +198,7 @@ If a `customer.subscription.updated` or `customer.subscription.deleted` webhook 
      json_build_object(
        'stripe_subscription_id', 'sub_1234...',
        'reason', 'webhook failed; manual remediation',
-       'stripe_status', 'cancelled',
+       'stripe_status', 'canceled',
        'ops_notes', 'Verified Stripe status on dashboard; downgraded profile to free'
      )
    );
@@ -279,7 +279,7 @@ A nurse tries to create a share link but gets "subscription_not_confirmed" error
 2. **Verify subscription:**
    - If `subscription_status = 'active'` and `subscription_tier = 'standard'|'premier'` → should work
    - If `subscription_status = null` or `subscription_tier = 'free'` → expected (Free tier can create links)
-   - If `subscription_status = 'cancelled'|'unpaid'` and `subscription_tier != 'free'` → mismatch (see Recovery 2)
+   - If `subscription_status = 'canceled'|'unpaid'` and `subscription_tier != 'free'` → mismatch (see Recovery 2)
 
 3. **Check dashboard:**
    - Ask nurse to refresh `/dashboard`

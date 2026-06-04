@@ -44,7 +44,7 @@ select
   s.current_period_end,
   s.canceled_at,
   (select count(*) from credentials where profile_id = p.id and status = 'active') as active_credential_count,
-  (select count(*) from wallet_passes where pass_id in (select id from passes where profile_id = p.id) and status = 'issued') as issued_wallet_passes,
+  (select count(*) from wallet_passes where credential_id in (select id from credentials where profile_id = p.id) and status = 'issued') as issued_wallet_passes,
   p.updated_at
 from profiles p
 left join subscriptions s on p.id = s.profile_id
