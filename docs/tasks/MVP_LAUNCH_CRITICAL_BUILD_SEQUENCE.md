@@ -90,7 +90,7 @@ The sequence is designed to keep implementation moving while preserving the appr
 |---|---|---|---|
 | 6.1 | TASK-0060 — Reconcile Stripe checkout end-to-end readiness | Claude/Codex | TASK-0040, Lovable payment route |
 | 6.2 | TASK-0061 — Define subscription management and cancellation flow | Claude/Lovable | TASK-0040, TASK-0060 |
-| 6.3 | TASK-0062 — Resolve Free-tier paid action entitlement policy | Claude/Codex | TASK-0056, TASK-0040 |
+| 6.3 | TASK-0062 — Reconcile GA tier features against MVP PRD | Claude/Codex | TASK-0056, TASK-0040 |
 | 6.4 | TASK-0063 — Harden entitlement and lapse ops visibility | Claude/Codex | TASK-0040, TASK-0055, TASK-0061 |
 | 6.5 | TASK-0064 — Codex QA Phase 6 Stripe, entitlements, and lapse behavior | Codex | TASK-0060 through TASK-0063 |
 

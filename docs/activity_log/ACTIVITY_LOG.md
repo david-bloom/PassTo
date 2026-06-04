@@ -4,11 +4,42 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## MVP Scope Clarification - 2026-06-04 - David / Codex
+
+**Task:** TASK-0062 — Reconcile GA Tier Features Against MVP PRD
+**Status:** MVP Scope Clarified — Awaiting Reconciliation Spec
+**Approval Record:** APPROVAL-0030
+**Files Updated:** `docs/features/TIER_FEATURES.md`, `docs/features/SUBSCRIPTION.md`, `docs/features/SHARING.md`, `docs/features/REFRESH.md`, `docs/features/PDF_EXPORT.md`, `docs/flows/PAYMENTS.md`, `docs/tasks/TASK-0062.md`, `docs/tasks/PRD_PHASE_06_STRIPE_ENTITLEMENTS_TASK_LIST.md`, `docs/tasks/TASK-0064.md`, `docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md`, `docs/activity_log/APPROVALS_LOG.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Decision
+
+David clarified:
+
+```text
+My decision is to stick with the PRD. The TIER_FEATURES.md is for complete products, General Availability, not MVP.
+```
+
+### Interpretation
+
+The PRD controls MVP launch-critical and deferred scope. `TIER_FEATURES.md` is a complete-product / GA tier reference and must not be used to authorize MVP implementation of PRD-deferred capabilities.
+
+APPROVAL-0029 is superseded for MVP implementation purposes by APPROVAL-0030.
+
+### Approval Boundary
+
+This records a documentation and scope clarification only. It does not approve implementation, migrations, Edge Function deployments, Stripe live-mode changes, live Stripe products/prices, secret changes, Lovable UI changes, production launch, task Done, issue closure, or risk acceptance.
+
+### Next Recommended Action
+
+Codex should produce a focused reconciliation spec for TASK-0062 that verifies MVP dashboard/share-link entitlement behavior follows the PRD, while preserving `TIER_FEATURES.md` as the GA reference.
+
+---
+
 ## Free-Tier Paid Action Policy Decision - 2026-06-04 - David / Codex
 
 **Task:** TASK-0062 — Resolve Free-Tier Paid Action Entitlement Policy
-**Status:** Policy Decision Recorded — Awaiting Execution Approval
-**Approval Record:** APPROVAL-0029
+**Status:** Superseded for MVP by APPROVAL-0030
+**Approval Record:** APPROVAL-0029; superseded for MVP implementation by APPROVAL-0030
 **Files Updated:** `docs/tasks/TASK-0062.md`, `docs/tasks/PRD_PHASE_06_STRIPE_ENTITLEMENTS_TASK_LIST.md`, `docs/activity_log/APPROVALS_LOG.md`, `docs/activity_log/ACTIVITY_LOG.md`
 
 ### Decision
@@ -32,7 +63,7 @@ Payment-gated action execution must remain backend-controlled. Lovable must not 
 
 ### Reconciliation Needed
 
-Current TASK-0056 / Phase 5 share-link behavior allows Free-tier share-link creation without payment. TASK-0062 must reconcile that behavior before production launch by implementing or routing a Stripe-confirmed paid-action gate for Free-tier share links and the other approved $1.99 paid actions.
+Current TASK-0056 / Phase 5 share-link behavior must be reconciled against PRD MVP entitlement rules. The $1.99 Free-tier paid-action policy belongs to GA / complete-product scope unless separately reopened for MVP.
 
 ### Approval Boundary
 
@@ -40,7 +71,7 @@ This records the product/pricing decision only. It does not approve implementati
 
 ### Next Recommended Action
 
-Codex should produce a TASK-0062 execution handoff/spec for Claude covering backend-owned paid-action flow design, idempotent Stripe webhook handling, dashboard states, and QA cases for payment success, cancel/failure, duplicate webhook, and post-payment action failure.
+Codex should produce a TASK-0062 reconciliation handoff/spec covering PRD-controlled MVP entitlement behavior, GA documentation boundaries, dashboard states, and QA cases for ensuring GA-only paid actions are not treated as MVP launch blockers.
 
 ---
 
@@ -169,7 +200,7 @@ Codex created the Phase 6 Stripe/entitlement/lapse task set as `TASK-0060` throu
 |---|---|---|
 | 6.1 | TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness | Spec Drafted — Awaiting David Approval |
 | 6.2 | TASK-0061 — Define Subscription Management and Cancellation Flow | Spec Drafted — Awaiting David Approval |
-| 6.3 | TASK-0062 — Resolve Free-Tier Paid Action Entitlement Policy | Policy Decision Recorded — Awaiting Execution Approval |
+| 6.3 | TASK-0062 — Reconcile GA Tier Features Against MVP PRD | MVP Scope Clarified — Awaiting Reconciliation Spec |
 | 6.4 | TASK-0063 — Harden Entitlement and Lapse Ops Visibility | Spec Drafted — Awaiting David Approval |
 | 6.5 | TASK-0064 — Codex QA Phase 6 Stripe, Entitlements, and Lapse Behavior | Spec Drafted — Awaiting David Approval |
 

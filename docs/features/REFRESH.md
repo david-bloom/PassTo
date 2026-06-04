@@ -1,13 +1,15 @@
 # PassTo Refresh
 
-**Status:** Draft  
+**Status:** Complete Product / GA Reference with PRD-Controlled MVP Scope
 **Source:** Product Attributes Blueprint v1.6 + David decisions  
 **Owner:** Codex  
-**Last Updated:** 2026-05-24  
+**Last Updated:** 2026-06-04
 
 ## Purpose
 
 This document defines on-demand and scheduled credential refresh behavior.
+
+The approved PRD remains the source of truth for MVP launch scope. Scheduled refresh is deferred from MVP unless separately reopened by David. Paid/on-demand refresh behavior here is complete-product / GA reference unless included by PRD or approved task scope.
 
 ## Core Behavior
 

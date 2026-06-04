@@ -30,6 +30,44 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0030 — MVP Scope Follows PRD; Tier Features Are GA Reference
+
+**Date:** 2026-06-04
+**Approved By:** David
+**Related Task:** TASK-0062
+**Decision:** Approved Scope Clarification
+
+### Summary
+
+David clarified that MVP scope should follow the PRD, and that `docs/features/TIER_FEATURES.md` describes the complete product / General Availability tier model rather than MVP launch scope:
+
+```text
+My decision is to stick with the PRD. The TIER_FEATURES.md is for complete products, General Availability, not MVP.
+```
+
+### Interpretation
+
+- The PRD is the controlling source for MVP launch-critical and deferred scope.
+- `TIER_FEATURES.md` is a GA / complete-product tier reference.
+- APPROVAL-0029 is superseded for MVP implementation purposes.
+- Free-tier paid actions in `TIER_FEATURES.md` do not authorize MVP implementation of Show QR, on-demand refresh, PDF export, scheduled refresh, or other PRD-deferred capabilities.
+- TASK-0062 should reconcile GA tier documentation against MVP PRD scope, not implement GA paid actions.
+
+### Approval Checklist
+
+- [x] I approve using the PRD as the controlling MVP scope source.
+- [x] I approve treating `TIER_FEATURES.md` as complete-product / GA reference.
+- [x] I approve superseding APPROVAL-0029 for MVP implementation purposes.
+- [x] I understand this does not approve implementation, launch, or risk acceptance.
+
+### Notes
+
+Approved: documentation clarification and reconciliation direction only.
+
+Not approved: implementation, migrations, Edge Function deployments, Stripe live-mode changes, live Stripe products/prices, secret changes, Lovable UI changes, production launch, task Done, issue closure, or risk acceptance.
+
+---
+
 ## APPROVAL-0029 — Free-Tier Paid Action Policy Decision
 
 **Date:** 2026-06-04
@@ -61,6 +99,8 @@ Interpretation:
 - [x] I understand this does not approve implementation or production launch.
 
 ### Notes
+
+Superseded for MVP implementation purposes by APPROVAL-0030. `TIER_FEATURES.md` remains a complete-product / GA reference, while the PRD controls MVP launch scope.
 
 Approved: product/pricing decision and documentation update only.
 

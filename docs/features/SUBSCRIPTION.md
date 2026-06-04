@@ -1,15 +1,17 @@
 # PassTo Subscription
 
-**Status:** Baseline  
+**Status:** Complete Product / GA Reference with PRD-Controlled MVP Scope
 **Source:** Product Attributes Blueprint v1.6 + David decisions  
 **Owner:** Codex  
-**Last Updated:** 2026-05-25  
+**Last Updated:** 2026-06-04
 
 ## Purpose
 
-This document defines MVP subscription and tier-management behavior for PassTo.
+This document defines subscription and tier-management behavior for PassTo's complete product / General Availability model.
 
 This file is the canonical subscription feature doc. The earlier plural file `/docs/features/SUBSCRIPTIONS.md` should be treated as legacy unless later consolidated.
+
+The approved PRD remains the source of truth for MVP launch scope. Usage pricing in this document is a GA/product-complete reference unless the PRD or a task approval explicitly includes the capability in MVP.
 
 ## Tier Names
 
@@ -35,7 +37,7 @@ Standard: $9.99/month
 Premier: $19.99/month
 ```
 
-## Confirmed Usage Pricing
+## GA Usage Pricing
 
 ```text
 Share link for Free: $1.99

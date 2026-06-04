@@ -1,13 +1,15 @@
 # PassTo PDF Export
 
-**Status:** Baseline  
+**Status:** Complete Product / GA Reference - PRD Deferred for MVP
 **Source:** Product Attributes Blueprint v1.6 + David decisions  
 **Owner:** Codex  
-**Last Updated:** 2026-05-25  
+**Last Updated:** 2026-06-04
 
 ## Purpose
 
-This document defines PDF credential/report export behavior for PassTo MVP.
+This document defines PDF credential/report export behavior for PassTo's complete product / General Availability model.
+
+The approved PRD defers PDF export from MVP launch scope. This document must not be treated as MVP implementation approval unless David separately reopens PDF export for MVP.
 
 ## Core Rule
 
