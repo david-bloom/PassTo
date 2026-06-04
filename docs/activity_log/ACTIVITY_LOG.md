@@ -4,6 +4,49 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Lovable JWT Integration Issue Discovered During TASK-0060 Checkout Test - 2026-06-04 (Evening) - Claude
+
+**Task:** TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness
+**Status:** Execution blocked on Lovable integration issue
+**Files Updated:** `docs/tasks/TASK-0060.md`
+
+### Summary
+
+Payment-pending test persona was successfully created via seed harness and user authenticated with magic link. However, when attempting to call `stripe-checkout-create` Edge Function from Lovable, the request returns 401 Unauthorized because **the JWT from the magic-link session is not being passed in the Authorization header** by Lovable's Supabase client.
+
+### What Worked
+
+✅ Seed harness successfully created all 14 personas, including payment-pending  
+✅ Magic-link authentication working correctly  
+✅ User session valid at page level  
+✅ /payment route accessible and responsive  
+✅ Stripe secrets, Edge Functions, and database all correctly configured  
+
+### The Blocker
+
+❌ Lovable → Supabase Edge Function call is missing Authorization header  
+❌ stripe-checkout-create receives 401 Unauthorized  
+❌ Frontend shows: "You must be signed in to subscribe"  
+
+### Investigation Required
+
+Lovable team needs to review:
+1. How `passtoSupabase.functions.invoke()` passes JWT to Edge Functions
+2. Whether magic-link sessions are properly recognized by Lovable's Supabase client
+3. Authorization header construction in function invocation logic
+4. Potential session/auth state mismatch between Lovable and Supabase
+
+### Path Forward
+
+Once Lovable JWT passing is fixed, TASK-0060 can be completed with:
+1. Use payment-pending persona (already seeded and verified)
+2. Authenticate with magic link
+3. Navigate to /payment
+4. Complete Stripe checkout with test card
+5. Verify webhook updates
+
+---
+
 ## Payment-Pending Persona Added to Seed Harness - 2026-06-04 (Late Afternoon) - Claude
 
 **Tasks:** TASK-0044 (extension), TASK-0060 (unblock)
