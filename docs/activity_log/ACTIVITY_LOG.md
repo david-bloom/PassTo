@@ -4,6 +4,46 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Phase 5 / Phase 6 David Approvals - 2026-06-04 - David / Codex
+
+**Task:** TASK-0055, TASK-0057, TASK-0058, TASK-0059, TASK-0060, TASK-0061, TASK-0062, TASK-0063
+**Status:** Phase 5 partial closeout recorded; Phase 6 TASK-0060 through TASK-0063 approved for execution
+**Approval Record:** APPROVAL-0031
+**Files Updated:** `docs/tasks/TASK-0055.md`, `docs/tasks/TASK-0057.md`, `docs/tasks/TASK-0058.md`, `docs/tasks/TASK-0059.md`, `docs/tasks/TASK-0060.md`, `docs/tasks/TASK-0061.md`, `docs/tasks/TASK-0062.md`, `docs/tasks/TASK-0063.md`, `docs/tasks/PRD_PHASE_05_DASHBOARD_SHARE_LINK_TASK_LIST.md`, `docs/tasks/PRD_PHASE_06_STRIPE_ENTITLEMENTS_TASK_LIST.md`, `docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md`, `docs/activity_log/APPROVALS_LOG.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Decision
+
+David approved:
+
+```text
+TASK-0055 David Approves
+TASK-0057 David Approves
+TASK-0058 David Approves
+TASK-0059 David approves Pass/Done
+TASK-0060 David Approves
+TASK-0061 David Approves
+TASK-0062 David Approves
+TASK-0063 David Approves
+```
+
+### Interpretation
+
+TASK-0055, TASK-0057, and TASK-0058 are complete for their documented scopes. TASK-0059 is Pass/Done for the recorded Phase 5 QA evidence task.
+
+TASK-0060, TASK-0061, TASK-0062, and TASK-0063 are approved for execution within their task scopes.
+
+TASK-0056 was not included and remains awaiting David review / TASK-0062 MVP entitlement reconciliation. TASK-0064 was not included and remains awaiting David approval.
+
+### Approval Boundary
+
+This does not approve production launch, launch risk acceptance, Stripe live-mode changes, live Stripe product/price changes, deferred Show QR/PDF/additional-license/employer-dashboard scope, TASK-0056 Done, TASK-0064 execution/Done, or issue closure.
+
+### Next Recommended Action
+
+Claude/Codex should execute the approved Phase 6 work in dependency order, beginning with TASK-0060 checkout evidence and TASK-0062 MVP/GA reconciliation.
+
+---
+
 ## MVP Scope Clarification - 2026-06-04 - David / Codex
 
 **Task:** TASK-0062 — Reconcile GA Tier Features Against MVP PRD

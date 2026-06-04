@@ -88,10 +88,10 @@ The sequence is designed to keep implementation moving while preserving the appr
 
 | Order | Work | Owner | Depends On |
 |---|---|---|---|
-| 6.1 | TASK-0060 — Reconcile Stripe checkout end-to-end readiness | Claude/Codex | TASK-0040, Lovable payment route |
-| 6.2 | TASK-0061 — Define subscription management and cancellation flow | Claude/Lovable | TASK-0040, TASK-0060 |
-| 6.3 | TASK-0062 — Reconcile GA tier features against MVP PRD | Claude/Codex | TASK-0056, TASK-0040 |
-| 6.4 | TASK-0063 — Harden entitlement and lapse ops visibility | Claude/Codex | TASK-0040, TASK-0055, TASK-0061 |
+| 6.1 | TASK-0060 — Reconcile Stripe checkout end-to-end readiness | Claude/Codex | Approved 2026-06-04 |
+| 6.2 | TASK-0061 — Define subscription management and cancellation flow | Claude/Lovable | Approved 2026-06-04 |
+| 6.3 | TASK-0062 — Reconcile GA tier features against MVP PRD | Claude/Codex | Approved 2026-06-04 |
+| 6.4 | TASK-0063 — Harden entitlement and lapse ops visibility | Claude/Codex | Approved 2026-06-04 |
 | 6.5 | TASK-0064 — Codex QA Phase 6 Stripe, entitlements, and lapse behavior | Codex | TASK-0060 through TASK-0063 |
 
 ### Phase 7 — Ops, Alerts, QA, and Launch Readiness
@@ -119,5 +119,5 @@ The sequence is designed to keep implementation moving while preserving the appr
 ## Current Next Action
 
 ```text
-Complete/review TASK-0021 — Phase 2 Profile Init and Onboarding Routing Spec.
+Execute approved Phase 6 tasks in dependency order, starting with TASK-0060 and TASK-0062 reconciliation prep.
 ```

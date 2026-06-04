@@ -30,6 +30,56 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0031 — Phase 5 Closeout and Phase 6 Execution Approvals
+
+**Date:** 2026-06-04
+**Approved By:** David
+**Related Task:** TASK-0055, TASK-0057, TASK-0058, TASK-0059, TASK-0060, TASK-0061, TASK-0062, TASK-0063
+**Decision:** Approved / Done
+
+### Summary
+
+David provided the following approvals:
+
+```text
+TASK-0055 David Approves
+TASK-0057 David Approves
+TASK-0058 David Approves
+TASK-0059 David approves Pass/Done
+TASK-0060 David Approves
+TASK-0061 David Approves
+TASK-0062 David Approves
+TASK-0063 David Approves
+```
+
+### Interpretation
+
+- TASK-0055, TASK-0057, and TASK-0058 are complete for their documented scope.
+- TASK-0059 is approved as Pass/Done for the recorded Phase 5 QA evidence task.
+- TASK-0060, TASK-0061, TASK-0062, and TASK-0063 are approved for execution within their documented scopes.
+- TASK-0056 was not included in this approval and remains `Live E2E Exercised - Awaiting David Review`.
+- TASK-0064 was not included in this approval and remains `Spec Drafted - Awaiting David Approval`.
+
+### Approval Checklist
+
+- [x] I approve TASK-0055 after review.
+- [x] I approve TASK-0057 after review.
+- [x] I approve TASK-0058 after review.
+- [x] I approve TASK-0059 Pass/Done.
+- [x] I approve TASK-0060 for execution.
+- [x] I approve TASK-0061 for execution.
+- [x] I approve TASK-0062 for reconciliation execution.
+- [x] I approve TASK-0063 for execution.
+- [x] I understand this does not approve production launch or risk acceptance.
+
+### Notes
+
+Approved: documented task-scope closeout for TASK-0055, TASK-0057, TASK-0058, TASK-0059; documented task-scope execution for TASK-0060 through TASK-0063.
+
+Not approved: TASK-0056 Done/closeout, TASK-0064 execution/Done, production launch, task/issue closure outside the named task docs, Stripe live-mode changes, live Stripe products/prices, migrations outside approved task scope, secret changes outside approved task scope, deferred Show QR/PDF/additional-license/employer-dashboard scope, or launch risk acceptance.
+
+---
+
 ## APPROVAL-0030 — MVP Scope Follows PRD; Tier Features Are GA Reference
 
 **Date:** 2026-06-04

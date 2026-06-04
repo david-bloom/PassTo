@@ -1,7 +1,7 @@
 # PRD Phase 6 Task List - Stripe, Entitlements, and Lapse Behavior
 
 **Phase:** Phase 6 - Stripe, Entitlements, and Lapse Behavior  
-**Status:** Created - Awaiting David Approval for Execution  
+**Status:** Execution Approved for TASK-0060 through TASK-0063
 **Created:** 2026-06-02  
 **Owner:** David Bloom  
 **Execution Support:** Codex and Claude  
@@ -19,10 +19,10 @@ This document does not authorize implementation, migration execution, Stripe liv
 
 | Phase Item | Task ID | Task | Owner | Status | Depends On |
 |---|---|---|---|---|---|
-| 6.1 | TASK-0060 | Reconcile Stripe Checkout End-to-End Readiness | Claude / Codex | Spec Drafted - Awaiting David Approval | TASK-0040, Lovable payment route |
-| 6.2 | TASK-0061 | Define Subscription Management and Cancellation Flow | Claude / Lovable | Spec Drafted - Awaiting David Approval | TASK-0040, TASK-0060 |
-| 6.3 | TASK-0062 | Reconcile GA Tier Features Against MVP PRD | Claude / Codex | MVP Scope Clarified - Awaiting Reconciliation Spec | TASK-0056, TASK-0040 |
-| 6.4 | TASK-0063 | Harden Entitlement and Lapse Ops Visibility | Claude / Codex | Spec Drafted - Awaiting David Approval | TASK-0040, TASK-0055, TASK-0061 |
+| 6.1 | TASK-0060 | Reconcile Stripe Checkout End-to-End Readiness | Claude / Codex | Approved for Execution - Awaiting Claude/Codex | TASK-0040, Lovable payment route |
+| 6.2 | TASK-0061 | Define Subscription Management and Cancellation Flow | Claude / Lovable | Approved for Execution - Awaiting Claude/Lovable | TASK-0040, TASK-0060 |
+| 6.3 | TASK-0062 | Reconcile GA Tier Features Against MVP PRD | Claude / Codex | Approved for Reconciliation Execution - Awaiting Claude/Codex | TASK-0056, TASK-0040 |
+| 6.4 | TASK-0063 | Harden Entitlement and Lapse Ops Visibility | Claude / Codex | Approved for Execution - Awaiting Claude/Codex | TASK-0040, TASK-0055, TASK-0061 |
 | 6.5 | TASK-0064 | Codex QA Phase 6 Stripe, Entitlements, and Lapse Behavior | Codex | Spec Drafted - Awaiting David Approval | TASK-0060 through TASK-0063 |
 
 ## Relationship to TASK-0040
@@ -59,3 +59,9 @@ Stick with the PRD. TIER_FEATURES.md is for complete products, General Availabil
 ```
 
 This records the MVP scope clarification only. It supersedes APPROVAL-0029 for MVP implementation purposes. It does not approve implementation, migrations, deployments, Stripe live-mode changes, live Stripe products/prices, Lovable UI changes, production launch, task Done, issue closure, or risk acceptance.
+
+## Execution Approval - 2026-06-04
+
+David approved TASK-0060, TASK-0061, TASK-0062, and TASK-0063 for execution.
+
+This approval authorizes work within each task's documented scope. It does not mark any Phase 6 task Done, approve TASK-0064 final QA execution beyond its documented standing/read-only lane, approve Stripe live-mode changes, approve live Stripe product/price changes, change secrets, deploy production changes outside task scope, approve production launch, close issues, or accept risk.
