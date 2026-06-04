@@ -5,6 +5,25 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 ---
 
 
+## Charter Amendment v1.10 - Contract Integration Gates - 2026-06-03 - Codex
+
+**Scope:** Add QA protocol amendment after TASK-0055 exposed a backend/frontend contract integration test gap.  
+**Approval / Authority:** David explicitly instructed Codex to add the amendment to the charter.  
+**Files Updated:** `docs/team_charter/TEAM_CHARTER_V1_10_AMENDMENT.md`, `docs/team_charter/TEAM_CHARTER.md`, `docs/team_charter/DEFINITION_OF_DONE.md`, `docs/team_charter/README.md`
+
+### Rule Added
+
+When backend and frontend work are decoupled, backend QA and frontend QA are not sufficient for task closeout if the backend response controls frontend routing, user eligibility, entitlement state, shareability, credential visibility, or cross-domain handoff.
+
+QA must exercise the backend response through the deployed frontend and verify the final user-visible behavior, including exact final URL/domain when a flow crosses domains.
+
+### Triggering Lesson
+
+TASK-0055 dashboard QA verified backend gate behavior and later UI behavior, but missed the integrated flow where `dashboard-status` returns `403 onboarding_not_complete` and the App frontend must route to Enrollment rather than a local App onboarding route.
+
+### Approval Boundary
+
+This is a documentation-only workflow update that records an approved operating rule. It does not implement code, deploy, migrate, change secrets, alter live state, mark any task Done, close any issue, approve production launch, or accept risk.
 
 ## Phase 5 / App Task Status Reconciliation - 2026-06-03 - Codex
 
