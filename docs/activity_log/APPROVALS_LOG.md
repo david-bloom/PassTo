@@ -30,6 +30,44 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0029 — Free-Tier Paid Action Policy Decision
+
+**Date:** 2026-06-04
+**Approved By:** David
+**Related Task:** TASK-0062
+**Decision:** Approved Policy Decision
+
+### Summary
+
+David confirmed the Free-tier paid action policy:
+
+```text
+Free tier can share, generate QR code, refresh and pdf export for $1.99
+```
+
+Interpretation:
+
+- Free-tier share link is available as a $1.99 paid action.
+- Free-tier Show QR verifier access is available as a $1.99 paid action.
+- Free-tier on-demand refresh is available as a $1.99 paid action.
+- Free-tier PDF export is available as a $1.99 paid action.
+- Payment-gated action execution must be backend-controlled and must wait for server-confirmed Stripe payment.
+
+### Approval Checklist
+
+- [x] I approve the Free-tier paid action policy for share link, Show QR, on-demand refresh, and PDF export.
+- [x] I approve updating TASK-0062 and Phase 6 docs to record the policy decision.
+- [x] I understand current TASK-0056 behavior allows Free-tier share-link creation without payment and must be reconciled before production launch.
+- [x] I understand this does not approve implementation or production launch.
+
+### Notes
+
+Approved: product/pricing decision and documentation update only.
+
+Not approved: implementation, migrations, Edge Function deployments, Stripe live-mode changes, live Stripe products/prices, secret changes, Lovable UI changes, production launch, task Done, issue closure, or risk acceptance.
+
+---
+
 ## APPROVAL-0025 — TASK-0065 Supabase Auth Password Reset Redirect Fix Approved
 
 **Date:** 2026-06-02  

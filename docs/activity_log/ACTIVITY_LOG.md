@@ -4,6 +4,46 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Free-Tier Paid Action Policy Decision - 2026-06-04 - David / Codex
+
+**Task:** TASK-0062 — Resolve Free-Tier Paid Action Entitlement Policy
+**Status:** Policy Decision Recorded — Awaiting Execution Approval
+**Approval Record:** APPROVAL-0029
+**Files Updated:** `docs/tasks/TASK-0062.md`, `docs/tasks/PRD_PHASE_06_STRIPE_ENTITLEMENTS_TASK_LIST.md`, `docs/activity_log/APPROVALS_LOG.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Decision
+
+David confirmed:
+
+```text
+Free tier can share, generate QR code, refresh and pdf export for $1.99
+```
+
+### Interpretation
+
+Free-tier nurses may use the following as $1.99 one-time paid actions:
+
+- Share link / verifier access token.
+- Show QR verifier access.
+- On-demand refresh.
+- PDF export.
+
+Payment-gated action execution must remain backend-controlled. Lovable must not directly create verifier tokens, complete refresh state, generate PDFs, insert payment records, or mark Stripe payment truth.
+
+### Reconciliation Needed
+
+Current TASK-0056 / Phase 5 share-link behavior allows Free-tier share-link creation without payment. TASK-0062 must reconcile that behavior before production launch by implementing or routing a Stripe-confirmed paid-action gate for Free-tier share links and the other approved $1.99 paid actions.
+
+### Approval Boundary
+
+This records the product/pricing decision only. It does not approve implementation, migrations, Edge Function deployments, Stripe live-mode changes, live Stripe products/prices, secret changes, Lovable UI changes, production launch, task Done, issue closure, or risk acceptance.
+
+### Next Recommended Action
+
+Codex should produce a TASK-0062 execution handoff/spec for Claude covering backend-owned paid-action flow design, idempotent Stripe webhook handling, dashboard states, and QA cases for payment success, cancel/failure, duplicate webhook, and post-payment action failure.
+
+---
+
 
 ## Charter Amendment v1.10 - Contract Integration Gates - 2026-06-03 - Codex
 
@@ -129,7 +169,7 @@ Codex created the Phase 6 Stripe/entitlement/lapse task set as `TASK-0060` throu
 |---|---|---|
 | 6.1 | TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness | Spec Drafted — Awaiting David Approval |
 | 6.2 | TASK-0061 — Define Subscription Management and Cancellation Flow | Spec Drafted — Awaiting David Approval |
-| 6.3 | TASK-0062 — Resolve Free-Tier Paid Share-Link Entitlement Policy | Spec Drafted — Awaiting David Approval |
+| 6.3 | TASK-0062 — Resolve Free-Tier Paid Action Entitlement Policy | Policy Decision Recorded — Awaiting Execution Approval |
 | 6.4 | TASK-0063 — Harden Entitlement and Lapse Ops Visibility | Spec Drafted — Awaiting David Approval |
 | 6.5 | TASK-0064 — Codex QA Phase 6 Stripe, Entitlements, and Lapse Behavior | Spec Drafted — Awaiting David Approval |
 
@@ -137,7 +177,7 @@ Created `docs/tasks/PRD_PHASE_06_STRIPE_ENTITLEMENTS_TASK_LIST.md` and updated `
 
 ### Relationship to TASK-0040
 
-`TASK-0040` already completed the core Stripe subscription/payment implementation and was marked Complete / Passed by David. The new Phase 6 task set avoids duplicating that work and instead focuses on remaining launch-readiness gaps: real Lovable checkout testing, subscription management/cancellation behavior, Free-tier paid share-link policy reconciliation, entitlement/lapse ops visibility, and QA closure.
+`TASK-0040` already completed the core Stripe subscription/payment implementation and was marked Complete / Passed by David. The new Phase 6 task set avoids duplicating that work and instead focuses on remaining launch-readiness gaps: real Lovable checkout testing, subscription management/cancellation behavior, Free-tier paid action reconciliation, entitlement/lapse ops visibility, and QA closure.
 
 ### Approval Boundary
 
