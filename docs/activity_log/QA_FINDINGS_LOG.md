@@ -754,7 +754,42 @@ All acceptance criteria remain unexercised:
 
 **Workaround status:** None. This is a client-side integration issue that cannot be worked around at the backend.
 
-**Status:** Blocked on Lovable team investigation and fix. No backend changes needed.
+**Retest Results (2026-06-04):**
+
+Retested with fresh magic link:
+1. ✅ Magic link still authenticates successfully
+2. ✅ User can access `/payment` route
+3. ❌ "Subscribe & Continue" button triggers error: "You must be signed in to subscribe"
+4. **Critical finding:** Error originates from Lovable frontend code, NOT from Edge Function
+5. **Network analysis:** No POST to `stripe-checkout-create` Edge Function appears in network log
+6. **Console output:** Error thrown from `https://enroll.passtodigital.com/assets/index-CAMnpIQ-.js:270` (Lovable application code)
+
+**Revised Root Cause Analysis:**
+
+The error is **NOT** a JWT header issue. Instead, it's a **Lovable session-state issue**:
+
+- Lovable's checkout handler calls `getSession()` or similar auth check
+- This check **fails** for the magic-link authenticated user
+- Error is thrown **before** attempting to call `stripe-checkout-create` Edge Function
+- The Edge Function is never invoked
+
+**Possible root causes (updated):**
+
+1. **Magic-link session not recognized by Lovable's auth state**: The session exists for page rendering (`/payment` accessible) but Lovable's auth client doesn't recognize it when `getSession()` is called in the checkout handler
+2. **Race condition in session loading**: Session loads for route guard, but clears or isn't available when checkout handler executes
+3. **Lovable/Supabase client initialization**: Magic-link sessions handled differently than password/OAuth flows
+4. **Test link domain issue**: Magic link redirects to `app.passtodigital.com` instead of `enroll.passtodigital.com`, session may not be available cross-domain
+
+**Status:** This is a Lovable session-state validation issue, not a JWT header transmission issue. The frontend auth check is rejecting the magic-link session before the API call can be made.
+
+**Recommended investigation (revised):**
+
+1. Lovable team to check: Why does `getSession()` succeed for route rendering but fail in checkout handler?
+2. Test whether password-based auth would have the same issue (if available)
+3. Test whether session persists across domain boundaries (magic link to enroll domain)
+4. Verify Supabase client is properly initialized with magic-link session
+
+**Blockage:** Still a Lovable issue; backend is not the problem. However, the specific problem is session-state validation at the frontend, not JWT header construction at the API layer.
 
 ---
 
