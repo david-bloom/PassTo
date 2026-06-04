@@ -4,6 +4,42 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0060 Live Recheck - 2026-06-04 - Codex
+
+**Task:** TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness
+**Status:** Still blocked — payment-step test profile not present
+**Approval Record:** APPROVAL-0031
+**Files Updated:** `docs/tasks/TASK-0060.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+After David reported Stripe and Supabase were updated, Codex rechecked the live backend state.
+
+`stripe-checkout-create` exists and is live as ACTIVE v13 with `verify_jwt: true`. The deployed function expects `STRIPE_CLIENT_SECRET`, `STRIPE_PRICE_STANDARD`, and `STRIPE_PRICE_PREMIER`. `stripe-webhook` remains ACTIVE v8 with `verify_jwt: false`.
+
+### Blocker
+
+The documented checkout test email exists, but its live profile is still:
+
+```text
+onboarding_step = identity
+subscription_tier = free
+id_verification_status = unverified
+id_verification_level = null
+```
+
+No profile currently satisfies the payment-step gate required by `stripe-checkout-create`.
+
+### Correction
+
+The prior local TASK-0060 note claiming the test profile was checkout-ready was not supported by live Supabase state and has been corrected. Plaintext test credentials must not be committed to GitHub docs.
+
+### Next Recommended Action
+
+Route a disposable test nurse through Lovable onboarding to Standard/Premier, or explicitly approve a controlled SQL/test-harness update that positions a disposable test profile at `payment`.
+
+---
+
 ## TASK-0060 Execution Attempt Blocked - 2026-06-04 - Codex
 
 **Task:** TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness
