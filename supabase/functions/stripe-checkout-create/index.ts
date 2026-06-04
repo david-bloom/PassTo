@@ -11,9 +11,9 @@
  * Gate: onboarding_step = 'payment', account active, subscription_tier != 'free'.
  *
  * Required Supabase secrets:
- *   STRIPE_SECRET_KEY          — Stripe secret API key (test mode for MVP)
- *   STRIPE_PRICE_ID_STANDARD   — Stripe Price ID for Standard monthly plan
- *   STRIPE_PRICE_ID_PREMIER    — Stripe Price ID for Premier monthly plan
+ *   STRIPE_CLIENT_SECRET       — Stripe secret API key (test mode for MVP)
+ *   STRIPE_PRICE_STANDARD      — Stripe Price ID for Standard monthly plan
+ *   STRIPE_PRICE_PREMIER       — Stripe Price ID for Premier monthly plan
  *
  * The checkout session uses metadata.profile_id so the webhook can link
  * the payment to the correct Supabase profile.
@@ -45,10 +45,10 @@ serve(async (req) => {
   const supabaseUrl  = Deno.env.get("SUPABASE_URL") ?? "";
   const supabaseAnon = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
   const supabaseKey  = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-  const stripeKey    = Deno.env.get("STRIPE_SECRET_KEY") ?? "";
+  const stripeKey    = Deno.env.get("STRIPE_CLIENT_SECRET") ?? "";
 
   if (!stripeKey) {
-    console.error("STRIPE_SECRET_KEY not configured");
+    console.error("STRIPE_CLIENT_SECRET not configured");
     return json({ error: "payment_unavailable" }, 503);
   }
 
@@ -90,8 +90,8 @@ serve(async (req) => {
 
   // ── 3. Resolve Stripe Price ID ─────────────────────────────────────────────
   const priceEnvKey = profile.subscription_tier === "premier"
-    ? "STRIPE_PRICE_ID_PREMIER"
-    : "STRIPE_PRICE_ID_STANDARD";
+    ? "STRIPE_PRICE_PREMIER"
+    : "STRIPE_PRICE_STANDARD";
   const priceId = Deno.env.get(priceEnvKey) ?? "";
 
   if (!priceId) {
