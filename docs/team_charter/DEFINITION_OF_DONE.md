@@ -93,6 +93,16 @@ Codex QA must review:
 
 If QA finds blockers, the task is not Done.
 
+---
+
+## Contract Integration Done Criteria
+
+If a backend response controls frontend routing, user eligibility, entitlement state, shareability, credential visibility, or cross-domain handoff, the task is not Done until QA has exercised the backend response through the deployed frontend and verified the final user-visible behavior, including exact destination host and path for cross-domain flows.
+
+Backend QA passed + frontend implementation deferred does not satisfy Done. Frontend implementation after backend QA must trigger re-QA of the integrated contract flow.
+
+Source: `/docs/team_charter/TEAM_CHARTER_V1_10_AMENDMENT.md`.
+
 Use status:
 
 ```text
