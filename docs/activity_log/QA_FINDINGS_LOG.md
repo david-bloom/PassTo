@@ -475,3 +475,126 @@ or to `app.passtodigital.com/dashboard` if `onboarding_step` is complete.
 | GitHub writes during run | None (per scope; all writes deferred to this post-run commit) |
 | Domains covered | `app.passtodigital.com`, `enroll.passtodigital.com` |
 | Deferred scopes | Block E (ID.me IAL1 wall); Block S (no Stripe upgrade surface reachable) |
+
+---
+
+## Integration QA Results — 2026-06-04 Post-Deployment Verification
+
+**TASK-0056 Share-Link Creation + TASK-0058 Verifier Flow — End-to-End Testing**
+
+**Date:** 2026-06-04
+**Scope:** Integration testing of share-link button (TASK-0056 UI) + share-link-create edge function + verifier form (TASK-0058)
+**Test User:** test-nurse-001@passtodigital.com (complete onboarding, active credential, active license, data_match_passed=true)
+**Authority:** David disposition + Claude integration QA verification
+
+### Test 1: Eligible Nurse Creates Share Link and Verifier Views Credential
+
+**Status:** ✅ **PASSED**
+
+**Steps executed:**
+
+1. ✅ Sign in as test-nurse-001@passtodigital.com
+2. ✅ Navigate to https://app.passtodigital.com/dashboard
+3. ✅ Scroll to "Share Credential" section
+   - Button visible and ENABLED (green color #14753F, interactive)
+   - No tooltip (button not disabled)
+4. ✅ Click "Share Credential" button
+   - Spinner appears (loading state)
+   - Modal launches with title "Share Your Credential"
+5. ✅ Share link generated: `https://app.passtodigital.com/v/79fcd2aed2c8b30409651b54847f8c855b7052b3e5d23ebb0cc5559f4044a6c2`
+   - URL format correct
+   - Expiry text displayed ("Expires in 72 hours")
+6. ✅ Copy button works
+   - Sonner toast appears: "Copied!"
+   - URL in clipboard
+7. ✅ Open button launches new window
+   - Route: https://app.passtodigital.com/v/79fcd2aed2c8b30409651b54847f8c855b7052b3e5d23ebb0cc5559f4044a6c2
+   - Verifier form loads (name, email, terms fields present)
+   - No authentication required
+8. ✅ Verifier fills form and submits
+   - Name: (test data)
+   - Email: (test data)
+   - Terms: checked
+   - Submit succeeds
+9. ✅ Credential data displays with SAFE DISPLAY ONLY
+   - License Type: RN ✅
+   - State: CA ✅
+   - License Status: Active (green) ✅
+   - License Expires: December 2030 ✅
+   - Credential Status: active ✅
+   - Credential Issued: June 2026 ✅
+   - Status As Of: June 2, 2026 at 10:56 PM EDT ✅
+   - Disclaimer footer present ✅
+10. ✅ Private data NOT exposed
+    - ✅ NO nurse name displayed
+    - ✅ NO ID verification date/status displayed
+    - ✅ NO selfie displayed (biometric data protected)
+    - ✅ NO payment/subscription info
+    - ✅ NO raw license number
+    - ✅ NO DOB or contact info
+
+**Acceptance Criteria Met:**
+- ✅ Nurse creates share link via dashboard UI
+- ✅ Share URL routable and accessible without auth
+- ✅ Verifier form loads and accepts input
+- ✅ Token-verify edge function processes form correctly
+- ✅ Credential data displayed with safe-display contract
+- ✅ Private data protection enforced (no biometrics, no ID dates, no nurse identity)
+
+### Test 2: Incomplete Onboarding Redirects Correctly (QA-004 Verification)
+
+**Status:** ✅ **PASSED** (validates QA-004 route guard fix)
+
+**Steps executed:**
+
+1. ✅ Sign in as test-nurse-002@passtodigital.com (onboarding_step='identity', incomplete)
+2. ✅ Navigate to https://app.passtodigital.com/dashboard
+3. ✅ Dashboard calls dashboard-status edge function
+4. ✅ Backend returns 403 { error: "onboarding_not_complete", onboarding_step: "identity" }
+5. ✅ App hard-redirects to https://enroll.passtodigital.com/post-login
+6. ✅ Enroll /post-login router reads session, detects incomplete onboarding
+7. ✅ Routes to https://enroll.passtodigital.com/id-verification (correct step)
+8. ✅ No 404 or error state
+
+**Acceptance Criteria Met:**
+- ✅ Incomplete users cannot access /dashboard
+- ✅ Hard-redirect to enroll domain (cross-domain handoff working)
+- ✅ Enroll router correctly identifies next step
+- ✅ QA-004 route guard functioning as designed
+
+### Design Principle Verified: Data Privacy by Surface
+
+**Finding:** Different privacy rules correctly applied:
+- ✅ **Wallet Pass surfaces** (nurse-facing): May include selfie, full credential details
+- ✅ **Verifier Portal surfaces** (third-party via share link): Selfie intentionally excluded (no biometric data to verifiers), only minimum needed for status confirmation
+
+This distinction is correctly enforced in the safe-display contract and matches security design intent.
+
+### Evidence Summary
+
+| Component | Test Result | Evidence |
+|---|---|---|
+| Share button enabled state | ✅ PASS | Button active on eligible nurse's dashboard |
+| Share link generation | ✅ PASS | Edge function returned URL within 2 seconds |
+| Verifier form rendering | ✅ PASS | Form loads without auth, accepts input |
+| Form submission | ✅ PASS | Token-verify edge function accepts POST, processes form |
+| Credential display | ✅ PASS | Safe data shown, private data excluded |
+| Route guard (incomplete) | ✅ PASS | Incomplete users redirect to enroll domain |
+
+### Codex Verification Scope (Post-Integration)
+
+Recommended for Codex final verification:
+- ✅ Verify `share_link_eligible=false` states disable button with correct reason tooltip
+- ✅ Verify error states (expired/used/invalid token) on verifier portal
+- ✅ Verify credential state changes (e.g., credential revoked) gate subsequent access
+- ✅ Verify token is single-use (second form submit with same token returns error)
+- ✅ Verify session invalidation on verifier portal (no back-button re-access after modal close)
+
+### Integration QA Verdict
+
+**Status: ✅ READY FOR CODEX FINAL VERIFICATION**
+
+All acceptance criteria met. End-to-end flow (nurse shares → verifier accesses → credential displays) fully operational. Private data protection enforced. Route guards working.
+
+---
+
