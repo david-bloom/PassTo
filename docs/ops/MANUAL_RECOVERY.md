@@ -156,7 +156,7 @@ If a `customer.subscription.updated` or `customer.subscription.deleted` webhook 
 1. **Find the event:**
    ```sql
    select * from stripe_events
-   where stripe_subscription_id = 'sub_1234...'
+   where payload->>'subscription' = 'sub_1234...'
    order by created_at desc;
    ```
 
@@ -173,7 +173,7 @@ If a `customer.subscription.updated` or `customer.subscription.deleted` webhook 
 2. **Update PassTo:**
    ```sql
    update subscriptions
-   set status = 'cancelled', updated_at = now()
+   set status = 'canceled', updated_at = now()
    where stripe_subscription_id = 'sub_1234...';
    
    update profiles
@@ -301,40 +301,42 @@ A nurse tries to create a share link but gets "subscription_not_confirmed" error
 
 ---
 
-## Recovery 5: Payment Failed Not Logged
+## Recovery 5: Subscription Payment Failed
 
 ### Scenario
-A nurse says their payment failed, but we don't see a payment record.
+A nurse says their subscription payment failed, but we're not sure what happened.
 
 ### Investigation
 
-1. **Run Query 2:**
-   - Look for recent failed payments
-   - Check `stripe_events` for `invoice.payment_failed` event
+1. **Check subscription status (Query 1 or Query 5 in SUBSCRIPTION_MONITORING.md):**
+   - Look for `status = 'past_due'`, `'unpaid'`, or `'incomplete'`
+   - Check `current_period_end`
 
 2. **Check Stripe:**
    - Stripe Dashboard → Customers → find nurse
-   - Check invoices → look for failed invoice
-   - Note the timestamp and invoice ID
+   - Check invoices → look for failed/pending invoice
+   - Note the timestamp and invoice status
 
 3. **Check webhook:**
-   - Query 3 → look for `invoice.payment_failed` event
+   - Query 3 in SUBSCRIPTION_MONITORING.md → look for `invoice.payment_failed` or `invoice.payment_action_required` event
    - If found but `processed = false` → webhook failed
-   - If not found → Stripe didn't send the event (rare)
+   - If not found → Stripe didn't send the event yet (rare)
 
 ### Resolution
 
 **If webhook failed:**
-- Follow Recovery 1 → replay the event
+- Follow Recovery 1 → replay the event via Stripe dashboard
+- This will update `subscriptions.status` to match Stripe
 
 **If no webhook found:**
 1. Check Stripe webhook endpoint configuration
 2. Verify webhook is enabled for `invoice.payment_failed` events
 3. Contact Stripe support if webhook setup is broken
 
-**After event is processed:**
-1. Verify `payments.status = 'failed'` was created
-2. Send support email to nurse (see SUBSCRIPTION_MONITORING.md template)
+**If payment is pending in Stripe:**
+- Advise nurse to update payment method in their Stripe Customer Portal
+- Stripe will retry the payment automatically
+- Once successful, webhook will update PassTo status
 
 ---
 
@@ -345,7 +347,7 @@ A nurse says their payment failed, but we don't see a payment record.
 | **Manually set `subscription_tier` to active** | Bypasses Stripe truth | Sync from Stripe via webhook replay |
 | **Delete a credential** | Loses data; looks bad for compliance | Leave it; lapsed users still see credentials |
 | **Delete a wallet pass** | Loses issuance history | Mark as 'voided' if needed |
-| **Directly create payment row** | No Stripe proof; audit red flag | Must come from Stripe webhook only |
+| **Directly create payment row** | No Stripe proof; audit red flag | Payment rows only created by Stripe webhooks for a-la-carte actions; subscription payments tracked in subscriptions table |
 | **Directly create subscription row** | No Stripe proof; entitlement bypass | Must come from Stripe webhook only |
 | **Skip audit for manual change** | Compliance violation | Always audit with `audit_events` insert |
 
@@ -396,12 +398,25 @@ select * from profiles where email = 'nurse@example.com';
 select * from subscriptions where profile_id = '...' order by created_at desc;
 ```
 
-**Check payment history:**
+**Check a-la-carte payment history:**
 ```sql
 select * from payments where profile_id = '...' order by created_at desc;
+```
+
+**Check subscription payment status (failed invoices):**
+```sql
+select * from stripe_events 
+where payload->>'customer' = (select stripe_customer_id from profiles where id = '...')
+  and event_type in ('invoice.payment_failed', 'invoice.payment_action_required')
+order by created_at desc;
 ```
 
 **Verify credential still exists:**
 ```sql
 select count(*) from credentials where profile_id = '...' and status = 'active';
+```
+
+**Find events by subscription ID:**
+```sql
+select * from stripe_events where payload->>'subscription' = 'sub_1234...' order by created_at desc;
 ```

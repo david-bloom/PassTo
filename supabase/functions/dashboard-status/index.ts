@@ -56,7 +56,7 @@ serve(async (req) => {
   // ── 2. Load profile + gate ─────────────────────────────────────────────────
   const { data: profile, error: profileErr } = await supabaseAdmin
     .from("profiles")
-    .select("id, onboarding_step, account_status, subscription_tier")
+    .select("id, onboarding_step, account_status, subscription_tier, stripe_customer_id")
     .eq("auth_user_id", user.id)
     .maybeSingle();
 
@@ -87,14 +87,9 @@ serve(async (req) => {
   const activeSub = allSubs?.status === "active" ? allSubs : null;
   const currentSub = allSubs; // May be active, past_due, canceled, unpaid, incomplete, etc.
 
-  // ── 4. Load stripe_customer to check subscription management availability ──
-  const { data: stripeCust } = await supabaseAdmin
-    .from("stripe_customers")
-    .select("id")
-    .eq("profile_id", profile.id)
-    .maybeSingle();
-
-  const canManageSubscription = stripeCust !== null;
+  // ── 4. Check subscription management availability ─────────────────────────
+  // stripe_customer_id is stored directly on profile (v4 migration)
+  const canManageSubscription = profile.stripe_customer_id !== null && profile.stripe_customer_id !== undefined;
 
   // ── 5. Load primary license — fail closed on read error ───────────────────
   const { data: license, error: licReadErr } = await supabaseAdmin

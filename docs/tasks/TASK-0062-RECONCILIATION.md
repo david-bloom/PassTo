@@ -92,7 +92,7 @@ All acceptance criteria are met. TASK-0056 (share-link) behavior is correctly al
 | MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE | PDF not in any phase |
 | Dashboard spec | No PDF export action button |
 
-**Schema support:** `purchases` table supports `action_type = 'pdf_export'` and `metadata.storage_path`. No MVP implementation.
+**Schema support:** `payments` table (v4; was `purchases` in v3) supports `action_type = 'pdf_export'`. No MVP implementation.
 
 **Conclusion:** PDF export is properly deferred and purchase-table-ready without MVP task implementation.
 
@@ -110,7 +110,7 @@ All acceptance criteria are met. TASK-0056 (share-link) behavior is correctly al
 | PRD Section 2 — Deferred Capabilities | "Scheduled automated refresh is deferred from launch-critical MVP" |
 | PRD Section 6 | Deferred integrations include "scheduled refresh automation" |
 | MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE | Refresh not in Phases 1-6 |
-| `refresh_events` table | Includes `triggered_by in ('nurse', 'scheduled')` but no job queue implementation |
+| `license_lookups` table (v4; was `refresh_events` in v3) | Includes `triggered_by in ('nurse', 'scheduled')` but no job queue implementation |
 
 **Conclusion:** Refresh infrastructure is schema-ready; scheduled/automated execution is deferred from MVP.
 
@@ -131,7 +131,7 @@ All acceptance criteria are met. TASK-0056 (share-link) behavior is correctly al
 | MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE | Additional license not in any phase |
 | Dashboard action visibility | No "Add License" button in MVP |
 
-**Schema support:** `purchases` table supports `action_type = 'additional_license'`. No MVP frontend or backend flow implemented.
+**Schema support:** `payments` table (v4; was `purchases` in v3) supports `action_type = 'additional_license'`. No MVP frontend or backend flow implemented.
 
 **Conclusion:** Additional license is properly deferred from MVP. Schema supports future GA feature.
 
@@ -159,7 +159,7 @@ All acceptance criteria are met. TASK-0056 (share-link) behavior is correctly al
 - Creation: `stripe-webhook` Edge Function (idempotent webhook handler)
 - Lovable involvement: None (webhook-driven)
 
-**Refresh Events** (`refresh_events`):
+**Refresh Events** (`license_lookups` in v4; was `refresh_events` in v3):
 - RLS Policy: Service-role only (no user INSERT)
 - Creation: Backend refresh function (deferred for MVP)
 - Lovable involvement: None (backend-controlled)

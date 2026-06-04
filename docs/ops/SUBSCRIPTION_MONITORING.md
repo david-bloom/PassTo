@@ -45,7 +45,7 @@ select
   s.current_period_end,
   s.canceled_at,
   (select count(*) from credentials where profile_id = p.id and status = 'active') as active_credential_count,
-  (select count(*) from wallet_passes where pass_id in (select id from passes where profile_id = p.id) and status = 'issued') as issued_wallet_passes,
+  (select count(*) from wallet_passes where credential_id in (select id from credentials where profile_id = p.id) and status = 'issued') as issued_wallet_passes,
   p.updated_at
 from profiles p
 left join subscriptions s on p.id = s.profile_id
@@ -63,14 +63,14 @@ order by p.created_at desc;
 
 ---
 
-### Query 2: Payment and Stripe Event History
+### Query 2: A-La-Carte Payment and Stripe Event History
 
-**Purpose:** Inspect payment history and associated Stripe events.
+**Purpose:** Inspect a-la-carte payment history (share tokens, refreshes, PDF exports, additional licenses) and associated Stripe events.
 
 **When to use:**
-- Support ticket: "My payment failed"
+- Support ticket: "My share/refresh/PDF payment failed"
 - Investigate missing payment record
-- Trace why a subscription didn't activate
+- Trace why a paid action didn't activate
 
 **Query:**
 ```sql
@@ -99,12 +99,14 @@ limit 20;
 ```
 
 **What it shows:**
-- Payment ID, action type (subscription_start, subscription_renewal), amount
-- Payment status (succeeded, failed)
+- Payment ID, action type (share_token, refresh, pdf_export, additional_license), amount
+- Payment status (pending, succeeded, failed, refunded)
 - Stripe event ID and type
 - Whether event was processed
 - Error message (if any)
-- Timeline of payments and webhooks
+- Timeline of a-la-carte payments and webhooks
+
+**For subscription payment history, use Query 5 below or inspect stripe_events filtered by subscription events.**
 
 ---
 

@@ -79,7 +79,7 @@ serve(async (req) => {
   // ── 2. Load profile + gate ─────────────────────────────────────────────────
   const { data: profile, error: profileErr } = await supabaseAdmin
     .from("profiles")
-    .select("id, account_status")
+    .select("id, account_status, stripe_customer_id")
     .eq("auth_user_id", user.id)
     .maybeSingle();
 
@@ -91,18 +91,8 @@ serve(async (req) => {
     return json({ error: "account_not_active" }, 403);
   }
 
-  // ── 3. Load Stripe customer ────────────────────────────────────────────────
-  const { data: stripeCust, error: custErr } = await supabaseAdmin
-    .from("stripe_customers")
-    .select("stripe_customer_id")
-    .eq("profile_id", profile.id)
-    .maybeSingle();
-
-  if (custErr) {
-    console.error("subscription-portal-session: stripe_customers read failed:", custErr.message);
-    return json({ error: "backend_read_error" }, 503);
-  }
-  if (!stripeCust) {
+  // ── 3. Verify Stripe customer exists ───────────────────────────────────────
+  if (!profile.stripe_customer_id) {
     return json({ error: "stripe_customer_not_found" }, 404);
   }
 
@@ -116,7 +106,7 @@ serve(async (req) => {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
-        customer: stripeCust.stripe_customer_id,
+        customer: profile.stripe_customer_id,
         return_url: "https://app.passtodigital.com/dashboard",
       }).toString(),
     });
@@ -146,7 +136,7 @@ serve(async (req) => {
     resource_type: "stripe_session",
     resource_id: null,
     change_after: {
-      customer_id: stripeCust.stripe_customer_id,
+      customer_id: profile.stripe_customer_id,
       return_url: "https://app.passtodigital.com/dashboard",
     },
   });
