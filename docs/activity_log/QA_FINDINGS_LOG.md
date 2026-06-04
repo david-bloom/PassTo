@@ -478,13 +478,13 @@ direct-path re-test (direct authenticated `/dashboard` access correctly redirect
 incomplete users to enrollment domain). Status reflects QA verification evidence only
 and is NOT equivalent to task Done, issue closure, or launch readiness approval.
 
-**Codex verified:** QA-001, QA-002, QA-007, QA-009, QA-010, QA-011.
+**Codex verified:** QA-001, QA-002, QA-004, QA-007, QA-009, QA-010, QA-011.
 
 **Applied, verification limited:** QA-003 (App-host share URL observed by QA Agent/David; Codex verified live App-domain CORS but could not independently read Supabase secret or create a fresh authenticated link).
 
 **Awaiting Codex verification:** None.
 
-**Open — require Lovable action:** QA-004, QA-005.
+**Open — require Lovable action:** QA-005.
 
 **Decision pending:** QA-006 (David to choose `/verify-demo` disposition).
 
