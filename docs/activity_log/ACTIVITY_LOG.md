@@ -4,6 +4,40 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0060 Passed After Real Stripe Checkout and Idempotency Re-QA - 2026-06-04 - Codex
+
+**Task:** TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness
+**Status:** Complete / Passed - David Approved
+**Approval Record:** APPROVAL-0032
+**Files Updated:** `docs/tasks/TASK-0060.md`, `docs/tasks/PRD_PHASE_06_STRIPE_ENTITLEMENTS_TASK_LIST.md`, `docs/activity_log/QA_FINDINGS_LOG.md`, `docs/activity_log/APPROVALS_LOG.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+Codex re-QA verified the real Standard Stripe test checkout through Lovable, webhook persistence, profile advancement, and duplicate webhook idempotency. David approved TASK-0060 as Passed / Done.
+
+### Evidence
+
+| Check | Result |
+|---|---|
+| Test profile | `payment-pending@passtodigital.test` / `2a703241-8e7f-4f79-9727-2a3809cc0566` |
+| Final profile step | `selfie` |
+| Subscription | `sub_1TeiXkAxxYwftEABIFUaGs8l`, active, Standard, 1 entitlement |
+| Payment | `subscription_start`, succeeded, 999 cents |
+| Stripe event | `evt_1TeiXlAxxYwftEABuYocF2ge`, processed, no error |
+| Duplicate resend | Stripe delivery `wc_1Tej5xAxxYwftEABpxPqshI9` returned `{ "received": true, "duplicate": true }` |
+| Duplicate side effects | Still one subscription, one payment, one `subscription_start` |
+
+### Remaining Notes
+
+- Stale Lovable plan copy/pricing should be cleaned up outside TASK-0060.
+- `subscriptions.current_period_end` was null in the verified row; track under TASK-0061 / TASK-0063 subscription management and lapse behavior.
+
+### Approval Boundary
+
+This pass does not approve Stripe live-mode cutover, production launch, broad risk acceptance, or unrelated issue/task closure.
+
+---
+
 ## Lovable JWT Integration Issue Discovered During TASK-0060 Checkout Test - 2026-06-04 (Evening) - Claude
 
 **Task:** TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness

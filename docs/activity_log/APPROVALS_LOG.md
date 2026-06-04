@@ -30,6 +30,30 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0032 — TASK-0060 Pass / Done Approval
+
+**Date:** 2026-06-04
+**Approved By:** David
+**Related Task:** TASK-0060
+**Decision:** Done / Passed
+
+### Summary
+
+David approved TASK-0060 after Codex re-QA verified the real Stripe test checkout, webhook persistence, and duplicate webhook idempotency evidence.
+
+### Approval Checklist
+
+- [x] I approve TASK-0060 as Passed / Done for its documented scope.
+- [x] I approve the recorded real Stripe test-mode checkout evidence.
+- [x] I approve the recorded duplicate webhook resend/idempotency evidence.
+- [x] I understand this does not approve Stripe live-mode cutover, production launch, issue closure outside this task, or risk acceptance beyond the documented TASK-0060 scope.
+
+### Notes
+
+Approval source: David stated "David approved" after Codex reported TASK-0060 re-QA evidence and duplicate event verification for `evt_1TeiXlAxxYwftEABuYocF2ge`.
+
+---
+
 ## APPROVAL-0031 — Phase 5 Closeout and Phase 6 Execution Approvals
 
 **Date:** 2026-06-04

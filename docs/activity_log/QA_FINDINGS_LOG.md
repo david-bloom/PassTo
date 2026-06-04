@@ -499,33 +499,33 @@ or to `app.passtodigital.com/dashboard` if `onboarding_step` is complete.
 | Severity | Total | `codex_verified` | `codex_verification_requested` | `applied` | `applied_partial` | `open` | `decision_pending` |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | P0 | 4 | 3 | 0 | 1 | 0 | 0 | 0 |
-| P1 | 6 | 3 | 0 | 2 | 0 | 0 | 1 |
+| P1 | 6 | 4 | 0 | 2 | 0 | 0 | 0 |
 | P2 | 2 | 1 | 0 | 1 | 0 | 0 | 0 |
-| **Total** | **12** | **7** | **0** | **4** | **0** | **0** | **1** |
+| **Total** | **12** | **8** | **0** | **4** | **0** | **0** | **0** |
 
 **All 12 findings:** QA-001 through QA-012.
 
 **Status notes:**
 - QA-004 (2026-06-04): Codex verified `/dashboard` route guard hard-redirect to enrollment domain
 - QA-006 (2026-06-04): Route removed entirely; 404 confirmed; no decision pending
-- QA-012 (2026-06-04): Payment-step auth + Stripe checkout invocation fails; awaiting Lovable investigation
+- QA-012 (2026-06-04): Payment-step auth/session issue resolved; real Standard Stripe checkout and duplicate webhook idempotency verified
 
 All statuses reflect QA and remediation evidence only. Not equivalent to task Done,
 issue closure, QA pass, or launch readiness approval.
 
-**Codex verified:** QA-001, QA-002, QA-004, QA-007, QA-009, QA-010, QA-011.
+**Codex verified:** QA-001, QA-002, QA-004, QA-007, QA-009, QA-010, QA-011, QA-012.
 
 **Applied, verification limited:** QA-003 (App-host share URL observed by QA Agent/David; Codex verified live App-domain CORS but could not independently read Supabase secret or create a fresh authenticated link).
 
 **Applied, QA verified:** QA-005 (Recovery context gating implemented; error message UI + form conditional on recovery token or session), QA-006 (Lovable removed `/verify-demo` route entirely; 404 confirmed live), QA-008 (OG image migrated from Lovable CDN to https://passtodigital.com/og-image.png with full meta tags).
 
-**Decision pending:** QA-012 (Lovable JWT integration issue blocks Stripe checkout; awaiting investigation and fix decision).
+**Decision pending:** None.
 
 **Awaiting Codex verification:** None.
 
-**Open — require Lovable action:** QA-012 (stripe-checkout-create invocation header issue).
+**Open — require Lovable action:** None.
 
-**Follow-up required:** QA-012 — Lovable team investigation of `passtoSupabase.functions.invoke()` Authorization header handling for magic-link authenticated sessions.
+**Follow-up required:** Lovable plan copy/pricing cleanup remains outside QA-012 / TASK-0060 pass scope.
 
 **Source-of-truth gap resolved in original QA log commit:** QA-003 (APPROVAL-0028 recorded in APPROVALS_LOG; activity log entry added).
 
@@ -671,7 +671,7 @@ All acceptance criteria met. End-to-end flow (nurse shares → verifier accesses
 
 **Date:** 2026-06-04
 **Severity:** P1
-**Status:** `decision_pending`
+**Status:** `codex_verified`
 **Surface:** Enroll project — `stripe-checkout-create` Edge Function invocation via magic-link authentication
 **Route:** `https://enroll.passtodigital.com/payment`
 **Owner:** Lovable enroll project
@@ -791,5 +791,18 @@ The error is **NOT** a JWT header issue. Instead, it's a **Lovable session-state
 
 **Blockage:** Still a Lovable issue; backend is not the problem. However, the specific problem is session-state validation at the frontend, not JWT header construction at the API layer.
 
----
+**Resolution / Codex verification (2026-06-04):**
 
+The Lovable enrollment bundle was updated to `flowType: "implicit"` with `detectSessionInUrl: true` and payment-route session diagnostics. David completed the real Standard Stripe test checkout through Lovable using the `payment-pending@passtodigital.test` persona and Stripe test card `4242 4242 4242 4242`.
+
+Codex verified live Supabase evidence:
+- Profile `2a703241-8e7f-4f79-9727-2a3809cc0566` advanced to `onboarding_step='selfie'`.
+- Subscription `sub_1TeiXkAxxYwftEABIFUaGs8l` exists with `profile_id`, `plan_name='standard'`, `status='active'`, and `license_entitlement_count=1`.
+- Payment row exists with `action_type='subscription_start'`, `status='succeeded'`, and `amount_cents=999`.
+- Stripe event `evt_1TeiXlAxxYwftEABuYocF2ge` is `processed=true`, `error_message=null`, and carries correct metadata profile/plan linkage.
+- David resent `evt_1TeiXlAxxYwftEABuYocF2ge`; Stripe delivery `wc_1Tej5xAxxYwftEABpxPqshI9` returned `200 OK` with `{ "received": true, "duplicate": true }`.
+- Post-resend verification showed still exactly one subscription row, one payment row, and one `subscription_start` row for the test profile.
+
+Proposed status: `codex_verified`. This does not mark production launch approved.
+
+---

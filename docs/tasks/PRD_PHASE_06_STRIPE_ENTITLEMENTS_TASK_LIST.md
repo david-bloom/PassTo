@@ -1,7 +1,7 @@
 # PRD Phase 6 Task List - Stripe, Entitlements, and Lapse Behavior
 
 **Phase:** Phase 6 - Stripe, Entitlements, and Lapse Behavior  
-**Status:** Execution Started - TASK-0060 Blocked on Payment-Step Test Profile
+**Status:** Execution Started - TASK-0060 Complete / Passed; TASK-0061 through TASK-0063 in progress
 **Created:** 2026-06-02  
 **Owner:** David Bloom  
 **Execution Support:** Codex and Claude  
@@ -19,7 +19,7 @@ This document does not authorize implementation, migration execution, Stripe liv
 
 | Phase Item | Task ID | Task | Owner | Status | Depends On |
 |---|---|---|---|---|---|
-| 6.1 | TASK-0060 | Reconcile Stripe Checkout End-to-End Readiness | Claude / Codex | Blocked - Payment-Step Test Profile Required | TASK-0040, Lovable payment route |
+| 6.1 | TASK-0060 | Reconcile Stripe Checkout End-to-End Readiness | Claude / Codex | Complete / Passed - David Approved | TASK-0040, Lovable payment route |
 | 6.2 | TASK-0061 | Define Subscription Management and Cancellation Flow | Claude / Lovable | Approved for Execution - Awaiting Claude/Lovable | TASK-0040, TASK-0060 |
 | 6.3 | TASK-0062 | Reconcile GA Tier Features Against MVP PRD | Claude / Codex | Approved for Reconciliation Execution - Awaiting Claude/Codex | TASK-0056, TASK-0040 |
 | 6.4 | TASK-0063 | Harden Entitlement and Lapse Ops Visibility | Claude / Codex | Approved for Execution - Awaiting Claude/Codex | TASK-0040, TASK-0055, TASK-0061 |
