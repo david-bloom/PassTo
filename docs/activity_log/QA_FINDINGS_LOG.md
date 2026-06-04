@@ -227,31 +227,43 @@ accepted. The bug affects only the unguarded direct-visit path.
 
 ## QA-006
 
-**Date:** 2026-06-03
+**Date:** 2026-06-03 (initial finding); 2026-06-04 (remediation + verification)
 **Severity:** P1
-**Status:** `decision_pending`
+**Status:** `applied`
 **Surface:** App project — `/verify-demo`
-**Route:** `https://app.passtodigital.com/verify-demo`
+**Route:** `https://app.passtodigital.com/verify-demo` (now removed)
 **Owner:** David (disposition decision) → Lovable App project (execution)
-**Related tasks/issues:** `docs/tasks/LOVABLE_PROMPT_2026-06-02_APP_LAUNCH_READINESS.md`
+**Related tasks/issues:** `docs/tasks/LOVABLE_PROMPT_2026-06-04_QA006_VERIFY_DEMO_REMOVAL.md`
 
-**Finding:** `/verify-demo` is publicly accessible without authentication and displays
+**Finding:** `/verify-demo` was publicly accessible without authentication and displayed
 fabricated nurse credentials: "Sarah Johnson, RN", license "RN-2024-198234", state CA,
 data source "Nursys QuickConfirm · Primary Source", expiration "March 30, 2027",
-"Verified April 7, 2026". Page title is "PassTo — Credential Verification" —
+"Verified April 7, 2026". Page title was "PassTo — Credential Verification" —
 indistinguishable from a real verification. No DEMO / SAMPLE / FAKE labeling anywhere
 visible.
 
-**Evidence:** QA-A13 (2026-06-03): screenshot captured, JavaScript confirmed
+**Initial evidence (2026-06-03):** QA-A13 screenshot captured, JavaScript confirmed
 `demo_label_present: false`, `looks_like_real_credential_ui: true`.
 
-**Decision required from David:**
-- Option A: Remove route entirely (recommended)
-- Option B: Add prominent DEMO banner + retitle tab
-- Option C: Gate behind `/demo/` subpath or auth wall
+**Decision (2026-06-04):** David selected Option A — Remove route entirely (recommended).
 
-**Remediation:** Blocked on David's disposition decision. Three pre-drafted options
-available in `docs/tasks/LOVABLE_PROMPT_2026-06-02_APP_LAUNCH_READINESS.md`.
+**Remediation applied:** Lovable removed route entirely:
+- Route definition deleted from `App.tsx`
+- `VerifyDemo.tsx` component deleted
+- All demo data references removed ("Sarah Johnson", "RN-2024-198234", etc.)
+- No broken imports; TypeScript compiles cleanly
+- NotFound catch-all handles undefined routes
+
+**QA Agent verification (2026-06-04):** Direct navigation to `https://app.passtodigital.com/verify-demo`:
+- Response: **404 "Oops! Page not found"**
+- Demo credentials: **Not displayed**
+- NotFound page: **Rendered correctly** with "Return to Home" link
+- No references to demo data anywhere accessible
+
+**Codex verification scope:** Confirm `/verify-demo` route is absent from deployed App bundle
+and no orphaned demo components/data exist in source.
+
+**Status:** Route successfully removed. No further action required.
 
 ---
 
@@ -462,31 +474,35 @@ or to `app.passtodigital.com/dashboard` if `onboarding_step` is complete.
 
 ---
 
-## Aggregate counts (2026-06-03 session + 2026-06-04 re-verification)
+## Aggregate counts (2026-06-03 session + 2026-06-04 remediation & verification)
 
 | Severity | Total | `codex_verified` | `codex_verification_requested` | `applied` | `applied_partial` | `open` | `decision_pending` |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | P0 | 4 | 3 | 0 | 1 | 0 | 0 | 0 |
-| P1 | 5 | 3 | 0 | 0 | 0 | 1 | 1 |
+| P1 | 5 | 3 | 0 | 1 | 0 | 1 | 0 |
 | P2 | 2 | 1 | 0 | 0 | 1 | 0 | 0 |
-| **Total** | **11** | **7** | **0** | **1** | **1** | **1** | **1** |
+| **Total** | **11** | **7** | **0** | **2** | **1** | **1** | **0** |
 
 **All 11 findings:** QA-001 through QA-011.
 
-**Status note:** QA-004 moved from `open` → `codex_verified` based on 2026-06-04
-direct-path re-test (direct authenticated `/dashboard` access correctly redirects
-incomplete users to enrollment domain). Status reflects QA verification evidence only
-and is NOT equivalent to task Done, issue closure, or launch readiness approval.
+**Status notes:**
+- QA-004 (2026-06-04): Codex verified `/dashboard` route guard hard-redirect to enrollment domain
+- QA-006 (2026-06-04): Route removed entirely; 404 confirmed; no decision pending
+
+All statuses reflect QA and remediation evidence only. Not equivalent to task Done,
+issue closure, QA pass, or launch readiness approval.
 
 **Codex verified:** QA-001, QA-002, QA-004, QA-007, QA-009, QA-010, QA-011.
 
 **Applied, verification limited:** QA-003 (App-host share URL observed by QA Agent/David; Codex verified live App-domain CORS but could not independently read Supabase secret or create a fresh authenticated link).
 
+**Applied, QA verified:** QA-006 (Lovable removed `/verify-demo` route entirely; 404 confirmed live).
+
 **Awaiting Codex verification:** None.
 
 **Open — require Lovable action:** QA-005.
 
-**Decision pending:** QA-006 (David to choose `/verify-demo` disposition).
+**Decision pending:** None.
 
 **Partially applied — follow-up required:** QA-008 (OG/Twitter image URL still on Lovable CDN).
 
