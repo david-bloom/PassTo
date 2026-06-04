@@ -4,6 +4,45 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## Payment-Pending Persona Added to Seed Harness - 2026-06-04 (Late Afternoon) - Claude
+
+**Tasks:** TASK-0044 (extension), TASK-0060 (unblock)
+**Status:** QA infrastructure enhancement complete
+**Files Updated:** `scripts/seed-dev-test-personas.ts`, `docs/tasks/TASK-0044.md`, `docs/tasks/TASK-0060.md`
+
+### Summary
+
+Added repeatable, documented dev-only test infrastructure for Stripe checkout testing. The new `payment-pending` persona addresses the QA infrastructure gap identified during TASK-0060 investigation.
+
+### How to Use for TASK-0060 Testing
+
+```bash
+# Create/reset payment-pending test persona
+deno run --allow-env --allow-net scripts/seed-dev-test-personas.ts --apply
+
+# Output will include magic link or generated password
+# Use the printed credentials to sign in to Lovable
+# Navigate to /payment → complete Stripe checkout with test card 4242 4242 4242 4242
+```
+
+### Persona Details
+
+- **Email:** `payment-pending@passtodigital.test`
+- **onboarding_step:** `payment`
+- **subscription_tier:** `standard`
+- **All upstream gates:** Verified (identity, phone, license)
+- **Sign-in method:** Magic link (printed on seed run, never committed)
+
+### Benefits
+
+✅ Repeatable and documented  
+✅ Hard-guarded against production  
+✅ No passwords or secrets committed  
+✅ Supports unlimited QA/development re-runs  
+✅ Within TASK-0044 approved scope  
+
+---
+
 ## TASK-0060 Authentication Blocker Identified - 2026-06-04 (Afternoon) - Claude
 
 **Task:** TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness
