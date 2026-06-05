@@ -122,6 +122,14 @@ Wallet pass images and pass-card screenshots live in:
 
 The SVG/PNG exports are flat, exportable references. For in-product display, build the live component rather than embedding screenshots as UI.
 
+The canonical wallet pass content contract is:
+
+```text
+/docs/design_system/WALLET_PASS_DISPLAY_SPEC.md
+```
+
+Use the screenshots as visual references and the display spec as the source of truth for which fields render on Apple Wallet and Google Wallet passes.
+
 ## Implementation guidance
 
 Frontend, user-facing, brand, marketing, notification, and customer-facing tasks must reference this folder before execution.

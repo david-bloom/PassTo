@@ -28,6 +28,59 @@
 const jwt = require("jsonwebtoken");
 const { createClient } = require("@supabase/supabase-js");
 
+function titleizeLicenseType(value) {
+  return String(value || "Nursing License")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function displayState(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(date).toUpperCase();
+}
+
+function formatDateTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(date);
+}
+
+function deriveTreatment(d) {
+  const treatment = String(d.wallet_pass_treatment || "").toLowerCase();
+  const normalized = String(d.normalized_status || "").toLowerCase();
+  if (treatment === "caution") return "caution";
+  if (treatment === "invalid" || ["revoked", "expired", "suspended", "inactive"].includes(normalized)) return "invalid";
+  return "valid";
+}
+
+function statusLabel(d, treatment) {
+  if (treatment === "caution") return "EXPIRING SOON";
+  if (treatment === "invalid") return "NOT VALID";
+  if (String(d.normalized_status || "").toLowerCase() === "active") return "VERIFIED";
+  return String(d.normalized_status || "VERIFIED").toUpperCase();
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "method_not_allowed" });
@@ -66,12 +119,16 @@ module.exports = async function handler(req, res) {
   }
 
   const d = credential.pass_template_data ?? {};
-  const nurseName      = d.nurse_name       ?? "Verified Nurse";
-  const licenseType    = d.license_type     ?? "";
-  const licenseState   = d.license_state    ?? "";
-  const licenseNumber  = d.license_number   ?? "";
-  const status         = d.normalized_status ?? "Active";
-  const expirationDate = d.expiration_date  ?? "";
+  const treatment      = deriveTreatment(d);
+  const nurseName      = d.nurse_name ?? "Verified Nurse";
+  const licenseType    = titleizeLicenseType(d.license_type);
+  const licenseState   = displayState(d.license_state);
+  const licenseNumber  = d.license_number ?? "";
+  const status         = statusLabel(d, treatment);
+  const expirationDate = formatDate(d.expiration_date);
+  const issuedDate     = formatDate(d.issue_date || d.credential_created);
+  const lastVerified   = formatDateTime(d.status_checked_at);
+  const sourceDisplay  = d.verification_source_display ?? "Primary license source";
 
   // ── Required Google env vars ───────────────────────────────────────────────
   const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON ?? "";
@@ -117,7 +174,10 @@ module.exports = async function handler(req, res) {
         { id: "license_state", header: "STATE",        body: licenseState },
         { id: "license_number",header: "LICENSE #",    body: licenseNumber },
         { id: "status",        header: "STATUS",       body: status },
+        { id: "issued",        header: "ISSUED",       body: issuedDate },
         { id: "valid_through", header: "VALID THROUGH",body: expirationDate },
+        { id: "last_verified", header: "LAST VERIFIED",body: lastVerified },
+        { id: "source",        header: "SOURCE",       body: sourceDisplay },
       ],
       // No barcode/QR — pass does not carry a permanent verification QR.
       // Verifier access is via share-link tokens (separate feature).

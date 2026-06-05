@@ -4,6 +4,68 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0072 Approved for Wallet Provider Configuration - 2026-06-05 - David / Codex
+
+**Task:** TASK-0072 — Configure and Verify Apple and Google Wallet Pass Issuance
+**Status:** Approved - Ready for Provider Configuration and Live Wallet QA
+**Approval Record:** APPROVAL-0034
+**Files Updated:** `docs/tasks/TASK-0072.md`, `docs/design_system/WALLET_PASS_DISPLAY_SPEC.md`, `docs/tasks/PRD_PHASE_04_CREDENTIAL_WALLET_TASK_LIST.md`, `docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md`, `docs/tasks/PRD_SECTION_07_MASTER_TASK_LIST.md`, `docs/activity_log/APPROVALS_LOG.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+David approved TASK-0072 execution and the wallet pass display specification after Codex built the actual Apple PassKit pass layout and mirrored Google Wallet display payload.
+
+### Approval Boundary
+
+Approved: Apple Wallet / PassKit credential configuration, Google Wallet issuer/service-account configuration, required Vercel environment variables, required Supabase Edge Function secrets, deployment/redeployment of wallet signing routes and `wallet-issue` if needed, and test-mode or launch-readiness wallet issuance against an approved disposable credential.
+
+Not approved: production launch, broader risk acceptance, permanent QR/barcode embedding, committing secrets or raw provider credentials, Stripe live-mode changes, or unrelated task/issue closure.
+
+### Next Required Action
+
+Proceed with TASK-0072 provider setup and live wallet QA when the required Apple, Google, Vercel, Supabase, and disposable test credential inputs are available.
+
+---
+
+## TASK-0072 Wallet Provider Bring-Up Task Created - 2026-06-05 - Codex
+
+**Task:** TASK-0072 — Configure and Verify Apple and Google Wallet Pass Issuance
+**Status:** Spec Drafted - Awaiting David Approval
+**Files Updated:** `docs/tasks/TASK-0072.md`, `docs/tasks/PRD_PHASE_04_CREDENTIAL_WALLET_TASK_LIST.md`, `docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md`, `docs/tasks/PRD_SECTION_07_MASTER_TASK_LIST.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+David identified that PassTo had not yet fully rigged up actual Apple Wallet and Google Wallet pass issuance. Codex confirmed that TASK-0050 created the source scaffolding and contract, but real provider issuance remained deferred pending wallet certificates, Google issuer setup, Vercel environment configuration, Supabase secrets, deployment, and end-to-end verification.
+
+### Next Required Action
+
+David approval is required before TASK-0072 execution because the work involves certificate/private-key handling, Google service account credentials, Vercel environment variables, Supabase secrets, and wallet-provider launch posture.
+
+---
+
+## TASK-0061, TASK-0062, and TASK-0063 Done Approval - 2026-06-05 - David / Codex
+
+**Tasks:** TASK-0061, TASK-0062, TASK-0063
+**Status:** Done / Passed - David Approved
+**Approval Record:** APPROVAL-0033
+**Files Updated:** `docs/tasks/TASK-0061.md`, `docs/tasks/TASK-0062.md`, `docs/tasks/TASK-0063.md`, `docs/tasks/PRD_PHASE_06_STRIPE_ENTITLEMENTS_TASK_LIST.md`, `docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md`, `docs/activity_log/APPROVALS_LOG.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+David approved TASK-0061, TASK-0062, and TASK-0063 as Done after Codex re-QA/final review.
+
+### Scope Confirmed Done
+
+- TASK-0061: subscription management and cancellation-flow source-level remediation passed Codex re-QA.
+- TASK-0062: MVP-vs-GA tier reconciliation passed Codex re-QA.
+- TASK-0063: entitlement/lapse ops visibility passed Codex final review.
+
+### Approval Boundary
+
+This approval does not approve TASK-0064 Done, production launch, Stripe live-mode cutover, live Stripe product/price changes, issue closure outside the named tasks, or risk acceptance beyond the named task scopes.
+
+---
+
 ## TASK-0060 Passed After Real Stripe Checkout and Idempotency Re-QA - 2026-06-04 - Codex
 
 **Task:** TASK-0060 — Reconcile Stripe Checkout End-to-End Readiness

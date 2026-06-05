@@ -24,6 +24,7 @@ This document does not authorize implementation, migration execution, wallet cer
 | 4.3 | TASK-0051 | Persist Wallet Provider State to Supabase | Claude | Codex QA Complete — Ready for David Review | TASK-0050 |
 | 4.4 | TASK-0052 | Implement Success / PassReady Credential Status Flow | Claude / Lovable | Codex QA Complete — Ready for David Review | TASK-0049, TASK-0051 |
 | 4.5 | TASK-0053 | Codex QA Phase 4 Credential and Wallet Issuance | Codex | Codex QA Complete — Ready for David Review, with TASK-0049 re-QA status to reconcile | TASK-0049 through TASK-0052 |
+| 4.6 | TASK-0072 | Configure and Verify Apple and Google Wallet Pass Issuance | Claude / Codex / David | Approved - Ready for Provider Configuration and Live Wallet QA | TASK-0049 through TASK-0053, wallet provider/certificate readiness |
 
 ## Relationship to Earlier Tasks
 
@@ -50,6 +51,7 @@ Do not delete or rewrite `TASK-0037` / `TASK-0038`; keep them as historical plan
 - Wallet pass provider results are persisted in `wallet_passes`.
 - `/success` or PassReady equivalent shows credential/wallet status without pretending issuance succeeded when it has not.
 - Credential/wallet failure states are visible to the nurse and inspectable by ops.
+- Real Apple and Google wallet issuance is configured, deployed, and verified through TASK-0072 before production launch.
 - Codex QA passes the full Phase 4 scope.
 
 ## Approval Boundary
@@ -67,3 +69,11 @@ The individual task files and activity log currently need one source-of-truth re
 - The activity log closeout also lists `TASK-0049` re-QA as the next required action before Phase 4 QA closure.
 
 No Done decision, production launch, credential launch, wallet launch, provider setup, deployment, migration, or risk acceptance is granted by this inventory update.
+
+## Wallet Provider Bring-Up Gap - 2026-06-05
+
+David identified that real Apple and Google wallet pass issuance has not yet been fully rigged up.
+
+`TASK-0050` created the wallet signing contract and source scaffolding, but real provider issuance was explicitly deferred pending Apple certificates, Google Wallet issuer/service-account setup, Vercel environment configuration, Supabase `wallet-issue` secrets, deployment, and end-to-end verification.
+
+David approved `TASK-0072` on 2026-06-05. The task now tracks approved launch-critical provider bring-up and verification work; production launch approval remains separate.

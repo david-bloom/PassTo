@@ -1,7 +1,7 @@
 # PRD Phase 6 Task List - Stripe, Entitlements, and Lapse Behavior
 
 **Phase:** Phase 6 - Stripe, Entitlements, and Lapse Behavior  
-**Status:** Execution Started - TASK-0060 Complete / Passed; TASK-0061 through TASK-0063 in progress
+**Status:** TASK-0060 through TASK-0063 Complete / Passed; TASK-0064 pending
 **Created:** 2026-06-02  
 **Owner:** David Bloom  
 **Execution Support:** Codex and Claude  
@@ -20,9 +20,9 @@ This document does not authorize implementation, migration execution, Stripe liv
 | Phase Item | Task ID | Task | Owner | Status | Depends On |
 |---|---|---|---|---|---|
 | 6.1 | TASK-0060 | Reconcile Stripe Checkout End-to-End Readiness | Claude / Codex | Complete / Passed - David Approved | TASK-0040, Lovable payment route |
-| 6.2 | TASK-0061 | Define Subscription Management and Cancellation Flow | Claude / Lovable | Approved for Execution - Awaiting Claude/Lovable | TASK-0040, TASK-0060 |
-| 6.3 | TASK-0062 | Reconcile GA Tier Features Against MVP PRD | Claude / Codex | Approved for Reconciliation Execution - Awaiting Claude/Codex | TASK-0056, TASK-0040 |
-| 6.4 | TASK-0063 | Harden Entitlement and Lapse Ops Visibility | Claude / Codex | Approved for Execution - Awaiting Claude/Codex | TASK-0040, TASK-0055, TASK-0061 |
+| 6.2 | TASK-0061 | Define Subscription Management and Cancellation Flow | Claude / Lovable | Done - David Approved | TASK-0040, TASK-0060 |
+| 6.3 | TASK-0062 | Reconcile GA Tier Features Against MVP PRD | Claude / Codex | Done - David Approved | TASK-0056, TASK-0040 |
+| 6.4 | TASK-0063 | Harden Entitlement and Lapse Ops Visibility | Claude / Codex | Done - David Approved | TASK-0040, TASK-0055, TASK-0061 |
 | 6.5 | TASK-0064 | Codex QA Phase 6 Stripe, Entitlements, and Lapse Behavior | Codex | Spec Drafted - Awaiting David Approval | TASK-0060 through TASK-0063 |
 
 ## Relationship to TASK-0040
@@ -65,3 +65,9 @@ This records the MVP scope clarification only. It supersedes APPROVAL-0029 for M
 David approved TASK-0060, TASK-0061, TASK-0062, and TASK-0063 for execution.
 
 This approval authorizes work within each task's documented scope. It does not mark any Phase 6 task Done, approve TASK-0064 final QA execution beyond its documented standing/read-only lane, approve Stripe live-mode changes, approve live Stripe product/price changes, change secrets, deploy production changes outside task scope, approve production launch, close issues, or accept risk.
+
+## Done Approval - 2026-06-05
+
+David approved TASK-0061, TASK-0062, and TASK-0063 as Done after Codex re-QA/final review.
+
+This approval closes the documented scopes for Phase Items 6.2, 6.3, and 6.4. It does not approve TASK-0064 Done, Stripe live-mode cutover, live Stripe product/price changes, production launch, issue closure outside the named tasks, or risk acceptance beyond the named task scopes.

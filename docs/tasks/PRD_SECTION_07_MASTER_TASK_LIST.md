@@ -20,6 +20,7 @@ This task list converts Section 7 into launch readiness, QA, security, and decis
 | David migration approval | Pending | Required before applying migration. |
 | RLS/security tests | Pending | Required before launch. |
 | Integration readiness checklist | Pending | ID.me, Twilio, RapidAPI/Propelus, Stripe, wallet, Postmark. |
+| Apple/Google wallet issuance bring-up | Approved - ready for provider configuration and live wallet QA | TASK-0072. Required before real first-nurse wallet credential issuance. |
 | Dev test personas and seed harness | David approved - executing | TASK-0044. Required for repeatable smoke testing and David hands-on review. |
 | Launch smoke test | Pending | End-to-end first nurse flow. |
 | Ops readiness | Pending | Supabase views/logs/alerts. |
@@ -59,6 +60,7 @@ New Section 7 task files must use the next available confirmed task number. The 
 | TASK-0069 | Create production configuration checklist. | Spec Drafted - Awaiting David Approval | Env vars, redirects, webhooks, domains, provider modes, wallet signing, and seed-tool production guards. |
 | TASK-0070 | Create launch smoke-test script. | Spec Drafted - Awaiting David Approval | Repeatable dev dry run and production-launch smoke-test script for the end-to-end first nurse flow. |
 | TASK-0071 | Create open decision register cleanup. | Spec Drafted - Awaiting David Approval | Routes unresolved launch decisions and reconciles decision/approval source-of-truth docs without closing decisions prematurely. |
+| TASK-0072 | Configure and Verify Apple and Google Wallet Pass Issuance. | Approved - Ready for Provider Configuration and Live Wallet QA | Closes the TASK-0050 real-provider deferral: Apple certs, Google issuer, Vercel env, Supabase secrets, deployment, and end-to-end wallet issuance verification. |
 
 ## Section 7 Review Checklist
 

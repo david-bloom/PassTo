@@ -30,6 +30,66 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0034 — TASK-0072 Wallet Provider Configuration and Display Spec Approval
+
+**Date:** 2026-06-05
+**Approved By:** David
+**Related Task:** TASK-0072
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0072 execution and the wallet pass display specification after Codex implemented the actual Apple PassKit layout and mirrored Google Wallet display payload:
+
+```text
+approved
+```
+
+### Approval Checklist
+
+- [x] I approve configuring Apple Wallet / PassKit credentials for PassTo.
+- [x] I approve configuring Google Wallet issuer/service-account credentials for PassTo.
+- [x] I approve setting required Vercel environment variables without exposing values in GitHub.
+- [x] I approve setting required Supabase Edge Function secrets without exposing values in GitHub.
+- [x] I approve deploying/redeploying wallet signing routes and `wallet-issue` if needed.
+- [x] I approve test-mode or launch-readiness wallet issuance against an approved disposable credential.
+- [x] I approve `docs/design_system/WALLET_PASS_DISPLAY_SPEC.md` as implementation truth for TASK-0072.
+- [x] I understand this does not approve production launch or broader risk acceptance.
+
+### Notes
+
+Approval covers provider configuration and live wallet QA for TASK-0072. It does not approve production launch, permanent QR/barcode embedding, committed secrets, raw wallet provider credentials in GitHub, Stripe live-mode changes, or unrelated task/issue closure.
+
+---
+
+## APPROVAL-0033 — TASK-0061, TASK-0062, and TASK-0063 Done Approval
+
+**Date:** 2026-06-05
+**Approved By:** David
+**Related Task:** TASK-0061, TASK-0062, TASK-0063
+**Decision:** Done / Passed
+
+### Summary
+
+David approved TASK-0061, TASK-0062, and TASK-0063 after Codex re-QA/final review:
+
+```text
+David approves Tasks-0061, 0062, 0063
+```
+
+### Approval Checklist
+
+- [x] I approve TASK-0061 as Done for its documented subscription management and cancellation-flow scope.
+- [x] I approve TASK-0062 as Done for its documented MVP-vs-GA tier reconciliation scope.
+- [x] I approve TASK-0063 as Done for its documented entitlement/lapse ops visibility scope.
+- [x] I understand this does not approve TASK-0064 Done, production launch, Stripe live-mode cutover, live Stripe product/price changes, issue closure outside the named tasks, or risk acceptance outside the named task scopes.
+
+### Notes
+
+Approval follows Codex re-QA for TASK-0061 and TASK-0062 and Codex final review for TASK-0063. Residual limitations remain as documented in each task file.
+
+---
+
 ## APPROVAL-0032 — TASK-0060 Pass / Done Approval
 
 **Date:** 2026-06-04

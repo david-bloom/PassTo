@@ -82,7 +82,7 @@ serve(async (req) => {
   // ── 6. Load primary license + gate ────────────────────────────────────────
   const { data: license, error: licenseErr } = await supabaseAdmin
     .from("licenses")
-    .select("id, license_type, license_number, state, first_name, last_name, normalized_status, status_intent, wallet_pass_treatment, expiration_date, data_match_passed")
+    .select("id, license_type, license_number, state, first_name, last_name, normalized_status, status_intent, wallet_pass_treatment, issue_date, expiration_date, lookup_source, status_checked_at, data_match_passed")
     .eq("profile_id", profile.id)
     .eq("is_primary", true)
     .maybeSingle();
@@ -130,16 +130,25 @@ serve(async (req) => {
   const holderName = [license.first_name, license.last_name].filter(Boolean).join(" ") || null;
   const nurseName  = [profile.first_name,  profile.last_name].filter(Boolean).join(" ") || null;
   const now        = new Date().toISOString();
+  const verificationSourceDisplay = license.lookup_source === "rapidapi"
+    ? "State licensing board data"
+    : "Primary license source";
 
   const passTemplateData = {
-    nurse_name:         nurseName,
-    license_holder:     holderName,
-    license_type:       license.license_type,
-    license_state:      license.state,
-    license_number:     license.license_number,
-    normalized_status:  license.normalized_status,
-    expiration_date:    license.expiration_date ?? null,
-    credential_created: now,
+    nurse_name:                  nurseName,
+    license_holder:              holderName,
+    license_type:                license.license_type,
+    license_state:               license.state,
+    license_number:              license.license_number,
+    normalized_status:           license.normalized_status,
+    status_intent:               license.status_intent,
+    wallet_pass_treatment:       license.wallet_pass_treatment,
+    issue_date:                  license.issue_date ?? null,
+    expiration_date:             license.expiration_date ?? null,
+    status_checked_at:           license.status_checked_at ?? null,
+    lookup_source:               license.lookup_source ?? null,
+    verification_source_display: verificationSourceDisplay,
+    credential_created:          now,
   };
 
   // ── 10. Audit before step advance (fail-closed) ───────────────────────────
@@ -200,13 +209,16 @@ serve(async (req) => {
     }
 
     console.error("credential-create: insert failed:", credErr);
-    await supabaseAdmin.from("audit_events").insert({
+    const { error: failureAuditErr } = await supabaseAdmin.from("audit_events").insert({
       actor_id:      profile.id,
       action:        "credential.creation_failed",
       resource_type: "credential",
       resource_id:   profile.id,
       change_after:  { error: credErr?.message ?? "insert_returned_no_row" },
-    }).catch(() => {});
+    });
+    if (failureAuditErr) {
+      console.warn("credential-create: failed to write creation failure audit", failureAuditErr.message);
+    }
     return json({ error: "server_error" }, 500);
   }
 
