@@ -1,7 +1,8 @@
 {
   "functions": {
     "api/sign-apple.js": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "includeFiles": "api/assets/**"
     },
     "api/sign-google.js": {
       "maxDuration": 10
