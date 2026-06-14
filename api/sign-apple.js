@@ -177,24 +177,6 @@ module.exports = async function handler(req, res) {
     const signerCert = Buffer.from(certB64, "base64");
     const signerKey  = Buffer.from(keyB64,  "base64");
 
-    // Diagnostic: report base64 lengths and PEM headers so we can see exactly
-    // which input is malformed. Safe — only headers/lengths, no key material.
-    const diag = {
-      wwdr_b64_len:    wwdrB64.length,
-      wwdr_pem_first:  wwdr.toString("utf-8").split("\n")[0],
-      wwdr_pem_last:   wwdr.toString("utf-8").trim().split("\n").pop(),
-      cert_b64_len:    certB64.length,
-      cert_pem_first:  signerCert.toString("utf-8").split("\n")[0],
-      cert_pem_last:   signerCert.toString("utf-8").trim().split("\n").pop(),
-      key_b64_len:     keyB64.length,
-      key_pem_first:   signerKey.toString("utf-8").split("\n")[0],
-      key_pem_last:    signerKey.toString("utf-8").trim().split("\n").pop(),
-      passphrase_len:  certPass.length,
-    };
-    if (req.query?.diag === "1") {
-      return res.status(200).json({ diagnostic: diag });
-    }
-
     const assetsDir = path.join(__dirname, "assets");
     const icon      = fs.readFileSync(path.join(assetsDir, "icon.png"));
     const icon2x    = fs.readFileSync(path.join(assetsDir, "icon@2x.png"));
