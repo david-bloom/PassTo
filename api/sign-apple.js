@@ -183,23 +183,6 @@ module.exports = async function handler(req, res) {
     const logo      = fs.readFileSync(path.join(assetsDir, "logo.png"));
     const logo2x    = fs.readFileSync(path.join(assetsDir, "logo@2x.png"));
 
-    if (req.query?.assets === "1") {
-      return res.status(200).json({
-        assets_dir: assetsDir,
-        dirname: __dirname,
-        files_in_assets_dir: fs.readdirSync(assetsDir).map(f => ({
-          name: f,
-          size: fs.statSync(path.join(assetsDir, f)).size,
-        })),
-        sizes: {
-          icon: icon.length,
-          icon2x: icon2x.length,
-          logo: logo.length,
-          logo2x: logo2x.length,
-        },
-      });
-    }
-
     const passJson = {
       formatVersion:        1,
       passTypeIdentifier:   passTypeId,
