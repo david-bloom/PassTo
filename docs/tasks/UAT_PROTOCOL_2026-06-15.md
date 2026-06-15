@@ -285,6 +285,9 @@ Nurse UAT measures:
 - Median license-number retrieval time.
 - State-board or other lookup behavior observed.
 - Trust/privacy concerns.
+- Nurse response to learning that verifier identity is self-declared and not
+  independently authenticated.
+- Whether that disclosure changes willingness to share the credential.
 - Understanding of simulated verification.
 - Wallet installation and sharing success.
 - Perceived value and confidence.
@@ -332,6 +335,9 @@ private storage paths, or provider credentials.
   remediation candidate requiring root-cause diagnosis before a fix is chosen.
 - Other usability signals are carried into cohort 2 before a product decision
   unless severity or evidence warrants earlier action.
+- Cohort 1 findings at `n = 5` are directional signals, not definitive product
+  conclusions. Usability decisions require cohort 2 evidence unless an
+  immediate-blocker threshold is met.
 - Separate product usability findings from external-provider readiness findings.
 - Do not claim the simulated ID.me step proves real ID.me completion time.
 

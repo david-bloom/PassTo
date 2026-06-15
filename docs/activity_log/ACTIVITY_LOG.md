@@ -4,6 +4,33 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0073 Claude Session 2 Review Dispositioned - 2026-06-15 - Codex
+
+**Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
+**Status:** Second Review Reconciled - Three David Decisions Pending
+
+Codex reviewed Claude's independent second pass. The dependency concern was
+incorrect because TASK-0068 through TASK-0072 exist in the repository, and
+David had already assigned implementation leadership to Claude.
+
+Accepted changes include:
+
+- Separate Apple demo pass type/certificate as a hard gate.
+- Selfie-verifier delivery implemented and Codex-QA'd before nurse cohort 1.
+- Fixed security decisions separated from Stage A-informable presentation details.
+- Demo/production synchronization before each cohort.
+- Automatic or presenter-console participant phone cleanup.
+- Unverified-verifier reaction as a top-line UAT signal.
+- Explicit statement that the first five-nurse cohort is directional.
+
+Pending David decisions:
+
+1. Demo payment/tier policy.
+2. Replacement of the ID.me button in demo/UAT.
+3. Target dates for Stage A and Stage B.
+
+No implementation or production behavior changed.
+
 ## TASK-0073 Fixed Timing References Removed - 2026-06-15 - Codex
 
 **Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
