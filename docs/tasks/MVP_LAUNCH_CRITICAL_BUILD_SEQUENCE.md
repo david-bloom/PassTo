@@ -73,7 +73,7 @@ The sequence is designed to keep implementation moving while preserving the appr
 | 4.3 | TASK-0051 — Wallet pass provider state writes to Supabase | Claude | TASK-0050 |
 | 4.4 | TASK-0052 — Success / PassReady status flow | Claude/Lovable | TASK-0049, TASK-0051 |
 | 4.5 | TASK-0053 — Credential/wallet QA | Codex | TASK-0049 through TASK-0052 |
-| 4.6 | TASK-0072 — Configure and verify Apple and Google wallet pass issuance | Claude/Codex/David | P1 remediation complete (commits 5db03e5, ad944e4), authenticated E2E verified, Ready for Codex Re-QA |
+| 4.6 | TASK-0072 — Configure and verify Apple and Google wallet pass issuance | Claude/Codex/David | Fresh Google + Apple evidence captured post-deploy (credential 1cc0f67e), success-status backend verified, /success live render pending David |
 
 ### Phase 5 — Dashboard and Share-Link Verification
 
@@ -120,5 +120,5 @@ The sequence is designed to keep implementation moving while preserving the appr
 ## Current Next Action
 
 ```text
-TASK-0072 final evidence: run wallet issuance against the current corrected Vercel deployment, persist and decode a single-prefix Google class ID, confirm Google save/render acceptance, and exercise the deployed signed-in /success page consuming success-status before final Codex re-QA.
+TASK-0072 final evidence: David opens the issued one-time magic link in Safari, lands on /success for credential 1cc0f67e-5b4d-47db-8a41-2460e6dd63ed, and confirms Apple and Google add-to-wallet actions render. Persisted single-prefix Google JWT and verified success-status payload are already captured in TASK-0072.md.
 ```

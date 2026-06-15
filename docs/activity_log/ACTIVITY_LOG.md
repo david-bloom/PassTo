@@ -4,6 +4,55 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0072 Fresh Google Evidence Captured + /success Backend Verified - 2026-06-15 - Claude
+
+**Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance
+**Status:** Fresh Google Evidence Captured - /success Live Render Pending David
+**Approval Record:** APPROVAL-0034 (existing)
+**Files Updated:** `docs/tasks/TASK-0072.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+Codex re-QA cleared three gates (wallet-issue type safety, durable orchestration, fail-closed treatment) but flagged two remaining items: the persisted Google JWT was pre-deployment, and the deployed `/success` integration was untested. Both are now addressed.
+
+### Gate 1 - Fresh Google Evidence
+
+Re-ran `scripts/test-wallet-issue-e2e.ts` against the current corrected Vercel deployment at 2026-06-15 02:20 UTC. New persisted credential `1cc0f67e-5b4d-47db-8a41-2460e6dd63ed` with both `wallet_passes` rows `issued`. Decoded persisted Google JWT shows:
+
+- `classId`: `3388000000023110660.passto_nurse_license_v1` (single prefix)
+- `id`: `3388000000023110660.passto_1cc0f67e_5b4d_47db_8a41_2460e6dd63ed`
+
+Apple `.pkpass` for this credential re-verified: `openssl smime -verify` "Verification successful", logo sizes `160x37`/`320x74`, populated fields from real test persona data.
+
+### Gate 2 - `/success` Backend Verified
+
+`success-status` called with the authenticated test nurse JWT returns the durable wallet state for credential `1cc0f67e-5b4d-47db-8a41-2460e6dd63ed`:
+
+```
+{
+  "credential_status": "active",
+  "wallet": { "apple": {"status":"issued"}, "google": {"status":"issued"}, "any_issued": true }
+}
+```
+
+The Lovable `/success` frontend bundle was Codex-reviewed under TASK-0052 and consumes this exact contract. Live visual confirmation requires David to open a one-time magic link in Safari and load `https://enroll.passtodigital.com/success`. Backend contract correctness is now evidence; final visual render is the only remaining check.
+
+### Deployment State
+
+- Supabase: `wallet-issue` v13 ACTIVE on `wvzjfxacykgsaffskgtr`.
+- Vercel: production deployment for commit `ad944e4` (and later) aliased to `https://pass-to.vercel.app`.
+- `success-status` returning durable issued state for the test credential.
+
+### Approval Boundary
+
+This entry records additional re-QA evidence within the approved TASK-0072 scope. It does not approve production launch, broader risk acceptance, Stripe live-mode changes, or unrelated task/issue closure.
+
+### Next Required Action
+
+David opens the issued magic link in Safari, navigates to `/success`, and confirms Apple and Google add-to-wallet actions render. Codex may then close TASK-0072 re-QA. Production launch remains a separate hard gate.
+
+---
+
 ## TASK-0072 Codex Re-QA Partial Pass - 2026-06-15 - Codex
 
 **Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance
