@@ -4,6 +4,26 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0073 David Decisions Recorded - 2026-06-15 - Codex
+
+**Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
+**Status:** David Decisions Recorded - Implementation Architecture Ready for Claude
+
+David resolved the three open TASK-0073 decisions:
+
+1. Demo/UAT bypasses Stripe and uses server-controlled demo entitlements outside
+   the production subscription-tier contract.
+2. Demo/UAT replaces the production ID.me button entirely with simulated
+   identity-verification language; no actionable ID.me-branded control appears
+   in the isolated environment.
+3. Stage A internal UAT and Stage B first moderated nurse cohort target date:
+   July 1, 2026, unless David later splits the dates.
+
+Approval boundary: these are planning/product decisions for TASK-0073
+implementation architecture. They do not approve deployment, production launch,
+provider changes, secrets, RLS changes, or nurse UAT collection before the
+implementation task is reviewed and approved.
+
 ## TASK-0073 Claude Session 2 Review Dispositioned - 2026-06-15 - Codex
 
 **Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
