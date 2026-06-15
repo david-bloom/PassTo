@@ -4,6 +4,42 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0073 Codex Disposition of Claude Review - 2026-06-15 - Codex
+
+**Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
+**GitHub Checked:** Yes
+**Status:** Review Reconciled - Awaiting David Implementation Approval
+**Reviewed Commit:** `a8d2081`
+
+### Disposition Summary
+
+Codex reviewed all 23 Claude comments. Twenty were accepted directly or with
+bounded clarification, two were modified to avoid unsupported or unsafe test
+claims, and one cross-reference comment was acknowledged.
+
+Key changes:
+
+- Immutable `demo` / `uat` session modes.
+- Nurse cohort blocked until spec reconciliation and secure selfie delivery are complete.
+- Explicit session role ownership.
+- Raw-recording retention capped at 30 days; redacted material at 12 months.
+- Under-five-minute timing retained as a product goal, with friction and
+  unassisted completion as primary UAT measures.
+- License-number retrieval elevated to a top-line research measure.
+- Post-session recording redaction and participant-phone guardrails.
+- Production timing disclosure without claiming an unmeasured duration.
+- Verifier-not-verified disclosure remains mandatory; wording length may be tested.
+- Fallback pass/link must be unused and tied to the current session.
+
+### Approval Boundary
+
+Documentation only. No implementation, environment, provider, wallet, storage,
+RLS, frontend, or production change was made.
+
+**Next Owner:** David
+**Next Required Action:** Approve or revise the reconciled TASK-0073 planning
+direction before implementation architecture/tasks are created.
+
 ## TASK-0073 Claude Review Comments Added to UAT and Live Demo Drafts - 2026-06-15 - Claude
 
 **Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program

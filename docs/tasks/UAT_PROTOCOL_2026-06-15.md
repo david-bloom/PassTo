@@ -53,6 +53,7 @@ round.
 - Real Twilio test/demo delivery where approved.
 - No production users, secrets, wallet IDs, provider records, or analytics.
 - Immutable `demo_session_id` or `uat_session_id` on session evidence.
+- Immutable `mode = uat` on every session governed by this protocol.
 - Environment-wide fail-closed checks, not only a visible UI label.
 
 ## 4. Golden-Path Scenario
@@ -102,6 +103,12 @@ number.
 If asked, David responds:
 
 > “For this UAT session, you can enter any random letters or numbers.”
+
+If the participant intends to enter a real license number, David responds:
+
+> “For this UAT session we use synthetic data only. The environment cannot
+> validate a real license number and we should not store one here. Any letters
+> and numbers will work.”
 
 The golden-path simulator accepts a reasonable alphanumeric value, echoes it
 into the synthetic record, and labels the result as synthetic.
@@ -154,10 +161,19 @@ Recording guidance:
 - Use native phone screen recording with microphone, or mirrored-screen
   recording plus room audio.
 - Enable Do Not Disturb first.
-- Pause or redact OTP values, phone numbers, raw share links/tokens, unrelated
-  notifications, and authentication links.
+- Do not ask the moderator to edit or redact while facilitating the session.
+- Complete one post-session redaction pass before review or sharing, covering
+  OTP values, phone numbers, raw share links/tokens, unrelated notifications,
+  authentication links, and other accidental PII.
 - Do not record identity documents.
 - Confirm secure transfer before deleting a participant-device local copy.
+
+When a participant uses their phone:
+
+- Do not unlock or navigate beyond the action they approved.
+- Do not scroll past notifications or unrelated content.
+- Do not screen-share the participant's phone.
+- Return control of the phone immediately after the action.
 
 ## 8. Selfie Rules
 
@@ -232,15 +248,34 @@ Record stage timing for:
 - Share-link creation.
 - Verifier completion.
 
-Internal UAT exit target:
+Internal UAT reliability target:
 
 - 10 consecutive golden-path runs without manual database intervention.
-- Median prepared-user time under 5 minutes.
-- At least 80% of prepared internal runs under 7 minutes.
 - Wallet installation and sharing complete without moderator instruction.
 - Both presenter-phone and participant-phone OTP paths pass.
 - Zoom and in-person variants pass.
 - No demo artifact can be mistaken for a production credential.
+
+The under-five-minute target remains a product goal and supporting metric, not
+the sole UAT exit gate. Headline usability signals are:
+
+- Direct help requests.
+- Hesitation events lasting five seconds or more.
+- Golden-path steps completed without instruction.
+- Wrong turns and backtracking.
+- License-number retrieval behavior.
+
+Session outcome definitions:
+
+- `unassisted_complete`: completed without direct instruction.
+- `assisted_complete`: completed with one or more direct instructions.
+- `incomplete`: did not complete the required path.
+
+Headline unassisted completion rate:
+
+```text
+unassisted_complete sessions / total sessions
+```
 
 Nurse UAT measures:
 
@@ -248,10 +283,15 @@ Nurse UAT measures:
 - Time by stage and total time.
 - Wrong turns, backtracking, and help requests.
 - License-number retrieval behavior.
+- Percentage who know the license number without lookup.
+- Percentage who locate it without help.
+- Median license-number retrieval time.
+- State-board or other lookup behavior observed.
 - Trust/privacy concerns.
 - Understanding of simulated verification.
 - Wallet installation and sharing success.
 - Perceived value and confidence.
+- Launch-list opt-in rate, reported separately from usability completion.
 
 ## 11. Post-Session Questions
 
@@ -273,6 +313,9 @@ Create one restricted package per `uat_session_id`:
 - Moderator notes and intervention timestamps.
 - Participant comments tagged by topic.
 - Expected versus actual system event timeline.
+- Simulation acknowledgment event and timestamp.
+- Whether the participant appeared to read the acknowledgment, recorded as a
+  moderator observation rather than a system fact.
 - Functional checkpoint results.
 - Post-session answers.
 - Selfie deletion request/status, without copying the image.
@@ -284,9 +327,14 @@ private storage paths, or provider credentials.
 ## 13. Review Rules
 
 - Review the first five nurse sessions as one cohort.
-- Confusion repeated in three of five sessions becomes a remediation item.
 - Any privacy, credential-misrepresentation, or cross-environment issue is an
   immediate blocker.
+- A trust break affecting the meaning of the credential is also an immediate
+  blocker after one occurrence.
+- Usability friction repeated in three or more of five sessions becomes a
+  remediation candidate requiring root-cause diagnosis before a fix is chosen.
+- Other usability signals are carried into cohort 2 before a product decision
+  unless severity or evidence warrants earlier action.
 - Separate product usability findings from external-provider readiness findings.
 - Do not claim the simulated ID.me step proves real ID.me completion time.
 
@@ -312,7 +360,26 @@ Confirmation:
 - Revoke or allow normal expiry of share links according to the runbook.
 - Retain selfie until replaced unless the participant requests manual deletion.
 - Preserve non-sensitive audit and UAT evidence under the session ID.
+- Delete restricted raw recordings within 30 days.
+- Retain redacted recordings or clips for no more than 12 months without a
+  renewed documented need.
+- Retain structured de-identified findings as product research.
 - Never use normal production account-deletion behavior as the demo reset path.
+
+## Codex Disposition of Claude Review - 2026-06-15
+
+| Comment | Disposition | Result |
+|---|---|---|
+| CR-UAT-01 | Accept with modification | Kept under-five-minute product target as supporting data; friction signals now drive usability assessment. |
+| CR-UAT-02 | Accept | Promoted license-number retrieval to top-line metrics. |
+| CR-UAT-03 | Accept | Defined unassisted, assisted, incomplete, and headline rate. |
+| CR-UAT-04 | Accept | Added tiered evidence rules for blockers, repeated friction, and cohort 2 pooling. |
+| CR-UAT-05 | Accept | Replaced live redaction with a post-session checklist pass. |
+| CR-UAT-06 | Accept | Added scripted redirect away from real license numbers. |
+| CR-UAT-07 | Accept | Added participant-phone handling guardrails. |
+| CR-UAT-08 | Accept | Added launch-list opt-in rate as a separate measure. |
+| CR-UAT-09 | Accept with bounded retention | Added 30-day raw and 12-month redacted recording caps. |
+| CR-UAT-10 | Accept | Added acknowledgment event and observation to evidence. |
 
 ---
 
@@ -403,4 +470,3 @@ Sections 5 and 12 do not require capture of whether the participant actively
 acknowledged the simulated ID.me result, when, and whether they appeared to
 read it. Recommend including the acknowledgment event in the expected-vs-actual
 system event timeline so misunderstandings of simulation are traceable.
-

@@ -4,6 +4,7 @@
 **Date:** 2026-06-15
 **Owner:** David
 **Related Task:** TASK-0073
+**Operating Mode:** `demo`
 
 ## 1. Demo Objective
 
@@ -42,12 +43,14 @@ Before the meeting:
 - Confirm Apple and Google demo wallet routes are healthy.
 - Confirm SMS delivery to David's phone.
 - Confirm the presenter console can start a new `demo_session_id`.
+- Confirm the session is immutably stamped `mode = demo`.
 - Confirm synthetic identity and license fixtures are available.
 - Confirm private selfie upload and replacement.
 - Confirm a private/incognito verifier browser is ready.
 - Confirm screen/audio recording setup when the session is also UAT.
 - Enable Do Not Disturb on phones used.
-- Prepare a fallback issued demo pass and unused share link.
+- Prepare a fallback issued demo pass and unused share link tagged to the
+  current `demo_session_id`; confirm neither artifact has prior verifier history.
 - Confirm launch-list opt-in is separate from demo account state.
 
 ## 5. Opening
@@ -87,6 +90,11 @@ Explain:
 
 > “The external identity response is simulated because Avery Demo is fictional.
 > The PassTo steps around it are the experience we are testing.”
+
+Add:
+
+> “Production timing will vary because live ID.me and license-provider steps
+> are not measured in this demonstration.”
 
 ### Step 3 - License Information
 
@@ -170,6 +178,9 @@ Explain:
 > the terms. PassTo records what they provide; it does not independently verify
 > their identity unless a future authentication step is added.”
 
+The disclosure must always remain present. UAT may compare approved short and
+long wording, but must not test an omitted disclosure.
+
 Show:
 
 - Avery Demo.
@@ -211,6 +222,10 @@ The participant may keep the souvenir demo pass and show it to friends.
 
 - Use David's phone by default.
 - Offer participant-phone OTP and selfie only with explicit consent.
+- Do not unlock or navigate beyond the approved action.
+- Do not scroll past notifications or unrelated content.
+- Do not screen-share the participant's phone.
+- Return control of the phone immediately after the action.
 - Let the nurse handle wallet installation where practical.
 - Use a second browser/device for the verifier view.
 - Avoid collecting or retaining unrelated content from the nurse's phone.
@@ -249,7 +264,9 @@ If sharing fails:
 If connectivity fails:
 
 - Show the installed souvenir pass.
-- Use a recorded/redacted walkthrough only as fallback, not as live evidence.
+- State plainly that no live issuance evidence exists for this session.
+- A recorded/redacted walkthrough may be shown only as a previously captured
+  reference, never as proof of the current run.
 
 ## 10. After the Presentation
 
@@ -264,6 +281,7 @@ If connectivity fails:
 ## 11. Presenter Readiness Checklist
 
 - [ ] Isolated environment confirmed.
+- [ ] Session stamped `mode = demo`.
 - [ ] Demo providers and wallets healthy.
 - [ ] Avery Demo reset completed.
 - [ ] OTP phone selected.
@@ -271,6 +289,7 @@ If connectivity fails:
 - [ ] Wallet pass permanent demo treatment verified.
 - [ ] Private verifier browser ready.
 - [ ] Backup pass and link ready.
+- [ ] Backup pass/link are unused and tagged to the current session.
 - [ ] Launch-list opt-in ready and isolated.
 - [ ] Recording consent obtained when applicable.
 
@@ -285,6 +304,17 @@ If connectivity fails:
 - No permanent verifier QR.
 - No private selfie-storage URL.
 - Optional launch-list link is informational only.
+
+## Codex Disposition of Claude Review - 2026-06-15
+
+| Comment | Disposition | Result |
+|---|---|---|
+| CR-DEMO-01 | Accept with corrected wording | Added production-timing disclosure without making an unsupported duration claim. |
+| CR-DEMO-02 | Accept | Runbook is explicitly `demo`; UAT uses the separate UAT protocol and immutable mode tag. |
+| CR-DEMO-03 | Accept | Added participant-phone guardrails. |
+| CR-DEMO-04 | Modify | Disclosure is mandatory; UAT may compare short versus long approved wording, not omission. |
+| CR-DEMO-05 | Accept | Fallback artifacts must be current-session, unused, and free of prior verifier history. |
+| CR-DEMO-06 | Accept | Clarified that recorded material is prior reference, never current-run evidence. |
 
 ---
 
@@ -346,4 +376,3 @@ live evidence." Recommend strengthening: if connectivity fails, state plainly
 that no live issuance evidence exists for this session and do not present the
 recorded walkthrough as proof of a current run - only as a previously captured
 reference.
-
