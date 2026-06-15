@@ -4,6 +4,99 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0073 Claude Review Comments Added to UAT and Live Demo Drafts - 2026-06-15 - Claude
+
+**Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
+**GitHub Checked:** Yes
+**Status:** Review Comments Added - Awaiting Codex / David Disposition
+**Files Updated:** `docs/tasks/TASK-0073.md`,
+`docs/tasks/UAT_PROTOCOL_2026-06-15.md`,
+`docs/tasks/LIVE_NURSE_DEMO_RUNBOOK_2026-06-15.md`,
+`docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+Claude reviewed the three TASK-0073 draft artifacts at David's request and
+appended structured review comments to each, intended for Codex disposition.
+No substantive protocol or runbook content was changed; comments are clearly
+delimited under `Claude Review Comments - 2026-06-15` sections.
+
+### Comment Inventory
+
+- `TASK-0073.md` - seven cross-cutting comments (`CR-0073-01` through
+  `CR-0073-07`) covering DEMO/UAT mode tagging, spec reconciliation gating,
+  selfie delivery contract scoping, Apple serial uniqueness, session role
+  ownership, PII retention, and a cross-reference to doc-level comments.
+- `UAT_PROTOCOL_2026-06-15.md` - ten protocol-level comments (`CR-UAT-01`
+  through `CR-UAT-10`) covering friction-metric exit criteria, license-number
+  observation as top-line metric, `passed` vs `assisted` definition, tiered
+  n=5 evidence bar, post-process recording redaction, real-license-number
+  redirect, in-person phone guardrail, launch-list opt-in as measure,
+  retention caps, and acknowledgment-event capture in evidence.
+- `LIVE_NURSE_DEMO_RUNBOOK_2026-06-15.md` - six runbook-level comments
+  (`CR-DEMO-01` through `CR-DEMO-06`) covering production-time disclosure
+  narrative, hard DEMO/UAT mode switch, in-person phone guardrail,
+  verifier-not-verified disclosure as UAT variable, per-session fallback
+  uniqueness, and connectivity-fallback recording wording.
+
+### Approval Boundary
+
+This entry records documentation review only. No demo or UAT environment,
+provider simulator, database, RLS, storage, wallet identifier, frontend,
+deployment, or production behavior was changed. TASK-0073 implementation
+approval remains pending David, and production launch remains unapproved.
+
+**Next Owner:** Codex (review and disposition) then David (approval of
+reconciled direction)
+**Next Required Action:** Codex reviews each `CR-` comment and proposes accept,
+modify, or reject for inclusion in the final protocol and runbook before any
+implementation task is created.
+
+---
+
+## TASK-0073 UAT and Live Nurse Demo Protocol Drafted - 2026-06-15 - Codex
+
+**Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
+**GitHub Checked:** Yes
+**Status:** Protocol Drafted - Implementation Approval Required
+**Files:** `docs/tasks/TASK-0073.md`,
+`docs/tasks/UAT_PROTOCOL_2026-06-15.md`,
+`docs/tasks/LIVE_NURSE_DEMO_RUNBOOK_2026-06-15.md`
+
+### Summary
+
+David and Codex developed a protocol for repeatable internal/nurse UAT and
+presenter-controlled demonstrations despite fictional identities being unable
+to complete real ID.me or RapidAPI/Propelus verification.
+
+The direction uses a separate demo/UAT environment, the fictional Avery Demo
+persona, acknowledged provider simulation, real OTP and selfie capture, real
+demo wallet issuance, short-lived sharing, moderated recorded nurse UAT, and a
+separate launch-list opt-in. Prepared-user onboarding through wallet
+installation targets under five minutes.
+
+Portable demo passes may remain on participant devices as souvenirs but must
+permanently state `DEMO`, `NOT A VALID PROFESSIONAL CREDENTIAL`, and
+`Synthetic license data`.
+
+### Product / Security Reconciliation Required
+
+The agreed target behavior makes selfie a required trust gate and displays the
+latest selfie in the nurse app and verifier view. This conflicts with older
+tier-dependent and verifier-safe-display assumptions. Implementation requires
+a separate approved task updating the PRD/flow/security contracts and defining
+backend-authorized short-TTL selfie delivery without exposing storage paths.
+
+### Approval Boundary
+
+No demo environment, simulator, provider configuration, database, RLS, storage,
+wallet identifier, frontend, deployment, or production behavior was changed.
+Production launch remains unapproved.
+
+**Next Owner:** David / Codex
+**Next Required Action:** Review and approve the protocols, then create a
+separate implementation architecture/task sequence.
+
 ## TASK-0072 Final Visual Re-QA Blocked - 2026-06-15 - Codex
 
 **Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance
