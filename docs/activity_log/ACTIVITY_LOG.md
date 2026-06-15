@@ -4,6 +4,77 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0072 Apple Wallet Live Verified - 2026-06-14 - Claude
+
+**Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance
+**Status:** Apple Wallet Live Verified - Google Wallet API-Verified - Ready for Codex QA
+**Approval Record:** APPROVAL-0034 (existing)
+**Files Updated:** `docs/tasks/TASK-0072.md`, `api/sign-apple.js`, `api/assets/logo.png`, `api/assets/logo@2x.png`, `vercel.json`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+Provider configuration and live wallet QA completed against the approved disposable test credential `pass-ready@passtodigital.test` (credential `c855fe7f-db98-4e79-884b-227194922a92`). Apple Wallet pass installation confirmed live on David's iPhone. Google Wallet save URL verified at the API level.
+
+### Live Infrastructure
+
+- Vercel project `pass-to` (Bloom-LLC Hobby) at `https://pass-to.vercel.app`.
+- Vercel Blob public store provisioned for `.pkpass` hosting.
+- Supabase secrets `VERCEL_SIGN_APPLE_URL`, `VERCEL_SIGN_GOOGLE_URL`, `WALLET_INTERNAL_SECRET` configured on `wvzjfxacykgsaffskgtr` so `wallet-issue` can call the signing routes.
+
+### Issues Resolved During Bring-Up
+
+1. **PassKit private key format** - `node-forge` rejected the PKCS#1 RSA encrypted key with "Cannot read encrypted PBE data block. Unsupported OID." Resolved by converting the key to PKCS#8 AES-256-CBC encrypted format.
+2. **Apple Wallet logo size** - The bundled `logo.png` was 660x660 (square) which caused Apple Wallet to silently reject the pass with "Sorry. Your pass cannot be installed to Passbook at this time." Resized to 160x37 (1x) and 320x74 (2x) from the PassTo wordmark asset.
+3. **Vercel function bundling** - Added `includeFiles: "api/assets/**"` to `vercel.json` so the asset PNGs are bundled with the `api/sign-apple.js` serverless function.
+4. **Apple cert/key mismatch** - The original downloaded Pass Type ID certificate (April 8) was signed for a CSR different from the one held locally, producing a signature that openssl verification reported as a padding failure. A new Pass Type ID certificate was generated 2026-06-15 against the current local CSR; signature verification now passes.
+5. **Vercel Blob access** - Initial blob store was private and rejected public uploads. Recreated as a public store and reconnected to the project.
+
+### Live Verification Evidence
+
+- `/api/sign-apple` returns `success: true` with a stable `pass_url` to a Vercel Blob `.pkpass`.
+- `openssl smime -verify -in signature -inform DER -content manifest.json -noverify` reports "Verification successful".
+- David installed the pass to his iPhone Wallet via Safari.
+- `/api/sign-google` returns `success: true` with a Google Wallet save URL JWT and a stable `object_id`.
+
+### Out of Scope / Deferred
+
+- Real nurse end-to-end test through `/success` calling `wallet-issue` Edge Function (requires authenticated user JWT, not service-role).
+- Visual QA of Google Wallet pass on an Android device.
+- Real ID.me + RapidAPI data on the live pass (the test credential has synthetic empty fields).
+
+### Approval Boundary
+
+This entry records live verification within the approved TASK-0072 scope. It does not approve production launch, broader risk acceptance, permanent QR/barcode embedding, Stripe live-mode changes, or unrelated task/issue closure.
+
+### Next Required Action
+
+Codex QA per TASK-0072 acceptance criteria, focusing on: source review of `sign-apple.js`/`sign-google.js`/`wallet-issue`, negative checks (unauthenticated calls, missing credentials, provider failure paths), and documentation review of `WALLET_PASS_DISPLAY_SPEC.md` against the deployed payloads.
+
+---
+
+## Supabase Auth HIBP Configuration Gap Identified - 2026-06-08 - Lovable / Codex
+
+**Related Task:** TASK-0069 — Create Production Configuration Checklist
+**Status:** Configuration gap recorded - live Supabase setting not yet changed
+**Supabase Project:** `wvzjfxacykgsaffskgtr`
+
+### Summary
+
+Lovable reported that HIBP leaked-password protection is enabled on the Lovable Cloud backend, but PassTo's real password reset and update flows authenticate against the separate `passto-supabase` project. Therefore, Lovable Cloud configuration does not enforce leaked-password rejection for real PassTo password traffic.
+
+### Required Configuration
+
+- Enable the Supabase Auth leaked-password/HIBP check on project `wvzjfxacykgsaffskgtr`.
+- Confirm the project password minimum length and character policy.
+- Add client-side password length/strength feedback in Lovable as user guidance, while preserving Supabase Auth as the authoritative enforcement layer.
+- Verify signup and password-update flows reject a known leaked password and accept a compliant non-leaked test password.
+
+### Approval Boundary
+
+This entry records the gap and updates the production configuration checklist only. No live Supabase Auth setting was changed and no Lovable frontend change was approved or applied by this entry.
+
+---
+
 ## TASK-0072 Approved for Wallet Provider Configuration - 2026-06-05 - David / Codex
 
 **Task:** TASK-0072 — Configure and Verify Apple and Google Wallet Pass Issuance

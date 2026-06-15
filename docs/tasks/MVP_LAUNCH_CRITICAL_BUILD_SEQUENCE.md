@@ -73,7 +73,7 @@ The sequence is designed to keep implementation moving while preserving the appr
 | 4.3 | TASK-0051 — Wallet pass provider state writes to Supabase | Claude | TASK-0050 |
 | 4.4 | TASK-0052 — Success / PassReady status flow | Claude/Lovable | TASK-0049, TASK-0051 |
 | 4.5 | TASK-0053 — Credential/wallet QA | Codex | TASK-0049 through TASK-0052 |
-| 4.6 | TASK-0072 — Configure and verify Apple and Google wallet pass issuance | Claude/Codex/David | Approved 2026-06-05; depends on TASK-0050 through TASK-0053 and wallet provider readiness |
+| 4.6 | TASK-0072 — Configure and verify Apple and Google wallet pass issuance | Claude/Codex/David | Apple Wallet Live Verified 2026-06-14, Google Wallet API-Verified, Ready for Codex QA |
 
 ### Phase 5 — Dashboard and Share-Link Verification
 
@@ -120,5 +120,5 @@ The sequence is designed to keep implementation moving while preserving the appr
 ## Current Next Action
 
 ```text
-Proceed with approved TASK-0072 wallet provider configuration and live Apple/Google Wallet QA when required provider credentials, Vercel access, Supabase access, and disposable test credential are available.
+Codex QA of TASK-0072 wallet provider live verification: source review of sign-apple.js, sign-google.js, and wallet-issue; negative checks against deployed signing routes; documentation review of WALLET_PASS_DISPLAY_SPEC.md against deployed payloads.
 ```
