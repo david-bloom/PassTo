@@ -4,6 +4,42 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0064 Approval and TASK-0067 through TASK-0069 Executed - 2026-06-15 - Codex
+
+**Approval:** APPROVAL-0035
+**Tasks:** TASK-0064, TASK-0067, TASK-0068, TASK-0069
+**Status:** TASK-0064 Approved for Execution; TASK-0067 through TASK-0069 Executed - Ready for David Review
+
+David approved TASK-0064 and directed Codex to execute TASK-0067, TASK-0068,
+and TASK-0069:
+
+```text
+David approves 0064. Codex execute 0067, 0068, and 0069
+```
+
+Codex recorded APPROVAL-0035 and updated TASK-0064 to Approved for Execution.
+Codex then created the three Section 7 execution artifacts:
+
+- `docs/tasks/MVP_LAUNCH_READINESS_CHECKLIST_2026-06-15.md`
+- `docs/tasks/MVP_QA_TEST_PLAN_2026-06-15.md`
+- `docs/tasks/PRODUCTION_CONFIGURATION_CHECKLIST_2026-06-15.md`
+
+TASK-0067, TASK-0068, and TASK-0069 are now marked Executed - Ready for David
+Review. The artifacts identify launch blockers and required approval gates
+without approving production launch, provider live-mode changes, secrets/config
+changes, migrations, task Done decisions, issue closure, or risk acceptance.
+
+Known launch-critical blockers/open items carried forward:
+
+- TASK-0072 wallet re-QA remains blocked until the route/wallet display issue is
+  remediated and reverified.
+- TASK-0064 Phase 6 Stripe/entitlement/lapse QA is approved but not yet executed.
+- Twilio A2P 10DLC remains pending unless David approves a fallback.
+- Production configuration, Terms/legal readiness, ops alerts, RLS QA, provider
+  live-mode readiness, and launch smoke testing remain pending.
+
+---
+
 ## TASK-0073 David Decisions Recorded - 2026-06-15 - Codex
 
 **Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program

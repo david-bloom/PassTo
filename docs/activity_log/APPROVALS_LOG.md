@@ -30,6 +30,35 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0035 — TASK-0064 Approval and TASK-0067 through TASK-0069 Execution Approval
+
+**Date:** 2026-06-15
+**Approved By:** David
+**Related Task:** TASK-0064, TASK-0067, TASK-0068, TASK-0069
+**Decision:** Approved for Execution
+
+### Summary
+
+David approved TASK-0064 and directed Codex to execute TASK-0067, TASK-0068, and TASK-0069:
+
+```text
+David approves 0064. Codex execute 0067, 0068, and 0069
+```
+
+### Approval Checklist
+
+- [x] I approve TASK-0064 Phase 6 Stripe, entitlement, and lapse behavior QA for execution within its documented approval boundaries.
+- [x] I approve Codex executing TASK-0067 to create the MVP launch readiness checklist.
+- [x] I approve Codex executing TASK-0068 to create the MVP QA test plan.
+- [x] I approve Codex executing TASK-0069 to create the production configuration checklist.
+- [x] I understand this approval does not approve production launch, Stripe live-mode cutover, provider live-mode changes, migrations, secrets/config changes, task Done decisions, issue closure, or risk acceptance.
+
+### Notes
+
+TASK-0067 through TASK-0069 are documentation/planning artifacts. They may identify production-impacting next actions, but they do not authorize those actions. TASK-0064 execution remains a QA task and does not mark Phase 6 Done until Codex completes QA and David approves the result.
+
+---
+
 ## APPROVAL-0034 — TASK-0072 Wallet Provider Configuration and Display Spec Approval
 
 **Date:** 2026-06-05

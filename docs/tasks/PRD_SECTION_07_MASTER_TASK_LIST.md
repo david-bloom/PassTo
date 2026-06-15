@@ -55,9 +55,9 @@ New Section 7 task files must use the next available confirmed task number. The 
 | Task ID | Task | Status | Notes |
 |---|---|---|---|
 | TASK-0044 | Create Dev Test Personas and Seed Harness. | David Approved - Executing | Dev-only seeded accounts for login, pass generation/display, share, verifier, refresh/status behavior, entitlement QA, suspended/closed account validation, and repeatable launch smoke testing. |
-| TASK-0067 | Create MVP launch readiness checklist. | Spec Drafted - Awaiting David Approval | Consolidates PRD Section 7.2 and 7.3 gates into a launch approval checklist with owner, evidence, approval state, and next action. |
-| TASK-0068 | Create MVP QA test plan. | Spec Drafted - Awaiting David Approval | Product + security QA matrix covering PRD Section 7.4 and 7.5. |
-| TASK-0069 | Create production configuration checklist. | Spec Drafted - Awaiting David Approval | Env vars, redirects, webhooks, domains, provider modes, wallet signing, and seed-tool production guards. |
+| TASK-0067 | Create MVP launch readiness checklist. | Executed - Ready for David Review | Artifact: `MVP_LAUNCH_READINESS_CHECKLIST_2026-06-15.md`. Consolidates PRD Section 7.2 and 7.3 gates into a launch approval checklist with owner, evidence, approval state, and next action. |
+| TASK-0068 | Create MVP QA test plan. | Executed - Ready for David Review | Artifact: `MVP_QA_TEST_PLAN_2026-06-15.md`. Product + security QA matrix covering PRD Section 7.4 and 7.5. |
+| TASK-0069 | Create production configuration checklist. | Executed - Ready for David Review | Artifact: `PRODUCTION_CONFIGURATION_CHECKLIST_2026-06-15.md`. Env vars, redirects, webhooks, domains, provider modes, wallet signing, password-security controls, HIBP check, and seed-tool production guards. |
 | TASK-0070 | Create launch smoke-test script. | Spec Drafted - Awaiting David Approval | Repeatable dev dry run and production-launch smoke-test script for the end-to-end first nurse flow. |
 | TASK-0071 | Create open decision register cleanup. | Spec Drafted - Awaiting David Approval | Routes unresolved launch decisions and reconciles decision/approval source-of-truth docs without closing decisions prematurely. |
 | TASK-0072 | Configure and Verify Apple and Google Wallet Pass Issuance. | Approved - Ready for Provider Configuration and Live Wallet QA | Closes the TASK-0050 real-provider deferral: Apple certs, Google issuer, Vercel env, Supabase secrets, deployment, and end-to-end wallet issuance verification. |
