@@ -23,7 +23,8 @@ Secondary payoff: secure sharing and access history.
 - Primary format: Zoom.
 - Secondary format: in-person conversation.
 - Presenter controls the main flow.
-- Target prepared-user time through wallet installation: under five minutes.
+- David may speak to expected timing during the presentation; this runbook does
+  not prescribe a duration claim.
 
 ## 3. Demo Story
 
@@ -327,16 +328,12 @@ If connectivity fails:
 
 ### CR-DEMO-01 - Add a production-time disclosure to the demo narrative
 
-The "under five minutes" demo target in sections 2 and 3 excludes the slow,
-variable steps (ID.me, license lookup) because they are simulated. A nurse who
-watches the demo will reasonably conclude PassTo onboarding is fast, but they
-are judging a product they will not actually experience. Recommend the
-presenter add a single explicit line, for example after Step 2 or in the close
-in section 6:
+Any timing statement should distinguish the simulated provider steps from the
+production experience. Recommend the presenter add a single explicit line, for
+example after Step 2 or in the close in section 6:
 
-> "In production, ID.me and license verification typically add a few minutes
-> on top of what you saw. The PassTo-controlled steps are what we just
-> demonstrated."
+> "Production timing will vary because live identity and license-provider steps
+> are not measured in this demonstration."
 
 Without this line the demo is technically honest but practically misleading.
 

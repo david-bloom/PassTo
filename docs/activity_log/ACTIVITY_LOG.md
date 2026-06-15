@@ -4,6 +4,18 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0073 Fixed Timing References Removed - 2026-06-15 - Codex
+
+**Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
+**Status:** Protocol Updated - Awaiting David Implementation Approval
+
+At David's direction, fixed onboarding-duration references were removed from
+the governing task, UAT protocol, live-demo runbook, review dispositions, and
+related activity summaries. The protocol continues to measure observed timing,
+but David owns any expected-time discussion during UAT and demonstrations.
+
+No implementation or production behavior changed.
+
 ## TASK-0073 Codex Disposition of Claude Review - 2026-06-15 - Codex
 
 **Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
@@ -23,8 +35,8 @@ Key changes:
 - Nurse cohort blocked until spec reconciliation and secure selfie delivery are complete.
 - Explicit session role ownership.
 - Raw-recording retention capped at 30 days; redacted material at 12 months.
-- Under-five-minute timing retained as a product goal, with friction and
-  unassisted completion as primary UAT measures.
+- Fixed duration targets removed; observed timing, friction, and unassisted
+  completion remain UAT measures.
 - License-number retrieval elevated to a top-line research measure.
 - Post-session recording redaction and participant-phone guardrails.
 - Production timing disclosure without claiming an unmeasured duration.
@@ -108,8 +120,8 @@ to complete real ID.me or RapidAPI/Propelus verification.
 The direction uses a separate demo/UAT environment, the fictional Avery Demo
 persona, acknowledged provider simulation, real OTP and selfie capture, real
 demo wallet issuance, short-lived sharing, moderated recorded nurse UAT, and a
-separate launch-list opt-in. Prepared-user onboarding through wallet
-installation targets under five minutes.
+separate launch-list opt-in. Timing is measured during UAT and may be discussed
+by David during demonstrations without a protocol-level duration commitment.
 
 Portable demo passes may remain on participant devices as souvenirs but must
 permanently state `DEMO`, `NOT A VALID PROFESSIONAL CREDENTIAL`, and

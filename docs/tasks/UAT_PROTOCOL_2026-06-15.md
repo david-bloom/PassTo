@@ -221,11 +221,8 @@ Track two clocks:
 Measures active PassTo interaction when identity access and license information
 are ready.
 
-Target:
-
-```text
-Onboarding start through wallet installation: under 5 minutes
-```
+Record product-controlled elapsed time without defining a protocol-level
+duration target. David may discuss expected timing during a UAT session.
 
 ### Total Elapsed Time
 
@@ -256,8 +253,8 @@ Internal UAT reliability target:
 - Zoom and in-person variants pass.
 - No demo artifact can be mistaken for a production credential.
 
-The under-five-minute target remains a product goal and supporting metric, not
-the sole UAT exit gate. Headline usability signals are:
+Observed completion time remains supporting data, not a UAT exit gate.
+Headline usability signals are:
 
 - Direct help requests.
 - Hesitation events lasting five seconds or more.
@@ -370,7 +367,7 @@ Confirmation:
 
 | Comment | Disposition | Result |
 |---|---|---|
-| CR-UAT-01 | Accept with modification | Kept under-five-minute product target as supporting data; friction signals now drive usability assessment. |
+| CR-UAT-01 | Accept with modification | Removed a fixed duration target; friction signals and observed timing drive usability assessment. |
 | CR-UAT-02 | Accept | Promoted license-number retrieval to top-line metrics. |
 | CR-UAT-03 | Accept | Defined unassisted, assisted, incomplete, and headline rate. |
 | CR-UAT-04 | Accept | Added tiered evidence rules for blockers, repeated friction, and cohort 2 pooling. |
@@ -390,16 +387,14 @@ Confirmation:
 **Scope:** Items specific to this protocol. Cross-cutting items live in
 `docs/tasks/TASK-0073.md`.
 
-### CR-UAT-01 - Replace the 5-minute target as a UAT exit criterion with friction metrics
+### CR-UAT-01 - Use friction metrics instead of a fixed-duration UAT exit criterion
 
-The "under 5 minutes" target in section 10 excludes the slow, variable steps
-(ID.me, license lookup) because they are simulated. With a prepared user,
-simulated providers, and a presenter on hand, hitting the target is nearly
-automatic, so it does not discriminate good from bad sessions. Recommend the
-headline UAT exit metrics become friction signals: count of help requests,
-hesitation events of five seconds or more, count of golden-path steps completed
-without instruction, and license-number lookup behavior. Keep prepared-user
-time as supporting data, not as exit criteria.
+A fixed-duration target can obscure the slow, variable external steps because
+ID.me and license lookup are simulated. Recommend the headline UAT exit metrics
+remain friction signals: count of help requests, hesitation events of five
+seconds or more, count of golden-path steps completed without instruction, and
+license-number lookup behavior. Keep observed time as supporting data, not as
+an exit criterion.
 
 ### CR-UAT-02 - Promote license-number lookup behavior to a top-line metric
 
