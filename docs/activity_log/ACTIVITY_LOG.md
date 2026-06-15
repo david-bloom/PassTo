@@ -4,6 +4,33 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0072 Codex QA Blocked - 2026-06-15 - Codex
+
+**Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance
+**GitHub Checked:** Yes
+**Status:** Codex QA Blocked - P1 Remediation Required
+**Summary:** Apple provider-specific installation evidence is accepted, but the required wallet orchestration, persistence, Google acceptance, and fail-closed display contract do not pass QA.
+
+### Evidence / Files / Findings
+
+- Deployed `wallet-issue` version 12 matches GitHub and has `verify_jwt = true`, but `deno check` reports 12 errors from unsupported `.catch()` calls on PostgREST builders. The first call occurs before `wallet_passes` initialization.
+- Live credential `c855fe7f-db98-4e79-884b-227194922a92` is active with `pass_template_data = null`; it has zero `wallet_passes` rows and zero related wallet audit rows.
+- The documented full Google class ID is prefixed with `issuerId` again in `api/sign-google.js`, producing an invalid duplicated class reference. A locally signed save JWT is not Google provider acceptance.
+- Apple and Google signing routes treat `wallet_pass_treatment = do_not_issue` as valid by default instead of rejecting issuance.
+- Missing and incorrect bearer-token checks return `401 unauthorized` on both deployed signing routes.
+- Secret scan, deterministic identifiers, Apple asset bundling/dimensions, no-QR boundary, RLS, and wallet row uniqueness checks passed.
+
+### Approval Boundary / Remaining Open Items
+
+- No source, deployment, secret, migration, database row, or production configuration was changed.
+- APPROVAL-0034 remains the execution authority for bounded TASK-0072 remediation and test issuance.
+- Production launch, permanent QR/barcode embedding, Stripe live mode, and broader risk acceptance remain unapproved.
+
+**Next Owner:** Claude
+**Next Required Action:** Remediate the four P1 findings, deploy under APPROVAL-0034, run authenticated `wallet-issue` end to end with a current disposable credential and non-null pass payload, verify durable Apple/Google rows plus audit events and `/success`, confirm Google save/render acceptance, then request Codex re-QA.
+
+---
+
 ## TASK-0072 Apple Wallet Live Verified - 2026-06-14 - Claude
 
 **Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance

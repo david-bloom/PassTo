@@ -77,3 +77,5 @@ David identified that real Apple and Google wallet pass issuance has not yet bee
 `TASK-0050` created the wallet signing contract and source scaffolding, but real provider issuance was explicitly deferred pending Apple certificates, Google Wallet issuer/service-account setup, Vercel environment configuration, Supabase `wallet-issue` secrets, deployment, and end-to-end verification.
 
 David approved `TASK-0072` on 2026-06-05. The task now tracks approved launch-critical provider bring-up and verification work; production launch approval remains separate.
+
+Codex QA on 2026-06-15 blocked TASK-0072 on four P1 findings: `wallet-issue` type/runtime safety, missing durable end-to-end evidence for the documented test credential, duplicated Google Wallet class issuer prefix, and failure to reject `do_not_issue` pass treatment. See `docs/tasks/TASK-0072.md` for the remediation and re-QA gate.

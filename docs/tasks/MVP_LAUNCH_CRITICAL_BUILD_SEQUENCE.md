@@ -120,5 +120,5 @@ The sequence is designed to keep implementation moving while preserving the appr
 ## Current Next Action
 
 ```text
-Codex QA of TASK-0072 wallet provider live verification: source review of sign-apple.js, sign-google.js, and wallet-issue; negative checks against deployed signing routes; documentation review of WALLET_PASS_DISPLAY_SPEC.md against deployed payloads.
+TASK-0072 P1 remediation: repair wallet-issue audit-write handling and type-checking, correct Google class ID construction, reject do_not_issue/invalid payloads before signing, then run authenticated wallet-issue persistence and /success integration QA before Codex re-QA.
 ```
