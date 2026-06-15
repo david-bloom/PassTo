@@ -72,9 +72,21 @@ function formatDateTime(value) {
 function deriveTreatment(d) {
   const treatment = String(d.wallet_pass_treatment || "").toLowerCase();
   const normalized = String(d.normalized_status || "").toLowerCase();
+  if (treatment === "do_not_issue") return "do_not_issue";
   if (treatment === "caution") return "caution";
   if (treatment === "invalid" || ["revoked", "expired", "suspended", "inactive"].includes(normalized)) return "invalid";
+  if (treatment === "valid") return "valid";
   return "valid";
+}
+
+function missingRequiredFields(d) {
+  const missing = [];
+  if (!d || typeof d !== "object")              return ["pass_template_data"];
+  if (!d.nurse_name)                            missing.push("nurse_name");
+  if (!d.license_type)                          missing.push("license_type");
+  if (!d.license_number)                        missing.push("license_number");
+  if (!d.license_state)                         missing.push("license_state");
+  return missing;
 }
 
 function passColors(treatment) {
@@ -144,7 +156,19 @@ module.exports = async function handler(req, res) {
   }
 
   const d = credential.pass_template_data ?? {};
+
+  // Fail-closed: do not issue when treatment is do_not_issue, or when canonical
+  // identity/license fields are missing. These signals must be honored before
+  // any pass is signed.
   const treatment      = deriveTreatment(d);
+  if (treatment === "do_not_issue") {
+    return res.status(422).json({ success: false, error: "pass_treatment_do_not_issue" });
+  }
+  const missing = missingRequiredFields(d);
+  if (missing.length > 0) {
+    return res.status(422).json({ success: false, error: "missing_required_fields", missing });
+  }
+
   const colors         = passColors(treatment);
   const nurseName      = d.nurse_name ?? "Verified Nurse";
   const licenseType    = titleizeLicenseType(d.license_type);

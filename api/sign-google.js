@@ -69,8 +69,10 @@ function formatDateTime(value) {
 function deriveTreatment(d) {
   const treatment = String(d.wallet_pass_treatment || "").toLowerCase();
   const normalized = String(d.normalized_status || "").toLowerCase();
+  if (treatment === "do_not_issue") return "do_not_issue";
   if (treatment === "caution") return "caution";
   if (treatment === "invalid" || ["revoked", "expired", "suspended", "inactive"].includes(normalized)) return "invalid";
+  if (treatment === "valid") return "valid";
   return "valid";
 }
 
@@ -79,6 +81,16 @@ function statusLabel(d, treatment) {
   if (treatment === "invalid") return "NOT VALID";
   if (String(d.normalized_status || "").toLowerCase() === "active") return "VERIFIED";
   return String(d.normalized_status || "VERIFIED").toUpperCase();
+}
+
+function missingRequiredFields(d) {
+  const missing = [];
+  if (!d || typeof d !== "object")              return ["pass_template_data"];
+  if (!d.nurse_name)                            missing.push("nurse_name");
+  if (!d.license_type)                          missing.push("license_type");
+  if (!d.license_number)                        missing.push("license_number");
+  if (!d.license_state)                         missing.push("license_state");
+  return missing;
 }
 
 module.exports = async function handler(req, res) {
@@ -119,7 +131,19 @@ module.exports = async function handler(req, res) {
   }
 
   const d = credential.pass_template_data ?? {};
+
+  // Fail-closed: do not issue when treatment is do_not_issue, or when canonical
+  // identity/license fields are missing. These signals must be honored before
+  // any pass is signed.
   const treatment      = deriveTreatment(d);
+  if (treatment === "do_not_issue") {
+    return res.status(422).json({ success: false, error: "pass_treatment_do_not_issue" });
+  }
+  const missing = missingRequiredFields(d);
+  if (missing.length > 0) {
+    return res.status(422).json({ success: false, error: "missing_required_fields", missing });
+  }
+
   const nurseName      = d.nurse_name ?? "Verified Nurse";
   const licenseType    = titleizeLicenseType(d.license_type);
   const licenseState   = displayState(d.license_state);
@@ -133,13 +157,20 @@ module.exports = async function handler(req, res) {
   // ── Required Google env vars ───────────────────────────────────────────────
   const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON ?? "";
   const issuerId           = process.env.GOOGLE_WALLET_ISSUER_ID     ?? "";
-  const classId            = process.env.GOOGLE_WALLET_CLASS_ID      ?? "";
+  const classIdEnv         = process.env.GOOGLE_WALLET_CLASS_ID      ?? "";
   const logoUrl            = process.env.PASSTO_LOGO_URL             ?? "";
 
-  if (!serviceAccountJson || !issuerId || !classId) {
+  if (!serviceAccountJson || !issuerId || !classIdEnv) {
     console.error("sign-google: Google Wallet credentials not configured");
     return res.status(503).json({ success: false, error: "google_wallet_not_configured" });
   }
+
+  // Google requires class IDs in the single-prefix form "issuerID.identifier".
+  // Accept either a full class ID (already prefixed with issuerId) or a bare
+  // identifier suffix. Normalize to the full form exactly once.
+  const fullClassId = classIdEnv.startsWith(`${issuerId}.`)
+    ? classIdEnv
+    : `${issuerId}.${classIdEnv}`;
 
   try {
     const serviceAccount = JSON.parse(serviceAccountJson);
@@ -151,7 +182,7 @@ module.exports = async function handler(req, res) {
 
     const genericObject = {
       id:      `${issuerId}.${objectId}`,
-      classId: `${issuerId}.${classId}`,
+      classId: fullClassId,
       state:   "ACTIVE",
       hexBackgroundColor: "#0B1220",  // Ink-900
       ...(logoUrl ? {
