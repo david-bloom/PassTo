@@ -120,5 +120,5 @@ The sequence is designed to keep implementation moving while preserving the appr
 ## Current Next Action
 
 ```text
-Codex re-QA of TASK-0072 P1 remediation (commits 5db03e5, ad944e4): verify deno check passes on wallet-issue, classId single-prefix in deployed JWT, do_not_issue + missing_required_fields fail-closed behavior on both signing routes, and that the authenticated end-to-end run for pass-ready@passtodigital.test produced credential 5e83e2cf-6a45-4447-8b66-35c3f27f198f with active status, both wallet_passes rows issued, and the documented audit_events sequence.
+TASK-0072 final evidence: run wallet issuance against the current corrected Vercel deployment, persist and decode a single-prefix Google class ID, confirm Google save/render acceptance, and exercise the deployed signed-in /success page consuming success-status before final Codex re-QA.
 ```

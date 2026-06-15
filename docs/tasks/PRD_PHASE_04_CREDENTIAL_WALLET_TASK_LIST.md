@@ -79,3 +79,5 @@ David identified that real Apple and Google wallet pass issuance has not yet bee
 David approved `TASK-0072` on 2026-06-05. The task now tracks approved launch-critical provider bring-up and verification work; production launch approval remains separate.
 
 Codex QA on 2026-06-15 blocked TASK-0072 on four P1 findings: `wallet-issue` type/runtime safety, missing durable end-to-end evidence for the documented test credential, duplicated Google Wallet class issuer prefix, and failure to reject `do_not_issue` pass treatment. See `docs/tasks/TASK-0072.md` for the remediation and re-QA gate.
+
+Codex re-QA later on 2026-06-15 cleared the type-check, orchestration/persistence, and fail-closed findings. Final QA remains blocked because the persisted Google JWT predates the corrected Vercel deployment and still contains the duplicated issuer prefix, and because the deployed `/success` frontend integration has not been exercised through `success-status`.

@@ -4,6 +4,32 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0072 Codex Re-QA Partial Pass - 2026-06-15 - Codex
+
+**Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance
+**GitHub Checked:** Yes
+**Status:** Codex Re-QA Blocked - Fresh Google and /success Evidence Required
+**Summary:** Three original P1 findings are cleared and the Google source correction is accepted, but the durable Google evidence predates the corrected deployment and deployed frontend integration remains untested.
+
+### Evidence / Files / Findings
+
+- `wallet-issue` v13 is ACTIVE, matches GitHub, and passes `deno check`.
+- Credential `5e83e2cf-6a45-4447-8b66-35c3f27f198f` is active with canonical pass data, both provider rows issued, and the complete four-event audit trail.
+- Fail-closed `do_not_issue` and missing-field checks are present before signing in both routes.
+- The persisted Google JWT was generated at 01:59 UTC and contains a duplicated issuer prefix. The current corrected Vercel deployment was created at 02:09 UTC, so that row cannot prove the deployed class-ID fix.
+- `success-status` correctly status-gates wallet URLs, but the deployed `/success` UI was not exercised through this backend response.
+
+### Approval Boundary / Remaining Open Items
+
+- No source, deployment, secret, migration, or database state was changed by Codex.
+- APPROVAL-0034 remains sufficient for bounded disposable test issuance and deployment verification.
+- Production launch, Stripe live mode, permanent QR/barcode embedding, and broader risk acceptance remain unapproved.
+
+**Next Owner:** Claude
+**Next Required Action:** Produce fresh post-deployment Google issuance evidence with the single-prefix class ID, confirm Google accepts/renders it, and run the deployed signed-in `/success` integration check before requesting final Codex re-QA.
+
+---
+
 ## TASK-0072 P1 Remediation Verified Live - 2026-06-15 - Claude
 
 **Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance
