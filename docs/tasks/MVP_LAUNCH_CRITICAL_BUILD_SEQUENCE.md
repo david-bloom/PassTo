@@ -73,7 +73,7 @@ The sequence is designed to keep implementation moving while preserving the appr
 | 4.3 | TASK-0051 — Wallet pass provider state writes to Supabase | Claude | TASK-0050 |
 | 4.4 | TASK-0052 — Success / PassReady status flow | Claude/Lovable | TASK-0049, TASK-0051 |
 | 4.5 | TASK-0053 — Credential/wallet QA | Codex | TASK-0049 through TASK-0052 |
-| 4.6 | TASK-0072 — Configure and verify Apple and Google wallet pass issuance | Claude/Codex/David | Apple Wallet Live Verified 2026-06-14, Google Wallet API-Verified, Ready for Codex QA |
+| 4.6 | TASK-0072 — Configure and verify Apple and Google wallet pass issuance | Claude/Codex/David | P1 remediation complete (commits 5db03e5, ad944e4), authenticated E2E verified, Ready for Codex Re-QA |
 
 ### Phase 5 — Dashboard and Share-Link Verification
 
@@ -120,5 +120,5 @@ The sequence is designed to keep implementation moving while preserving the appr
 ## Current Next Action
 
 ```text
-TASK-0072 P1 remediation: repair wallet-issue audit-write handling and type-checking, correct Google class ID construction, reject do_not_issue/invalid payloads before signing, then run authenticated wallet-issue persistence and /success integration QA before Codex re-QA.
+Codex re-QA of TASK-0072 P1 remediation (commits 5db03e5, ad944e4): verify deno check passes on wallet-issue, classId single-prefix in deployed JWT, do_not_issue + missing_required_fields fail-closed behavior on both signing routes, and that the authenticated end-to-end run for pass-ready@passtodigital.test produced credential 5e83e2cf-6a45-4447-8b66-35c3f27f198f with active status, both wallet_passes rows issued, and the documented audit_events sequence.
 ```

@@ -4,6 +4,48 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0072 P1 Remediation Verified Live - 2026-06-15 - Claude
+
+**Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance
+**Status:** P1 Remediation Complete - Ready for Codex Re-QA
+**Approval Record:** APPROVAL-0034 (existing)
+**Commits:** `5db03e5` (code fixes), `ad944e4` (E2E test script)
+**Files Updated:** `api/sign-apple.js`, `api/sign-google.js`, `supabase/functions/wallet-issue/index.ts`, `scripts/test-wallet-issue-e2e.ts`, `docs/tasks/TASK-0072.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+All four P1 findings from Codex QA (2026-06-15 block) remediated, deployed, and verified live.
+
+### Remediation by Finding
+
+| P1 | Fix | Live evidence |
+|---|---|---|
+| #1 wallet-issue type-check | Replaced 9 `.catch()` chains on `PostgrestFilterBuilder` with explicit `safeAudit` helper that awaits the insert. Typed `Promise.allSettled` rejection reasons. | `deno check` passes. `wallet-issue` redeployed as v13. |
+| #2 No E2E orchestration evidence | Added `scripts/test-wallet-issue-e2e.ts` that signs in the seeded test nurse via Supabase admin-generated magic link + `verifyOtp`, calls `credential-create` and `wallet-issue` with the user JWT, and reads back evidence. | Run 01:59 UTC: credential `5e83e2cf` active, both providers `issued`, audit sequence `issue_started → apple_issued → google_issued → credential.activated`. |
+| #3 Google class ID double prefix | Normalize `GOOGLE_WALLET_CLASS_ID` once (accept either full or bare). | Decoded JWT shows `classId: "3388000000023110660.passto_nurse_license_v1"` (single prefix). |
+| #4 `do_not_issue` treated as valid | Fail-closed before signing on `do_not_issue` and missing canonical fields. | Both routes return `422 pass_treatment_do_not_issue` when treatment is do_not_issue; `422 missing_required_fields` with the list when canonical fields are absent. |
+
+### Negative auth matrix (live)
+
+- No Authorization header → `401 unauthorized` on both routes.
+- Wrong bearer → `401 unauthorized` on both routes.
+- Valid bearer + nonexistent credential → `404 credential_not_found` on both routes.
+
+### Deployment State
+
+- Supabase: `wallet-issue` v13 ACTIVE on `wvzjfxacykgsaffskgtr`.
+- Vercel: production deployment for commit `ad944e4` aliased to `https://pass-to.vercel.app`.
+
+### Approval Boundary
+
+This entry records remediation and re-verification within the approved TASK-0072 scope. It does not approve production launch, broader risk acceptance, Stripe live-mode changes, or unrelated task/issue closure.
+
+### Next Required Action
+
+Codex re-QA per the same acceptance criteria. The test credential created by the E2E run (`5e83e2cf-6a45-4447-8b66-35c3f27f198f`) is left in `active` state with both `wallet_passes` rows `issued` for Codex inspection.
+
+---
+
 ## TASK-0072 Codex QA Blocked - 2026-06-15 - Codex
 
 **Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance
