@@ -4,6 +4,33 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0072 Final Visual Re-QA Blocked - 2026-06-15 - Codex
+
+**Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance
+**GitHub Checked:** Yes
+**Status:** Codex Final Re-QA Blocked - /success Redirects Complete Nurse
+**Summary:** Fresh Google issuance evidence passes, but the deployed frontend redirects the backend-complete test nurse to `/id-verification`, preventing wallet actions from rendering.
+
+### Evidence / Files / Findings
+
+- Gate 1 cleared: credential `1cc0f67e-5b4d-47db-8a41-2460e6dd63ed` contains the corrected single-prefix Google class ID, issued Apple/Google rows, verified Apple signature, and complete activation audit trail.
+- The supplied magic link authenticated successfully.
+- `/post-login` landed on `/id-verification`.
+- Direct `/success` navigation also redirected immediately to `/id-verification`.
+- No wallet action rendered; Apple and Google provider taps could not be tested.
+- Live backend state is complete and eligible: active account, verified IAL2 identity, `onboarding_step = complete`, valid matched license, active credential, and both provider rows issued.
+- No browser console error was present. The failure is deployed route/gate behavior.
+
+### Approval Boundary / Remaining Open Items
+
+- No frontend source, deployment, secret, migration, or database state was changed by Codex.
+- Production launch and TASK-0072 Done remain unapproved.
+
+**Next Owner:** Claude / Lovable
+**Next Required Action:** Correct `/post-login` and `/success` to use server-derived onboarding/wallet status for completed nurses, deploy, and request Codex visual re-QA of both wallet actions.
+
+---
+
 ## TASK-0072 Fresh Google Evidence Captured + /success Backend Verified - 2026-06-15 - Claude
 
 **Task:** TASK-0072 - Configure and Verify Apple and Google Wallet Pass Issuance

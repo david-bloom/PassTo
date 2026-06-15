@@ -81,3 +81,5 @@ David approved `TASK-0072` on 2026-06-05. The task now tracks approved launch-cr
 Codex QA on 2026-06-15 blocked TASK-0072 on four P1 findings: `wallet-issue` type/runtime safety, missing durable end-to-end evidence for the documented test credential, duplicated Google Wallet class issuer prefix, and failure to reject `do_not_issue` pass treatment. See `docs/tasks/TASK-0072.md` for the remediation and re-QA gate.
 
 Codex re-QA later on 2026-06-15 cleared the type-check, orchestration/persistence, and fail-closed findings. Final QA remains blocked because the persisted Google JWT predates the corrected Vercel deployment and still contains the duplicated issuer prefix, and because the deployed `/success` frontend integration has not been exercised through `success-status`.
+
+Fresh post-deployment Google evidence subsequently cleared the class-ID gate. Final visual re-QA remains blocked because the authenticated backend-complete test nurse is redirected from both `/post-login` and `/success` to `/id-verification`, so the issued Apple and Google wallet actions never render.

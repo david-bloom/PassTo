@@ -120,5 +120,5 @@ The sequence is designed to keep implementation moving while preserving the appr
 ## Current Next Action
 
 ```text
-TASK-0072 final evidence: David opens the issued one-time magic link in Safari, lands on /success for credential 1cc0f67e-5b4d-47db-8a41-2460e6dd63ed, and confirms Apple and Google add-to-wallet actions render. Persisted single-prefix Google JWT and verified success-status payload are already captured in TASK-0072.md.
+TASK-0072 frontend remediation: fix /post-login and /success route guards so the backend-complete pass-ready nurse reaches /success, then verify both issued Add to Wallet actions render and open their providers before final Codex re-QA.
 ```
