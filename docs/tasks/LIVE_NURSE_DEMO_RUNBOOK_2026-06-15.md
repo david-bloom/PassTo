@@ -39,6 +39,10 @@ verifier interaction should be real within the isolated environment.
 
 Before the meeting:
 
+- If using the initial Lovable preview, confirm the current preview URL before
+  the session. David provided the first preview reference on 2026-06-16:
+  `https://id-preview--95a347a5-9773-4543-a44f-fa135f4d851a.lovable.app/?__lovable_sha=2e520487`.
+  Treat preview URLs as temporary until the stable demo domain is configured.
 - Confirm demo/UAT environment health.
 - Confirm no production project or provider credentials are active.
 - Confirm Apple and Google demo wallet routes are healthy.

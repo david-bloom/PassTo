@@ -4,6 +4,26 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0073 Lovable Demo Preview URL Provided - 2026-06-16 - David / Codex
+
+**Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
+**Status:** Initial Lovable frontend preview input recorded
+**Lovable Preview URL:** `https://id-preview--95a347a5-9773-4543-a44f-fa135f4d851a.lovable.app/?__lovable_sha=2e520487`
+
+David reported that Lovable created the first PassTo Demo preview:
+
+```text
+Created by Lovable https://id-preview--95a347a5-9773-4543-a44f-fa135f4d851a.lovable.app/?__lovable_sha=2e520487
+```
+
+Codex recorded the URL in TASK-0073 and the live demo runbook as an initial
+preview/build reference. This is not yet the stable demo/UAT domain and does
+not replace the need to define approved demo domains, redirect URLs, CORS
+origins, environment variables, backend wiring, simulator contracts, wallet
+configuration, or QA evidence.
+
+---
+
 ## TASK-0073 Demo Supabase Project Ref Provided - 2026-06-16 - David / Codex
 
 **Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
