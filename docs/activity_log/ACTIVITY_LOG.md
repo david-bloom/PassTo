@@ -4,6 +4,59 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Demo Domain Live + HMAC Secret Set + Rewrite Underway - 2026-06-16 - David / Claude
+
+**Task:** TASK-0074
+**Status:** Provider-side prerequisites for the `demo_vs` cookie contract are in place
+**Files Updated:** `docs/tasks/TASK-0074.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+David completed two of the three remaining David-side provisioning
+steps and started the third:
+
+- `demo.passtodigital.com` is bound as a Lovable custom domain. TLS
+  certificate is auto-issued by Lovable and live.
+- `DEMO_VERIFIER_SESSION_HMAC_SECRET` (32+ random bytes) is set as a
+  Supabase secret on the demo project `atnmcjkjshyqcttnmzkq`. This
+  unblocks the `demo_vs` cookie HMAC contract used by
+  `demo-verifier-view`, `demo-verifier-mint-selfie`, and
+  `demo-verifier-close`.
+- Lovable rewrite configuration is underway per the spec in
+  `docs/tasks/TASK-0074-LOVABLE-REWRITE-SPEC.md` (Pattern A). The
+  browser QA gate verifying `Set-Cookie` acceptance on
+  `demo.passtodigital.com` is the validation step.
+
+The Provisioning Progress table in TASK-0074 has been updated to
+reflect Live status for TLS and host binding and the new
+`DEMO_VERIFIER_SESSION_HMAC_SECRET` row.
+
+### Still Pending Before Migration Apply and Function Deploy
+
+- Codex Stage 1 QA of commit `2dd5b8f` (architecture, security, schema,
+  RLS, cookie contract, manifest, rewrite spec).
+- Lovable rewrite completion and the browser-level Set-Cookie QA gate.
+- Google Wallet API access approval (1-3 business days from David's
+  business profile submission).
+
+### Approval Boundary
+
+This entry records provider configuration on the demo Supabase project
+and the demo Lovable build only. No production project, production
+domain, production secret, or production behavior was changed. No
+demo Supabase migration has been applied and no demo Edge Function has
+been deployed yet.
+
+**Next Owner:** Codex (Stage 1 QA of commit `2dd5b8f`) and David
+(complete Lovable rewrite + browser QA gate; Google Wallet API
+approval continues in the background)
+**Next Required Action:** Codex Stage 1 QA pass; David finishes Lovable
+rewrite; then Claude applies `migration_demo_001_baseline.sql` via the
+Supabase MCP and deploys the Edge Function skeletons to
+`atnmcjkjshyqcttnmzkq`.
+
+---
+
 ## TASK-0074 Stage 1 Artifacts Drafted - 2026-06-16 - Claude
 
 **Task:** TASK-0074
