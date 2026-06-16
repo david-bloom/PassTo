@@ -4,6 +4,51 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Apple Demo Pass Type ID and Certificate Provisioned - 2026-06-16 - David / Claude
+
+**Task:** TASK-0074
+**Status:** Apple demo provisioning complete; env-var conversion deferred to TASK-0074 execution
+**Apple Team ID:** `76J36374T7`
+**Demo Pass Type ID:** `pass.com.passtodigital.demo.nurselicense`
+**Files Updated:** `docs/tasks/TASK-0074.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+David completed Apple Developer provisioning for the isolated demo/UAT
+program:
+
+- Registered a new Pass Type ID `pass.com.passtodigital.demo.nurselicense`,
+  distinct from the production Pass Type ID, in the Apple Developer portal.
+- Generated a CSR on his Mac, requested the Pass Type ID certificate against
+  the new identifier, installed the certificate into the login keychain, and
+  exported the certificate + private key as a `.p12` file.
+- Confirmed Apple Team ID `76J36374T7` (the Team ID is shared with production
+  by Apple Developer account design; the demo/production isolation is enforced
+  via the separate Pass Type ID, not via separate Team IDs).
+
+The `.p12` file and its export password remain on David's Mac in his password
+manager. Neither value has been shared with Claude or committed to the
+repository. Conversion of the `.p12` into the
+`APPLE_CERT_PEM_BASE64` / `APPLE_KEY_PEM_BASE64` / `APPLE_WWDR_PEM_BASE64`
+strings used by the wallet signing routes is deferred to the TASK-0074
+execution stage, at which point David will run a local conversion snippet and
+paste the resulting values into Vercel and Supabase env vars himself.
+
+### Approval Boundary
+
+This entry records provider-side provisioning that is fully within David's
+ownership lane and the documented owner model. No Vercel env var, Supabase
+secret, Edge Function deployment, or production behavior was changed. The
+.p12 secret material remains exclusively on David's Mac.
+
+**Next Owner:** David (Google Wallet demo issuer provisioning) and Codex
+(architecture review of TASK-0074) then David (execution approval)
+**Next Required Action:** Begin Google Wallet demo issuer/class provisioning
+in parallel with Codex review of TASK-0074. Apple env-var setup is unblocked
+the moment TASK-0074 execution approval lands.
+
+---
+
 ## TASK-0074 Demo Domain A Record Value Recorded - 2026-06-16 - David / Claude
 
 **Task:** TASK-0074
