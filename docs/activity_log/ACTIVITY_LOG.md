@@ -4,6 +4,41 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 DNS A and TXT Records Complete for demo.passtodigital.com - 2026-06-16 - David / Claude
+
+**Task:** TASK-0074
+**Status:** Prerequisite DNS Complete - Execution Approval Still Pending
+**Domain:** `demo.passtodigital.com`
+**Files Updated:** `docs/tasks/TASK-0074.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+David completed the DNS A record and DNS TXT record for
+`demo.passtodigital.com`. The TXT record carries the domain-verification value
+used by the eventual host (Lovable, Vercel, or wallet provider) and the A
+record carries the routing target. Recorded in the TASK-0074 Provisioning
+Progress table.
+
+DNS completion does not authorize TLS issuance, host binding, Supabase auth
+redirect changes, CORS allowlist changes, Apple/Google provider configuration,
+simulator deployment, or any other TASK-0074 execution step. Those remain
+gated on a separate David execution approval for TASK-0074.
+
+### Approval Boundary
+
+This entry records DNS prerequisite progress only. No certificate issuance,
+host binding, Supabase or Vercel route configuration, provider configuration,
+or production behavior was changed.
+
+**Next Owner:** Codex (architecture review of TASK-0074) then David (execution
+approval); David in parallel on Apple demo pass type ID + certificate and
+Google Wallet demo issuer/class ID
+**Next Required Action:** Codex reviews TASK-0074 with the now-known stable
+domain and DNS in place; David grants execution approval. TLS, host binding,
+and provider configuration are part of TASK-0074 execution scope.
+
+---
+
 ## TASK-0073 / TASK-0074 Stable Demo Domain Approved - 2026-06-16 - David / Claude
 
 **Tasks:** TASK-0073, TASK-0074
