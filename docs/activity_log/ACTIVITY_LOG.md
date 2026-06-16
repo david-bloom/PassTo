@@ -4,6 +4,73 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Claude Disposition of CR-0074 Review - 2026-06-16 - Claude
+
+**Task:** TASK-0074
+**Status:** Spec revisions applied; Codex re-review requested
+**Files Updated:** `docs/tasks/TASK-0074.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+Claude dispositioned all eight findings from Codex's TASK-0074 architecture
+and security review (commit `7782a83`). All eight accepted; CR-0074-01
+through CR-0074-06 implemented in full, CR-0074-07 accepted via the
+manual-attestation model, CR-0074-08 acknowledged as the gating step pending
+Codex re-review and David execution approval.
+
+### Spec Sections Revised
+
+- **Architecture / Environment Isolation Manifest** (CR-0074-04) - New
+  subsection adds a checked-in non-secret manifest as the single source of
+  truth for fail-closed isolation, listing allowed and disallowed
+  identifiers. Boot and per-request validators read from the manifest.
+- **Schema** (CR-0074-03, 05, 07) - Adds `demo_session_participants`,
+  `demo_presenters`, `demo_selfie_access_tokens`, `demo_share_tokens`,
+  `demo_recordings` metadata-only table, and explicit constraints on
+  `demo_entitlements`.
+- **RLS** (CR-0074-03) - Rewritten to authorize via the
+  `demo_session_participants` + `demo_presenters` binding tables only;
+  client-supplied `session_id` is never trusted; role grants/revocations
+  audit-logged.
+- **Edge Functions / Backend** (CR-0074-02) - Three explicit authorization
+  models (Authenticated, Public-token, Scheduled/service-role) with a per-
+  function table. Verifier paths reclassified as Public-token with hashed
+  token lookup, expiry/first-use, rate limit, manifest-derived CORS, and
+  safe-display projection only.
+- **Selfie Short-TTL Delivery Contract** (CR-0074-01) - Replaced URL-based
+  pattern with streaming-proxy + token-ledger pattern. Acceptable
+  blob-with-immediate-revoke alternative documented. Storage URL never
+  returned to client. Replay tests required.
+- **Demo Entitlement Contract** (CR-0074-05) - New subsection. Demo code
+  reads/writes only `demo_entitlements`; production-shape tables and
+  payment/entitlement Edge Functions explicitly off-limits.
+- **Cleanup Mechanics** (CR-0074-07) - Manual-attestation model via
+  `demo_recordings`; recordings live outside Supabase; weekly
+  `demo-retention-report` Edge Function emits drift reports.
+- **Deployment Plan** (CR-0074-06) - Stage 1 engineering validation is
+  explicitly prohibited from exposing nurse-visible or verifier-visible
+  selfie or org/purpose surfaces until source reconciliation closes.
+- **Pre-Cohort-1 Gates / Acceptance Criteria / QA Plan** - Updated to
+  cover negative-test evidence packet, replay tests, production-shape diff,
+  presenter authorization tests, and retention drift verification.
+
+### Approval Boundary
+
+This entry records spec revisions only. No demo/UAT infrastructure was
+provisioned, no Vercel env var or Supabase secret set, no Edge Function
+deployed, no production behavior changed. APPROVAL-0036 authorized creation
+and revision of TASK-0074. Execution still requires a separate David
+approval after Codex re-review.
+
+**Next Owner:** Codex (re-review of revised TASK-0074) then David
+(execution approval)
+**Next Required Action:** Codex re-reviews the revised spec, focusing on
+the Claude Disposition of CR-0074 Review table and the sections it points
+to. If re-review passes, David grants TASK-0074 execution approval
+(prospective APPROVAL-0037).
+
+---
+
 ## TASK-0074 Codex Architecture and Security Review - 2026-06-16 - Codex
 
 **Task:** TASK-0074 - Implement Isolated Demo/UAT Platform for TASK-0073
