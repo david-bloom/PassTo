@@ -4,6 +4,55 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Google Cloud Demo Project and Service Account Provisioned; Wallet Business Profile In Progress - 2026-06-16 - David / Claude
+
+**Task:** TASK-0074
+**Status:** GCP side provisioned; Google Wallet business profile / issuer creation in progress; awaiting Google API access approval
+**GCP Project:** `passto-demo`
+**Service Account Unique ID:** `114717405614873350881`
+**Files Updated:** `docs/tasks/TASK-0074.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+David provisioned the Google Cloud side of the isolated demo/UAT program:
+
+- Created a new GCP project `passto-demo` separate from the production Google
+  Cloud project.
+- Enabled the Google Wallet API on `passto-demo`.
+- Created a demo wallet-signing service account with unique ID
+  `114717405614873350881`. The service account JSON key was downloaded to
+  David's Mac and stored in his password manager; it has not been shared with
+  Claude or committed to the repository.
+
+David is now creating a second Google Pay & Wallet **business profile**
+(`PassTo Demo`) distinct from the existing production business profile that
+hosts issuer `3388000000023110660`. Google Pay & Wallet Console's current UI
+does not surface a "second issuer under the same business" option; the
+expected path is a separate business profile per issuer. The new business
+profile, once created, will be assigned its own issuer ID by Google.
+
+Google Wallet API access on the new business profile typically requires 1-3
+business days for review after submission. The demo class
+(`<new_issuer_id>.passto_demo_nurse_license_v1`) is created in the Wallet
+Console after API access is approved.
+
+### Approval Boundary
+
+This entry records provider-side provisioning that is within David's
+ownership lane and the documented owner model. No Vercel env var, Supabase
+secret, Edge Function deployment, or production behavior was changed. The
+service-account JSON key remains exclusively on David's Mac.
+
+**Next Owner:** David (capture service-account email, complete demo business
+profile creation, capture demo issuer ID, await Google API access approval,
+then create demo class and authorize service account against the demo issuer)
+and Codex (architecture review of TASK-0074) then David (TASK-0074 execution
+approval)
+**Next Required Action:** Capture and provide the demo service-account email
+address and the demo issuer ID once Google assigns it.
+
+---
+
 ## TASK-0074 Apple Demo Pass Type ID and Certificate Provisioned - 2026-06-16 - David / Claude
 
 **Task:** TASK-0074
