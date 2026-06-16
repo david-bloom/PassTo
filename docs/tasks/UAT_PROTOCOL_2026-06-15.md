@@ -46,7 +46,8 @@ round.
 
 ## 3. Required Environment
 
-- Dedicated non-production Supabase project.
+- Dedicated non-production Supabase project: `atnmcjkjshyqcttnmzkq`
+  ("PassTo Demo"), provided by David on 2026-06-16.
 - Dedicated demo/UAT domains.
 - Separate Apple and Google Wallet identifiers.
 - Synthetic provider fixtures and isolated storage.

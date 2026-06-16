@@ -4,6 +4,29 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0073 Demo Supabase Project Ref Provided - 2026-06-16 - David / Codex
+
+**Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
+**Status:** Demo/UAT environment input recorded
+**Supabase Project Ref:** `atnmcjkjshyqcttnmzkq`
+**Project Name:** PassTo Demo
+
+David provided the Supabase project ref for the separate demo/UAT environment:
+
+```text
+PassTo Demo Supabase ID# atnmcjkjshyqcttnmzkq
+```
+
+Codex recorded the project ref in TASK-0073 and the UAT protocol so Claude and
+Lovable can target the correct isolated environment when scaffolding the
+implementation task and frontend wiring.
+
+This records an environment input only. It does not apply schema, RLS, storage,
+Edge Functions, secrets, wallet identifiers, provider simulators, domain config,
+frontend deployment, or production behavior changes.
+
+---
+
 ## TASK-0073 Implementation Approved and Implementation Task Authorized - 2026-06-16 - David / Claude
 
 **Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
