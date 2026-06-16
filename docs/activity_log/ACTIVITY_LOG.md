@@ -5158,3 +5158,62 @@ Remaining items for launch readiness:
 - `docs/activity_log/QA_FINDINGS_LOG.md` — updated with completion of QA-004, 005, 006, 008
 
 Commit: 1aec3d7 (pushed to main)
+
+---
+
+## TASK-0074 Stage 1 Engineering-Validation QA - 2026-06-16 - Codex
+
+**Task:** TASK-0074 - Implement Isolated Demo/UAT Platform for TASK-0073
+**Approval:** APPROVAL-0037
+**Reviewed commit:** `2dd5b8f`
+**Result:** Stage 1 QA blocked. Claude should not apply
+`supabase/migrations/migration_demo_001_baseline.sql` or deploy the demo Edge
+Functions to `atnmcjkjshyqcttnmzkq` until CR-S1 findings are remediated and
+Codex re-reviews.
+
+### Files reviewed
+
+- `config/demo-environment.manifest.json`
+- `supabase/migrations/migration_demo_001_baseline.sql`
+- `supabase/functions/_shared/demo-auth.ts`
+- `supabase/functions/_shared/demo-isolation.ts`
+- `supabase/functions/_shared/demo-verifier-cookie.ts`
+- `supabase/functions/demo-verifier-view/index.ts`
+- `supabase/functions/demo-verifier-view-selfie/index.ts`
+- `supabase/functions/demo-verifier-mint-selfie/index.ts`
+- `supabase/functions/demo-verifier-close/index.ts`
+- `docs/tasks/TASK-0074-LOVABLE-REWRITE-SPEC.md`
+
+### Checks run
+
+```bash
+deno check supabase/functions/demo-verifier-view/index.ts supabase/functions/demo-verifier-view-selfie/index.ts supabase/functions/demo-verifier-mint-selfie/index.ts supabase/functions/demo-verifier-close/index.ts supabase/functions/demo-session-prepare/index.ts supabase/functions/demo-share-create/index.ts supabase/functions/demo-selfie-upload/index.ts supabase/functions/demo-selfie-fetch/index.ts supabase/functions/demo-wallet-issue/index.ts supabase/functions/demo-cleanup-phone/index.ts
+```
+
+Result: failed with four TypeScript errors in shared helpers.
+
+### Findings recorded in TASK-0074
+
+| ID | Severity | Summary |
+|---|---|---|
+| CR-S1-01 | P1 | Edge Functions do not pass `deno check`. |
+| CR-S1-02 | P1 | Boot validation does not enforce the manifest's required checks. |
+| CR-S1-03 | P1 | Verifier selfie fetch does not verify the verifier-session cookie. |
+| CR-S1-04 | P1 | Share-token consume/mint flow is still race-prone. |
+| CR-S1-05 | P1 | Token hash `bytea` serialization is underspecified and likely runtime-broken. |
+| CR-S1-06 | P2 | CORS helper does not refuse unapproved origins at request time. |
+
+### Positive observations
+
+- Manifest, demo schema, RLS binding model, token/audit ledger separation, and
+  Lovable Pattern A rewrite spec are directionally aligned with TASK-0074.
+- Baseline migration enables RLS on all demo tables and leaves token/audit
+  tables without authenticated-role policies.
+- No production deployment, Supabase apply, storage policy, provider secret,
+  wallet, DNS, or Lovable runtime behavior was changed by Codex during review.
+
+### Next required action
+
+Claude remediates CR-S1-01 through CR-S1-06 in repo code/specs, provides updated
+engineering-validation evidence, and requests Codex re-review before applying
+the migration or deploying Stage 1 Edge Functions.
