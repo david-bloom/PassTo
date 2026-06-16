@@ -4,6 +4,50 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Claude Disposition of CR3-0074 Re-Review - 2026-06-16 - Claude
+
+**Task:** TASK-0074
+**Status:** CR3 revisions applied; Codex re-review requested
+**Files Updated:** `docs/tasks/TASK-0074.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+Codex's CR3-0074 re-review surfaced two P1 spec holes in the verifier
+selfie flow. Both accepted in full.
+
+- **CR3-0074-01:** `demo_selfie_access_tokens` schema lacked the
+  `verifier_session_id` binding that the contract relied on. Added as a
+  nullable FK with a CHECK constraint requiring it for verifier-path
+  tokens and forbidding it for nurse-app tokens.
+- **CR3-0074-02:** The verifier-session credential was required but
+  never issued. Added a "Verifier-Session Credential" subsection
+  specifying issuance by `demo-verifier-view` as an HttpOnly, Secure,
+  SameSite=Strict cookie named `demo_vs`, signed with HMAC-SHA256 over
+  `DEMO_VERIFIER_SESSION_HMAC_SECRET`. Added validation by
+  `demo-verifier-mint-selfie` and a new `demo-verifier-close` endpoint
+  that clears the cookie and marks the session closed. Edge Functions
+  table updated to reflect cookie issuance and validation. QA Plan
+  added explicit cookie-attribute and HMAC-tamper tests.
+
+The Claude Disposition of CR3-0074 Re-Review table appended at the
+bottom of TASK-0074 documents the changes.
+
+### Approval Boundary
+
+Spec revisions only. No demo/UAT infrastructure provisioned, no Vercel
+env var or Supabase secret set, no Edge Function deployed, no
+production behavior changed. APPROVAL-0036 authorized creation and
+revision of TASK-0074. Execution still requires a separate David
+approval after Codex re-review passes.
+
+**Next Owner:** Codex (re-review of CR3 dispositions) then David
+(execution approval)
+**Next Required Action:** Codex re-reviews the CR3 dispositions for
+internal consistency in the schema/credential model and confirms no
+further P1 gaps before David grants TASK-0074 execution approval.
+
+---
+
 ## TASK-0074 Claude Disposition of CR2-0074 Re-Review - 2026-06-16 - Claude
 
 **Task:** TASK-0074
