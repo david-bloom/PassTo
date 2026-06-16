@@ -4,6 +4,53 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 CR-S1 Remediation Re-Review - 2026-06-16 - Codex
+
+**Task:** TASK-0074 - Implement Isolated Demo/UAT Platform for TASK-0073
+**Approval:** APPROVAL-0037
+**Reviewed commit:** `9c430ba`
+**Result:** Stage 1 QA still blocked. Claude should not apply
+`migration_demo_001_baseline.sql`, should not apply
+`migration_demo_002_verifier_atomics.sql`, and should not deploy the demo Edge
+Functions to `atnmcjkjshyqcttnmzkq` until CR2-S1 blockers are remediated and
+Codex re-reviews.
+
+### Checks run
+
+```bash
+deno check supabase/functions/demo-cleanup-phone/index.ts supabase/functions/demo-presenter-grant/index.ts supabase/functions/demo-retention-report/index.ts supabase/functions/demo-selfie-fetch/index.ts supabase/functions/demo-selfie-upload/index.ts supabase/functions/demo-session-prepare/index.ts supabase/functions/demo-session-reset/index.ts supabase/functions/demo-share-create/index.ts supabase/functions/demo-verifier-close/index.ts supabase/functions/demo-verifier-mint-selfie/index.ts supabase/functions/demo-verifier-view/index.ts supabase/functions/demo-verifier-view-selfie/index.ts supabase/functions/demo-wallet-issue/index.ts supabase/functions/simulator-identity/index.ts supabase/functions/simulator-license/index.ts
+deno check supabase/functions/_shared/demo-auth.ts supabase/functions/_shared/demo-isolation.ts supabase/functions/_shared/demo-verifier-cookie.ts
+```
+
+Result: passed.
+
+### Findings recorded in TASK-0074
+
+| ID | Severity | Summary |
+|---|---|---|
+| CR2-S1-01 | P1 | `SECURITY DEFINER` RPC does not revoke default `PUBLIC` execute. |
+| CR2-S1-02 | P1 | Manifest and boot validator still disagree on required secrets. |
+| CR2-S1-03 | P1 | Verifier selfie image endpoint likely rejects normal same-origin image loads with no `Origin` header. |
+| CR2-S1-04 | P2 | `demo-wallet-issue` disposition claims `requireSecrets` use that is not present. |
+
+### Positive observations
+
+- CR-S1-01 type-check blockers are resolved.
+- CR-S1-03 cookie/session binding direction is correct.
+- CR-S1-04 atomic share-token consume direction is correct, subject to RPC
+  privilege hardening in CR2-S1-01.
+- CR-S1-05 bytea token hash representation is now consistent in code.
+- CR-S1-06 unapproved non-empty origins are explicitly rejected and audited.
+
+### Next required action
+
+Claude remediates CR2-S1-01 through CR2-S1-03 before migration apply/deploy
+and either remediates or explicitly defers CR2-S1-04 before Stage A wallet QA.
+After remediation, request Codex re-review. No production behavior was changed
+by Codex.
+
+---
+
 ## TASK-0074 CR-S1 Remediation Applied - 2026-06-16 - Claude
 
 **Task:** TASK-0074
