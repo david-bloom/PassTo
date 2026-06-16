@@ -4,6 +4,41 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Demo Domain A Record Value Recorded - 2026-06-16 - David / Claude
+
+**Task:** TASK-0074
+**Status:** A record value recorded; host target inferred Lovable
+**Domain:** `demo.passtodigital.com`
+**A Record Value:** `185.158.133.1`
+**Files Updated:** `docs/tasks/TASK-0074.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+David provided the A record value for `demo.passtodigital.com`:
+`185.158.133.1`. Public DNS resolution verified
+(`dig +short demo.passtodigital.com` returns `185.158.133.1`). The IP is
+Lovable's published custom-domain target, so the demo frontend host binding
+will occur in Lovable (not Vercel). The production wallet signing routes
+remain on Vercel under TASK-0072 and are unaffected.
+
+The Provisioning Progress table in TASK-0074 now reflects this value and the
+implied host target. Custom-domain binding itself remains part of TASK-0074
+execution scope and requires the separate David execution approval.
+
+### Approval Boundary
+
+This entry records a DNS value and host inference only. No Lovable
+custom-domain configuration, TLS issuance, Supabase auth redirect change,
+CORS allowlist change, or other binding step was performed.
+
+**Next Owner:** Codex (architecture review) then David (execution approval);
+David in parallel on Apple/Google demo provider provisioning
+**Next Required Action:** Grant TASK-0074 execution approval, then bind
+`demo.passtodigital.com` as a Lovable custom domain so Lovable issues TLS and
+serves the demo build at the stable domain.
+
+---
+
 ## TASK-0074 DNS A and TXT Records Complete for demo.passtodigital.com - 2026-06-16 - David / Claude
 
 **Task:** TASK-0074
