@@ -4,6 +4,53 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Codex Architecture and Security Review - 2026-06-16 - Codex
+
+**Task:** TASK-0074 - Implement Isolated Demo/UAT Platform for TASK-0073
+**Status:** Codex Reviewed - Revisions Required Before David Execution Approval
+**Reviewed Commit:** `bfc851e`
+**Findings:** CR-0074-01 through CR-0074-08
+
+Codex reviewed TASK-0074 against TASK-0073, the UAT protocol, the live demo
+runbook, and the five source-reconciliation targets:
+
+- `docs/flows/IDME_FIRST_ONBOARDING.md`
+- `docs/features/PASS_MANAGEMENT.md`
+- `docs/design_system/WALLET_PASS_DISPLAY_SPEC.md`
+- `docs/flows/VERIFIER_CREDENTIAL_VIEW.md`
+- `docs/architecture/SECURITY_MODEL.md`
+
+Verdict: TASK-0074 is the right implementation vehicle, but David should not
+grant execution approval until the P1 review comments are dispositioned in the
+task file.
+
+Required corrections before execution approval:
+
+- CR-0074-01: selfie "single-use short-TTL URL" must be implemented as a
+  real one-time proxy/token/blob delivery pattern, not a reusable signed URL
+  exposed in the DOM.
+- CR-0074-02: public verifier token functions cannot require Supabase JWT, but
+  must use hashed token validation, first-use/expiry checks, rate limiting,
+  safe CORS, and safe-display projection only.
+- CR-0074-03: RLS must bind `session_id` to `auth.uid()` through a
+  participant/session table or equivalent, and presenter actions need an
+  authenticated allowlist/claim.
+- CR-0074-04: environment fail-closed validation needs an explicit non-secret
+  allowlist/disallowlist manifest and negative-test evidence packet.
+- CR-0074-05: demo entitlements must use a separate `demo_entitlements`
+  contract and must not write production subscription/payment/Stripe state.
+- CR-0074-06: source reconciliation must gate nurse/verifier-visible
+  selfie/org-purpose safe-display contract exposure.
+- CR-0074-07: recording/retention cleanup needs a concrete storage/metadata
+  location or a manual attestation model.
+- CR-0074-08: Claude should revise TASK-0074 and request Codex re-review before
+  David grants execution approval.
+
+No infrastructure, schema, RLS, storage, Edge Function, wallet, Lovable,
+provider, or production behavior changed.
+
+---
+
 ## TASK-0074 Google Cloud Demo Project and Service Account Provisioned; Wallet Business Profile In Progress - 2026-06-16 - David / Claude
 
 **Task:** TASK-0074
