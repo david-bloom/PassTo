@@ -4,6 +4,56 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Claude Disposition of CR4-0074 Re-Review - 2026-06-16 - Claude
+
+**Task:** TASK-0074
+**Status:** CR4 revisions applied; Codex re-review requested
+**Files Updated:** `docs/tasks/TASK-0074.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+Codex's CR4-0074 re-review surfaced a P1 architectural gap: the
+`demo_vs` cookie contract requires verifier Edge Function endpoints to
+be reachable from the browser at URLs on `demo.passtodigital.com`, but
+the spec did not explicitly require same-origin routing. Accepted in
+full.
+
+- **CR4-0074-01:** Architecture section now mandates same-origin
+  routing for `demo-verifier-view`, `demo-verifier-view-selfie`,
+  `demo-verifier-mint-selfie`, and `demo-verifier-close`. Two
+  acceptable implementation patterns: Pattern A Lovable same-origin
+  rewrite from `https://demo.passtodigital.com/functions/v1/demo-verifier-*`
+  to the Supabase Edge Function URLs (preferred), or Pattern B
+  Supabase Edge Function custom domain on `demo.passtodigital.com` or
+  `api.demo.passtodigital.com`. Selfie URL shape updated to
+  `https://demo.passtodigital.com/functions/v1/demo-verifier-view-selfie?st=...`.
+  Environment Isolation Manifest adds explicit allowed/disallowed
+  verifier endpoint origins; any verifier URL on a Supabase project
+  domain (e.g., `*.functions.supabase.co`) fails boot. Provisioning
+  Progress table adds a same-origin routing line item. QA Plan adds
+  browser-level cookie acceptance, send, and same-origin negative
+  tests. Pre-Cohort-1 Gates updated.
+
+The Claude Disposition of CR4-0074 Re-Review table appended at the
+bottom of TASK-0074 documents the changes.
+
+### Approval Boundary
+
+Spec revisions only. No demo/UAT infrastructure provisioned, no
+Vercel env var or Supabase secret set, no Edge Function deployed, no
+production behavior changed. APPROVAL-0036 authorized creation and
+revision of TASK-0074. Execution still requires a separate David
+approval after Codex re-review passes.
+
+**Next Owner:** Codex (re-review of CR4 disposition) then David
+(execution approval)
+**Next Required Action:** Codex re-reviews the CR4 disposition for
+correctness of the same-origin routing contract, the manifest
+additions, and the QA gates. If clean, David grants TASK-0074
+execution approval (prospective APPROVAL-0037).
+
+---
+
 ## TASK-0074 Claude Disposition of CR3-0074 Re-Review - 2026-06-16 - Claude
 
 **Task:** TASK-0074
