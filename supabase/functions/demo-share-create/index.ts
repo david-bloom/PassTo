@@ -23,7 +23,7 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { validateBoot, corsHeaders, manifest } from "../_shared/demo-isolation.ts";
+import { validateBoot, corsHeaders, assertOriginAllowed, manifest } from "../_shared/demo-isolation.ts";
 import { resolveAuthenticatedCaller, requireBinding, generateOpaqueToken, hashToken } from "../_shared/demo-auth.ts";
 
 validateBoot("demo-share-create");
@@ -33,6 +33,9 @@ const DEFAULT_TTL_SECONDS = 24 * 60 * 60;
 serve(async (req) => {
   const cors = corsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
+  const reject = await assertOriginAllowed(req, { endpoint: "demo-share-create" });
+  if (reject) return reject;
 
   const caller = await resolveAuthenticatedCaller(req);
   if (!caller) return json({ error: "unauthorized" }, 401, cors);

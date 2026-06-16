@@ -22,7 +22,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import {
   validateBoot,
   corsHeaders,
-  makeIsolationLogger,
+  assertOriginAllowed,
 } from "../_shared/demo-isolation.ts";
 import { resolveAuthenticatedCaller } from "../_shared/demo-auth.ts";
 
@@ -35,6 +35,9 @@ interface PrepareBody {
 serve(async (req) => {
   const cors = corsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
+  const reject = await assertOriginAllowed(req, { endpoint: "demo-session-prepare" });
+  if (reject) return reject;
 
   const caller = await resolveAuthenticatedCaller(req);
   if (!caller) return json({ error: "unauthorized" }, 401, cors);

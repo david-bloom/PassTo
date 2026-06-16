@@ -11,14 +11,26 @@
  * helpers for the hash-and-lookup primitives.
  */
 
+// deno-lint-ignore-file no-explicit-any
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+/**
+ * The demo Edge Functions create supabase-js clients with
+ * `db: { schema: "demo" }`. The resulting client type is
+ * `SupabaseClient<any, "public", "demo", any, any>` — the third generic
+ * carries the schema option. Declaring the interface fields with the
+ * default `SupabaseClient` (which resolves to schema "public") would
+ * fail `deno check`. We use `DemoSupabaseClient` for both authenticated
+ * and service-role clients in this module.
+ */
+export type DemoSupabaseClient = SupabaseClient<any, "public", "demo", any, any>;
 
 export type AuthRole = "participant" | "presenter";
 
 export interface AuthenticatedCaller {
   authUserId: string;
-  supabaseAuth: SupabaseClient;
-  supabaseAdmin: SupabaseClient;
+  supabaseAuth: DemoSupabaseClient;
+  supabaseAdmin: DemoSupabaseClient;
 }
 
 export interface BoundCaller extends AuthenticatedCaller {
@@ -86,13 +98,33 @@ export async function requireBinding(
 }
 
 /**
- * Hash a raw token for ledger storage / lookup. Uses SHA-256.
+ * Hash a raw token for ledger storage / lookup. Uses SHA-256 and
+ * returns the Postgres bytea hex literal form (`\\x` followed by
+ * lowercase hex) so it can be inserted into and queried against a
+ * bytea column via supabase-js / PostgREST without ambiguity.
+ *
  * Raw tokens MUST NOT be persisted; only the hash is stored.
+ *
+ * Use this representation everywhere a token hash crosses the
+ * function/database boundary: `demo.share_tokens.token_hash`,
+ * `demo.selfie_access_tokens.token_hash`, and any audit row that
+ * carries a token hash. The Stage 1 integration test inserts a
+ * token row and looks it up by hash to prove the round trip.
  */
-export async function hashToken(rawToken: string): Promise<Uint8Array> {
+export async function hashToken(rawToken: string): Promise<string> {
   const bytes = new TextEncoder().encode(rawToken);
   const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return new Uint8Array(digest);
+  return bytesToByteaHex(new Uint8Array(digest));
+}
+
+/**
+ * Encode a Uint8Array as a Postgres bytea hex literal.
+ *   bytesToByteaHex(new Uint8Array([0xde, 0xad])) === '\\xdead'
+ */
+export function bytesToByteaHex(bytes: Uint8Array): string {
+  let hex = "\\x";
+  for (const b of bytes) hex += b.toString(16).padStart(2, "0");
+  return hex;
 }
 
 /**

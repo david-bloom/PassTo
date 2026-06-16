@@ -17,7 +17,7 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { validateBoot, corsHeaders } from "../_shared/demo-isolation.ts";
+import { validateBoot, corsHeaders, assertOriginAllowed } from "../_shared/demo-isolation.ts";
 import { resolveAuthenticatedCaller, requireBinding } from "../_shared/demo-auth.ts";
 
 validateBoot("demo-selfie-upload");
@@ -25,6 +25,9 @@ validateBoot("demo-selfie-upload");
 serve(async (req) => {
   const cors = corsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
+  const reject = await assertOriginAllowed(req, { endpoint: "demo-selfie-upload" });
+  if (reject) return reject;
 
   const caller = await resolveAuthenticatedCaller(req);
   if (!caller) return json({ error: "unauthorized" }, 401, cors);

@@ -30,7 +30,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { validateBoot, corsHeaders, manifest } from "../_shared/demo-isolation.ts";
+import { validateBoot, corsHeaders, assertOriginAllowed, manifest } from "../_shared/demo-isolation.ts";
 import { hashToken, generateOpaqueToken } from "../_shared/demo-auth.ts";
 import { buildVerifierSessionCookie } from "../_shared/demo-verifier-cookie.ts";
 
@@ -43,6 +43,9 @@ serve(async (req) => {
   const cors = corsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
+  const reject = await assertOriginAllowed(req, { endpoint: "demo-verifier-view" });
+  if (reject) return reject;
+
   const { share_token } = await req.json().catch(() => ({}));
   if (!share_token || typeof share_token !== "string") {
     return json({ error: "missing_share_token" }, 400, cors);
@@ -52,63 +55,49 @@ serve(async (req) => {
   const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const admin = createClient(supabaseUrl, supabaseKey, { db: { schema: "demo" } });
 
-  const tokenHash = await hashToken(share_token);
-
-  // Atomic share-token consume + verifier-session mint + selfie-token mint.
-  // Implemented as a single SECURITY DEFINER plpgsql function in a later
-  // migration; the skeleton stages the steps inline for review and will
-  // be migrated to the atomic stored procedure in Stage A.
-  const { data: shareRow } = await admin
-    .from("share_tokens")
-    .select("token_hash, session_id, expires_at, first_used_at, revoked_at")
-    .eq("token_hash", tokenHash)
-    .single();
-
-  if (!shareRow) return json({ error: "share_token_not_found" }, 404, cors);
-  if (shareRow.revoked_at) return json({ error: "share_token_revoked" }, 410, cors);
-  if (new Date(shareRow.expires_at) <= new Date()) {
-    return json({ error: "share_token_expired" }, 410, cors);
-  }
-  if (shareRow.first_used_at) {
-    return json({ error: "share_token_already_used" }, 410, cors);
-  }
-
-  const verifierExpiresAt = new Date(Date.now() + VERIFIER_SESSION_TTL_SECONDS * 1000);
-  const { data: vs, error: vsErr } = await admin
-    .from("verifier_sessions")
-    .insert({
-      demo_session_id: shareRow.session_id,
-      share_token_hash: tokenHash,
-      expires_at: verifierExpiresAt.toISOString(),
-    })
-    .select("verifier_session_id")
-    .single();
-  if (vsErr || !vs) return json({ error: "verifier_session_insert_failed" }, 500, cors);
-
-  const { error: updErr } = await admin
-    .from("share_tokens")
-    .update({
-      first_used_at: new Date().toISOString(),
-      verifier_session_id: vs.verifier_session_id,
-    })
-    .eq("token_hash", tokenHash)
-    .is("first_used_at", null);
-  if (updErr) return json({ error: "share_token_consume_failed" }, 500, cors);
-
+  const shareTokenHash = await hashToken(share_token);
   const rawSelfieToken = generateOpaqueToken();
   const selfieTokenHash = await hashToken(rawSelfieToken);
-  const selfieExpiresAt = new Date(Date.now() + SELFIE_TOKEN_TTL_SECONDS * 1000);
 
-  const { error: selfieErr } = await admin
-    .from("selfie_access_tokens")
-    .insert({
-      token_hash: selfieTokenHash,
-      session_id: shareRow.session_id,
-      verifier_session_id: vs.verifier_session_id,
-      caller_context: "verifier",
-      expires_at: selfieExpiresAt.toISOString(),
-    });
-  if (selfieErr) return json({ error: "selfie_token_insert_failed" }, 500, cors);
+  // CR-S1-04: single SECURITY DEFINER call replaces the inline
+  // multi-step share-token consume + verifier-session mint + selfie-
+  // token mint. The procedure uses SELECT FOR UPDATE so concurrent
+  // verifier opens serialize and the loser receives
+  // `share_token_already_used`. See
+  // migration_demo_002_verifier_atomics.sql.
+  const { data: rpcRes, error: rpcErr } = await admin.rpc(
+    "consume_share_and_mint_verifier",
+    {
+      p_share_token_hash:      shareTokenHash,
+      p_verifier_session_ttl:  VERIFIER_SESSION_TTL_SECONDS,
+      p_selfie_token_hash:     selfieTokenHash,
+      p_selfie_token_ttl:      SELFIE_TOKEN_TTL_SECONDS,
+    },
+  );
+
+  if (rpcErr || !rpcRes) {
+    console.error("consume_share_and_mint_verifier_failed", rpcErr);
+    return json({ error: "verifier_open_failed" }, 500, cors);
+  }
+  const result = rpcRes as {
+    ok: boolean;
+    error?: string;
+    verifier_session_id?: string;
+    demo_session_id?: string;
+    verifier_session_expires_at?: string;
+  };
+  if (!result.ok) {
+    const error = result.error ?? "verifier_open_failed";
+    const status = error === "share_token_not_found"
+      ? 404
+      : error === "share_token_revoked" || error === "share_token_expired" || error === "share_token_already_used"
+      ? 410
+      : 500;
+    return json({ error }, status, cors);
+  }
+
+  const verifierExpiresAt = new Date(result.verifier_session_expires_at!);
+  const verifierSessionId = result.verifier_session_id!;
 
   const selfieUrl =
     `${manifest.allowed.verifier_endpoint_origin}` +
@@ -126,7 +115,7 @@ serve(async (req) => {
   };
 
   const cookie = await buildVerifierSessionCookie({
-    verifierSessionId: vs.verifier_session_id,
+    verifierSessionId,
     expiresAtUnix: Math.floor(verifierExpiresAt.getTime() / 1000),
   });
 

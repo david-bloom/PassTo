@@ -19,7 +19,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { validateBoot, corsHeaders, manifest } from "../_shared/demo-isolation.ts";
+import { validateBoot, corsHeaders, assertOriginAllowed, manifest } from "../_shared/demo-isolation.ts";
 import { hashToken, generateOpaqueToken } from "../_shared/demo-auth.ts";
 import { verifyVerifierSessionCookie } from "../_shared/demo-verifier-cookie.ts";
 
@@ -30,6 +30,9 @@ const SELFIE_TOKEN_TTL_SECONDS = manifest.allowed.selfie_access_token_ttl_second
 serve(async (req) => {
   const cors = corsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
+  const reject = await assertOriginAllowed(req, { endpoint: "demo-verifier-mint-selfie" });
+  if (reject) return reject;
 
   const claims = await verifyVerifierSessionCookie(req);
   if (!claims) return json({ error: "verifier_session_invalid" }, 401, cors);

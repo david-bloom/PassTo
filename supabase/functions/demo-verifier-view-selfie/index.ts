@@ -5,13 +5,20 @@
  * verify_jwt: false (Public-token: selfie token + verifier session)
  *
  * Implements the streaming-proxy half of the verifier selfie path.
- *   1. Hashes the raw selfie token from ?st=.
- *   2. Looks up demo.selfie_access_tokens; rejects if not found,
- *      expired, or already consumed.
- *   3. Verifies the token is bound to an active demo.verifier_sessions
- *      row (expires_at > now(), closed_at IS NULL).
- *   4. Atomically marks consumed_at = now() BEFORE streaming.
- *   5. Streams the selfie image bytes from Supabase storage server-to-
+ *   1. Validates the demo_vs verifier-session cookie. Without a valid
+ *      cookie, the request is rejected before any token work.
+ *   2. Hashes the raw selfie token from ?st=.
+ *   3. Looks up demo.selfie_access_tokens; rejects if not found,
+ *      expired, already consumed, or in the wrong caller_context.
+ *   4. Verifies the selfie token is bound to the SAME verifier session
+ *      identified by the cookie (claims.verifierSessionId ===
+ *      sel.verifier_session_id). Per CR-S1-03 this closes the gap
+ *      where a leaked selfie URL could be redeemed without the
+ *      HttpOnly cookie.
+ *   5. Verifies the verifier session row is still active (expires_at
+ *      > now(), closed_at IS NULL).
+ *   6. Atomically marks consumed_at = now() BEFORE streaming.
+ *   7. Streams the selfie image bytes from Supabase storage server-to-
  *      server with Cache-Control: no-store and Content-Disposition: inline.
  *
  * The Supabase storage URL is never returned to the client.
@@ -28,14 +35,30 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { validateBoot, corsHeaders } from "../_shared/demo-isolation.ts";
+import { validateBoot, corsHeaders, assertOriginAllowed } from "../_shared/demo-isolation.ts";
 import { hashToken } from "../_shared/demo-auth.ts";
+import { verifyVerifierSessionCookie } from "../_shared/demo-verifier-cookie.ts";
 
 validateBoot("demo-verifier-view-selfie");
 
 serve(async (req) => {
   const cors = corsHeaders(req, ["GET", "OPTIONS"]);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
+  // The verifier <img src=...> is a same-origin GET. The browser does
+  // not send Origin on top-level navigations but typically does on
+  // <img> subresource fetches; we still require it because this is a
+  // credentialed cookie-bearing call.
+  const reject = await assertOriginAllowed(req, { endpoint: "demo-verifier-view-selfie" });
+  if (reject) return reject;
+
+  // CR-S1-03: verifier-session cookie is required and must match the
+  // selfie token's verifier_session_id. A leaked one-time selfie URL
+  // cannot be redeemed without also presenting the HttpOnly cookie.
+  const cookieClaims = await verifyVerifierSessionCookie(req);
+  if (!cookieClaims) {
+    return json({ error: "verifier_session_cookie_required" }, 401, cors);
+  }
 
   const url = new URL(req.url);
   const rawToken = url.searchParams.get("st");
@@ -63,6 +86,11 @@ serve(async (req) => {
   }
   if (!sel.verifier_session_id) {
     return json({ error: "selfie_token_unbound" }, 403, cors);
+  }
+
+  // CR-S1-03: bind selfie token to the cookie's verifier session.
+  if (cookieClaims.verifierSessionId !== sel.verifier_session_id) {
+    return json({ error: "verifier_session_mismatch" }, 403, cors);
   }
 
   const { data: vs } = await admin

@@ -4,6 +4,89 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 CR-S1 Remediation Applied - 2026-06-16 - Claude
+
+**Task:** TASK-0074
+**Status:** Stage 1 CR-S1 remediation applied in repo; Codex Stage 1 re-review requested before apply/deploy
+**Approval Record:** APPROVAL-0037
+**Files Updated:**
+- `supabase/functions/_shared/demo-isolation.ts`
+- `supabase/functions/_shared/demo-auth.ts`
+- `supabase/functions/_shared/demo-verifier-cookie.ts`
+- `supabase/functions/demo-verifier-view/index.ts`
+- `supabase/functions/demo-verifier-view-selfie/index.ts`
+- `supabase/functions/demo-verifier-mint-selfie/index.ts`
+- `supabase/functions/demo-verifier-close/index.ts`
+- `supabase/functions/demo-session-prepare/index.ts`
+- `supabase/functions/demo-session-reset/index.ts`
+- `supabase/functions/demo-presenter-grant/index.ts`
+- `supabase/functions/simulator-identity/index.ts`
+- `supabase/functions/simulator-license/index.ts`
+- `supabase/functions/demo-selfie-upload/index.ts`
+- `supabase/functions/demo-selfie-fetch/index.ts`
+- `supabase/functions/demo-wallet-issue/index.ts`
+- `supabase/functions/demo-share-create/index.ts`
+- `supabase/functions/demo-cleanup-phone/index.ts`
+- `supabase/migrations/migration_demo_002_verifier_atomics.sql` (new)
+- `docs/tasks/TASK-0074.md`
+- `docs/tasks/PRD_SECTION_07_MASTER_TASK_LIST.md`
+- `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+All six findings from Codex's Stage 1 QA review (commit `9377c8a`) are
+dispositioned in the repo. `deno check` is clean across all 18
+`demo-*` Edge Function entry files. No demo Supabase migration has
+been applied and no demo Edge Function has been deployed; apply and
+deploy remain gated on Codex Stage 1 re-review passing.
+
+- **CR-S1-01:** Type alias `DemoSupabaseClient` added; cookie path
+  field references corrected to `verifier_session_cookie_path`.
+- **CR-S1-02:** `validateBoot` rewritten to enforce the manifest's
+  full boot contract (always-required secrets, production-domain
+  scan in SUPABASE_URL + Vercel signing URLs, GOOGLE_SERVICE_ACCOUNT_JSON
+  `client_email`/`project_id` match, routing-pattern recognition).
+  New `requireSecrets` helper for endpoint-specific runtime checks.
+- **CR-S1-03:** `demo-verifier-view-selfie` now requires `demo_vs`
+  cookie and verifies `claims.verifierSessionId === sel.verifier_session_id`
+  before consuming the selfie token.
+- **CR-S1-04:** New SECURITY DEFINER procedure
+  `demo.consume_share_and_mint_verifier` (with `SELECT FOR UPDATE`
+  on the share-token row) replaces the inline multi-step flow in
+  `demo-verifier-view`. Atomic by construction.
+- **CR-S1-05:** `hashToken` now returns the Postgres bytea hex
+  literal form. `bytesToByteaHex` helper exported. All token-hash
+  I/O uses the same representation.
+- **CR-S1-06:** `assertOriginAllowed(req, opts)` rejects unapproved
+  origins with 403 + audit, no `Access-Control-Allow-Origin`. Wired
+  into every demo Edge Function; opt-in to `allowMissingOrigin` only
+  for scheduled and sendBeacon callers.
+
+The Claude Disposition of CR-S1 Review table appended at the bottom
+of TASK-0074, with new Pre-Cohort-1 Gates covering the deno-check
+CI requirement, boot-validator negative-test packet, cookie binding
+replay tests, atomic-consume concurrency test, bytea round-trip
+integration test, and CORS unapproved-origin rejection.
+
+### Approval Boundary
+
+Repository remediation only. No demo Supabase migration applied, no
+Edge Function deployed, no Vercel env var or Supabase secret set, no
+production behavior changed. APPROVAL-0037 authorizes Claude to
+proceed once Codex Stage 1 re-review passes.
+
+**Next Owner:** Codex (Stage 1 re-review of the remediation) then
+Claude (apply migration + deploy Edge Functions)
+**Next Required Action:** Codex re-reviews against the Claude
+Disposition of CR-S1 Review table. If clean, Claude applies
+`migration_demo_001_baseline.sql` then
+`migration_demo_002_verifier_atomics.sql` to the demo Supabase
+project via the Supabase MCP, then deploys the 15 demo Edge
+Functions to `atnmcjkjshyqcttnmzkq`. Lovable rewrite QA gate and
+Google Wallet API access approval continue as parallel David tracks.
+
+---
+
 ## TASK-0074 Demo Domain Live + HMAC Secret Set + Rewrite Underway - 2026-06-16 - David / Claude
 
 **Task:** TASK-0074

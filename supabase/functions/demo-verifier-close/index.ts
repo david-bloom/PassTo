@@ -13,7 +13,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { validateBoot, corsHeaders } from "../_shared/demo-isolation.ts";
+import { validateBoot, corsHeaders, assertOriginAllowed } from "../_shared/demo-isolation.ts";
 import {
   verifyVerifierSessionCookie,
   buildVerifierSessionCookieClear,
@@ -24,6 +24,11 @@ validateBoot("demo-verifier-close");
 serve(async (req) => {
   const cors = corsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
+  // Tab-close beacons (sendBeacon) may omit Origin. Allow Origin-less
+  // for graceful close behavior; the cookie is still validated.
+  const reject = await assertOriginAllowed(req, { endpoint: "demo-verifier-close", allowMissingOrigin: true });
+  if (reject) return reject;
 
   const claims = await verifyVerifierSessionCookie(req);
   const clearCookie = buildVerifierSessionCookieClear();

@@ -20,7 +20,7 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { validateBoot, corsHeaders } from "../_shared/demo-isolation.ts";
+import { validateBoot, corsHeaders, assertOriginAllowed } from "../_shared/demo-isolation.ts";
 import { resolveAuthenticatedCaller, requireBinding } from "../_shared/demo-auth.ts";
 
 validateBoot("demo-cleanup-phone");
@@ -28,6 +28,11 @@ validateBoot("demo-cleanup-phone");
 serve(async (req) => {
   const cors = corsHeaders(req);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
+  // demo-cleanup-phone is invocable from the presenter console (browser)
+  // and as a scheduled service-role call (no Origin). Allow Origin-less.
+  const reject = await assertOriginAllowed(req, { endpoint: "demo-cleanup-phone", allowMissingOrigin: true });
+  if (reject) return reject;
 
   const caller = await resolveAuthenticatedCaller(req);
   if (!caller) return json({ error: "unauthorized" }, 401, cors);

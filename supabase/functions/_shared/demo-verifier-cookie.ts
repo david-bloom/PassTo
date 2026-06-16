@@ -51,7 +51,7 @@ export async function buildVerifierSessionCookie(
     "HttpOnly",
     "Secure",
     "SameSite=Strict",
-    `Path=${manifest.allowed.verifier_endpoint_cookie_path ?? manifest.allowed.verifier_endpoint_path_prefix}`,
+    `Path=${manifest.allowed.verifier_session_cookie_path}`,
     `Domain=${manifest.allowed.verifier_session_cookie_domain}`,
     `Max-Age=${maxAge}`,
   ];
@@ -61,7 +61,7 @@ export async function buildVerifierSessionCookie(
 export function buildVerifierSessionCookieClear(): string {
   const attrs = [
     `${COOKIE_NAME}=`,
-    `Path=${manifest.allowed.verifier_endpoint_cookie_path ?? manifest.allowed.verifier_endpoint_path_prefix}`,
+    `Path=${manifest.allowed.verifier_session_cookie_path}`,
     `Domain=${manifest.allowed.verifier_session_cookie_domain}`,
     "Max-Age=0",
     "HttpOnly",
