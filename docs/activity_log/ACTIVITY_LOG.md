@@ -4,6 +4,42 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0073 / TASK-0074 Stable Demo Domain Approved - 2026-06-16 - David / Claude
+
+**Tasks:** TASK-0073, TASK-0074
+**Status:** Stable demo/UAT domain recorded
+**Domain:** `demo.passtodigital.com`
+**Files Updated:** `docs/tasks/TASK-0073.md`, `docs/tasks/TASK-0074.md`,
+`docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+David approved `demo.passtodigital.com` as the stable demo/UAT domain via
+chat. Recorded in the TASK-0073 Environment Boundary and TASK-0074 Background
+and Environment Boundary sections. All demo/UAT redirect URLs, CORS origins,
+Supabase auth redirects, ID.me-replacement screens, wallet save URLs, and
+verifier links must originate from this domain. Production domains
+(`enroll.passtodigital.com`, `pass-to.vercel.app`, the production app domain)
+must not appear in demo/UAT configuration.
+
+The Lovable preview URL remains an implementation build reference and does not
+replace the stable demo domain in any configured endpoint or provider
+allowlist.
+
+### Approval Boundary
+
+This entry records a domain selection only. No DNS, certificate, Supabase
+auth, Vercel route, Lovable domain binding, or provider configuration was
+changed. TASK-0074 execution approval remains pending.
+
+**Next Owner:** Codex (architecture review of TASK-0074) then David (execution
+approval)
+**Next Required Action:** Codex reviews TASK-0074 with the now-known demo
+domain; David grants execution approval. DNS, TLS, and domain binding
+operations are part of TASK-0074 execution scope.
+
+---
+
 ## TASK-0074 Spec Drafted - Implementation Task for TASK-0073 - 2026-06-16 - Claude
 
 **Task:** TASK-0074 - Implement Isolated Demo/UAT Platform for TASK-0073
