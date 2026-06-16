@@ -61,6 +61,7 @@ New Section 7 task files must use the next available confirmed task number. The 
 | TASK-0070 | Create launch smoke-test script. | Spec Drafted - Awaiting David Approval | Repeatable dev dry run and production-launch smoke-test script for the end-to-end first nurse flow. |
 | TASK-0071 | Create open decision register cleanup. | Spec Drafted - Awaiting David Approval | Routes unresolved launch decisions and reconciles decision/approval source-of-truth docs without closing decisions prematurely. |
 | TASK-0072 | Configure and Verify Apple and Google Wallet Pass Issuance. | Approved - Ready for Provider Configuration and Live Wallet QA | Closes the TASK-0050 real-provider deferral: Apple certs, Google issuer, Vercel env, Supabase secrets, deployment, and end-to-end wallet issuance verification. |
+| TASK-0073 | Define Isolated UAT and Live Nurse Demo Program. | Implementation Approved 2026-06-16 - Awaiting Implementation Task Scaffolding | Defines moderated internal/nurse UAT and presenter-controlled demos using acknowledged provider simulation, real demo OTP/selfie/wallet/sharing behavior, and permanent demo credential safeguards. Reconciled selfie/verifier direction and separate implementation task authorized under APPROVAL-0036. Complements TASK-0068 and TASK-0070; does not replace launch QA or the production smoke test. |
 
 ## Section 7 Review Checklist
 

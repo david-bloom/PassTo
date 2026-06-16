@@ -4,6 +4,52 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0073 Implementation Approved and Implementation Task Authorized - 2026-06-16 - David / Claude
+
+**Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
+**GitHub Checked:** Yes
+**Status:** Implementation Approved - Awaiting Implementation Task Scaffolding
+**Approval Record:** APPROVAL-0036
+**Files Updated:** `docs/tasks/TASK-0073.md`,
+`docs/tasks/PRD_SECTION_07_MASTER_TASK_LIST.md`,
+`docs/activity_log/APPROVALS_LOG.md`,
+`docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+David approved the three open A1 items on TASK-0073 via the chat instruction
+`A1 all tasks approved`:
+
+1. Final implementation approval for TASK-0073.
+2. The reconciled product/privacy direction (selfie required, selfie shown in
+   nurse app and verifier views through a backend-authorized short-TTL
+   contract).
+3. Authorization to create a separate implementation task that will define
+   architecture, schema, RLS, storage, simulator, wallet, frontend, and
+   deployment changes.
+
+The TASK-0073 acceptance-criteria checkbox for the reconciled product/privacy
+requirements is now satisfied. The implementation-task acceptance criterion
+remains open until the new task file is scaffolded; the implementation task
+itself must then receive a separate execution approval before any
+infrastructure, simulator, schema, RLS, storage, wallet identifier, frontend,
+or deployment change is applied.
+
+### Approval Boundary
+
+This entry records David's documentation approval only. No demo/UAT Supabase
+project, domain, certificate, provider credential, simulator, frontend,
+deployment, or production behavior was changed. Production launch and the
+pre-cohort-1 gates listed in TASK-0073 remain unapproved.
+
+**Next Owner:** Claude
+**Next Required Action:** Scaffold the TASK-0073 implementation task file
+listing the pre-cohort-1 gates and request David execution approval before
+beginning implementation work. TASK-0072 route-gate fix and TASK-0067 through
+TASK-0071 reviews remain parallel David To-Dos.
+
+---
+
 ## TASK-0064 Approval and TASK-0067 through TASK-0069 Executed - 2026-06-15 - Codex
 
 **Approval:** APPROVAL-0035

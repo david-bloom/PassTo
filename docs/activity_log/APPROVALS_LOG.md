@@ -30,6 +30,68 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0036 — TASK-0073 Implementation Approval and Implementation Task Authorization
+
+**Date:** 2026-06-16
+**Approved By:** David
+**Related Task:** TASK-0073
+**Decision:** Approved for Execution
+
+### Summary
+
+David approved the three open A1 items on TASK-0073:
+
+```text
+A1 all tasks approved
+```
+
+The approval covers:
+
+1. Final implementation approval for TASK-0073 (previously `Implementation Pending`).
+2. The reconciled product/privacy direction: selfie required at issuance,
+   latest selfie shown in the nurse app credential experience and in verifier
+   views, delivered through a backend-authorized short-TTL contract without
+   exposing private storage paths.
+3. Authorization to create a separate implementation task defining
+   architecture, schema, RLS, storage, simulator, wallet, frontend, and
+   deployment changes for the isolated demo/UAT program.
+
+### Approval Checklist
+
+- [x] I approve TASK-0073 implementation per the protocol and runbook as
+  dispositioned by Codex (`CR-0073`, `CR-UAT`, `CR-DEMO`, and Session 2
+  reviews).
+- [x] I approve the reconciled selfie + verifier direction, including
+  backend-authorized short-TTL delivery and the obligation to update
+  `IDME_FIRST_ONBOARDING.md`, `PASS_MANAGEMENT.md`,
+  `WALLET_PASS_DISPLAY_SPEC.md`, `VERIFIER_CREDENTIAL_VIEW.md`, and
+  `SECURITY_MODEL.md` before cohort 1.
+- [x] I authorize creation of a separate implementation task; that task must
+  itself receive execution approval before infrastructure, simulator,
+  schema, RLS, storage, wallet identifier, frontend, or deployment changes
+  are applied.
+- [x] I understand this approval does not authorize provisioning the
+  demo/UAT Supabase project, separate Apple/Google wallet identifiers,
+  provider simulator deployment, recruiting nurse cohort 1, collecting
+  cohort recordings, exposing selfies in the verifier experience in
+  production, Stripe live-mode changes, or production launch.
+
+### Notes
+
+- Target dates remain July 1, 2026 for Stage A internal UAT and Stage B
+  first moderated nurse cohort, per the earlier David decision recorded in
+  `TASK-0073.md`.
+- The implementation task, once scaffolded, must list the pre-cohort-1 gates
+  already recorded in TASK-0073 (separate Apple demo pass type ID and
+  certificate, separate Google issuer/class ID, separate Supabase project
+  and domains, completed spec reconciliation, implemented and Codex-QA'd
+  selfie short-TTL delivery contract, automatic participant-phone cleanup,
+  and pre-cohort sync verification).
+- This entry is recorded by Claude on David's behalf. David's `A1 all tasks
+  approved` confirmation in chat is the authoritative source.
+
+---
+
 ## APPROVAL-0035 — TASK-0064 Approval and TASK-0067 through TASK-0069 Execution Approval
 
 **Date:** 2026-06-15
