@@ -4,6 +4,59 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Approved for Execution - 2026-06-16 - David / Claude
+
+**Task:** TASK-0074
+**Status:** Approved for Execution - Stage 1 Engineering Validation
+**Approval Record:** APPROVAL-0037
+**Files Updated:** `docs/tasks/TASK-0074.md`,
+`docs/tasks/PRD_SECTION_07_MASTER_TASK_LIST.md`,
+`docs/activity_log/APPROVALS_LOG.md`,
+`docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+David granted TASK-0074 execution approval via chat (`approved for
+execution` repeated twice). The approval covers Stage 1 engineering
+validation per the Deployment Plan: schema, RLS, storage, Edge Functions,
+simulators, wallet configuration, presenter console, frontend stubs,
+isolation manifest, fail-closed boot tests, demo entitlement contract
+isolation, and replay tests for the selfie token ledger - all without
+exposing nurse-visible or verifier-visible selfie or org/purpose
+surfaces.
+
+Codex CR5-0074 verdict on the CR4 disposition (commit `be5a22d`) was not
+yet posted at the time of approval; David elected to proceed. Codex
+re-review remains welcome and will be dispositioned without blocking
+Stage 1 work.
+
+Stage A internal UAT and Stage B nurse cohort 1 remain gated on their
+own pre-flight Codex QA passes. Source reconciliation across
+`IDME_FIRST_ONBOARDING.md`, `PASS_MANAGEMENT.md`,
+`WALLET_PASS_DISPLAY_SPEC.md`, `VERIFIER_CREDENTIAL_VIEW.md`, and
+`SECURITY_MODEL.md` remains a hard gate before any verifier-visible or
+nurse-visible selfie/org/purpose surface is released.
+
+### Approval Boundary
+
+This entry records execution approval for the demo/UAT environment only.
+No production Supabase project, production domain, production wallet
+identifier, production provider credential, production Stripe
+configuration, or production behavior is approved for change. Production
+launch, Stripe live mode, and cross-environment promotion remain
+unapproved.
+
+**Next Owner:** Claude (Stage 1 engineering validation)
+**Next Required Action:** Begin Stage 1 artifact drafts (Environment
+Isolation Manifest, schema migrations, Edge Function skeletons, Lovable
+rewrite config) in the repository. Confirm with David which provisioning
+steps Claude should take directly (via Supabase MCP) vs. which David will
+perform from his consoles (Lovable custom-domain binding, Supabase
+secrets entry, Vercel env vars). Google Wallet API approval, Apple .p12
+conversion, and Lovable custom-domain binding remain David-side actions.
+
+---
+
 ## TASK-0074 Claude Disposition of CR4-0074 Re-Review - 2026-06-16 - Claude
 
 **Task:** TASK-0074

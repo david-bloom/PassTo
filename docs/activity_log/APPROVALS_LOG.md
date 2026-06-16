@@ -30,6 +30,74 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0037 — TASK-0074 Execution Approval
+
+**Date:** 2026-06-16
+**Approved By:** David
+**Related Task:** TASK-0074
+**Decision:** Approved for Execution
+
+### Summary
+
+David granted TASK-0074 execution approval via chat:
+
+```text
+approved for execution
+approved for execution
+```
+
+The instruction approves Claude to begin implementation of the isolated
+demo/UAT platform per the spec as revised through CR4-0074 disposition
+(commit `be5a22d`). Codex CR5-0074 verdict was not yet posted at the time
+of approval; David elected to proceed without waiting. Codex re-review of
+the CR4 disposition remains welcome and may surface follow-up findings
+that Claude will disposition as they arrive without blocking Stage 1.
+
+### Approval Checklist
+
+- [x] I approve TASK-0074 execution for Stage 1 engineering validation as
+  defined in the Deployment Plan: schema, RLS, storage, Edge Functions,
+  simulators, wallet configuration, presenter console, frontend stubs,
+  isolation manifest, fail-closed boot tests, demo entitlement contract
+  isolation, and replay tests for the selfie token ledger, all without
+  exposing nurse-visible or verifier-visible selfie or org/purpose
+  surfaces.
+- [x] I approve Claude to apply demo/UAT Supabase migrations, configure
+  Supabase secrets, deploy demo Edge Functions, configure Vercel
+  environment variables for the demo Apple/Google wallet routes, and
+  bind the demo domain in Lovable, all scoped to the demo/UAT
+  environment only.
+- [x] I approve Claude to coordinate with Lovable on demo/UAT frontend
+  implementation per Claude/Codex specs.
+- [x] I understand this approval does NOT authorize:
+      - Stage A internal UAT or Stage B nurse cohort 1 execution.
+      - Recruiting or contacting nurses for cohort 1.
+      - Any change to production Supabase project `wvzjfxacykgsaffskgtr`,
+        production domains, production wallet identifiers, production
+        provider credentials, production Stripe configuration, or any
+        production behavior.
+      - Closing the source-reconciliation gate before David's final
+        approval of the reconciled IDME_FIRST_ONBOARDING, PASS_MANAGEMENT,
+        WALLET_PASS_DISPLAY_SPEC, VERIFIER_CREDENTIAL_VIEW, and
+        SECURITY_MODEL doc wording.
+      - Marking TASK-0074 Done or marking any pre-cohort-1 gate satisfied
+        without the documented Codex QA evidence.
+- [x] I acknowledge that production launch, Stripe live mode,
+      provider live-mode changes, migrations against production, and
+      cross-environment promotion of demo/UAT records remain explicitly
+      unapproved.
+
+### Notes
+
+- Target: Stage B first moderated nurse cohort by 2026-07-01. Stage A
+  internal UAT and Stage B cohort still require their own pre-flight
+  Codex QA passes per the Deployment Plan.
+- David's chat directive `approved for execution` is the authoritative
+  source for this approval. This entry is recorded by Claude on David's
+  behalf.
+
+---
+
 ## APPROVAL-0036 — TASK-0073 Implementation Approval and Implementation Task Authorization
 
 **Date:** 2026-06-16
