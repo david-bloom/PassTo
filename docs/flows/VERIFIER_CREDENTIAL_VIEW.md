@@ -103,7 +103,17 @@ Display:
 - Current-as-of date/time.
 - Trust indicators, where applicable.
 
-Standard and Premier may include selfie. Free does not.
+**Selfie is displayed for all tiers** via backend-authorized short-TTL signed URL delivery.
+David decision recorded 2026-06-15 (TASK-0073/TASK-0074): selfie is required and universal.
+
+Selfie delivery contract:
+- Verifier view calls the `verifier-selfie` Edge Function with the raw verification token.
+- `verifier-selfie` validates the token (active or used, not revoked, not expired), loads
+  `profiles.selfie_storage_path`, and generates a Supabase Storage signed URL with a 60-second TTL.
+- The verifier view receives `{ selfie_available: true, url: "<60s-signed-url>" }` or
+  `{ selfie_available: false, reason: "not_provided" }`.
+- The raw storage path is never returned to the client or logged in audit events.
+- If `selfie_available` is false, the verifier view shows a `Selfie not provided` fallback.
 
 ## Used or Invalid Token
 

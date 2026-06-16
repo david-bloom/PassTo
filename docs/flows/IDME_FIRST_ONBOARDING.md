@@ -86,7 +86,7 @@ License lookup and identity binding happen **before** `/confirm-info`. The nurse
 | `/phone-check` | `phone` | Backend state / legacy route only. Lovable should not show it as a separate breadcrumb step in the current UX. | If retained as a direct URL fallback, use the same `phone-send-otp` and `phone-verify-otp` gates. |
 | `/account-select` | `plan` | Choose Free, Standard, or Premier. | `account-select-status`, `plan-select`; subscription_tier records intent only, not confirmed entitlement. |
 | `/payment` | `payment` | Complete payment for paid plans only. | `stripe-checkout-create`; webhook confirms final payment/subscription state. |
-| `/upload-selfie` | `selfie` | Optional pass photo. | `selfie-status`; backend confirmation required after upload. |
+| `/upload-selfie` | `selfie` | Required pass photo (selfie). | `selfie-status`; backend confirmation required after upload. Selfie is required for all tiers — TASK-0073 decision, 2026-06-15. |
 | `/success` | `pass` / `complete` | Show credential and wallet status. | `success-status`; read-only status surface. |
 
 ### `license_checking` Step Semantics
@@ -248,7 +248,7 @@ The page should show:
 
 ## Open Decisions
 
-- Whether `/upload-selfie` is optional or required for launch credential issuance (David decision pending — TASK-0047).
+- ~~Whether `/upload-selfie` is optional or required for launch credential issuance~~ **Resolved 2026-06-15 (TASK-0073):** selfie is required for all tiers.
 - Whether `/success` fully replaces `/pass-ready` or aliases it during migration (David decision pending — TASK-0047).
 - Whether the "I don't have my license number" search fallback should be hidden for license types where RapidAPI /search coverage is unconfirmed.
 - Retry limit enforcement server-side: current implementation caps at 3 lookup attempts per onboarding session via `license_lookups` row count. David should confirm if different.

@@ -110,7 +110,22 @@ Delete: service-role only
 
 Selfie paths on `profiles` are trust-gate fields. They must be written only by backend confirmation after upload validation. Nurses must not be able to self-attest `selfie_storage_path` through direct profile updates.
 
-Long-lived signed URLs for selfies are not approved for MVP. If a support/ops use case later requires viewing a selfie outside the Supabase dashboard, use a backend-generated short-TTL signed URL only.
+Long-lived signed URLs for selfies are not approved.
+
+**Approved short-TTL signed URL selfie delivery contract (TASK-0074, 2026-06-15):**
+
+The `verifier-selfie` Edge Function provides the only approved path for delivering selfies
+to external parties (verifiers). Contract:
+
+- Input: raw verification token (validated server-side via SHA-256 hash lookup).
+- Accepts tokens with status `active` or `used`; rejects `revoked` and expired tokens.
+- Generates a Supabase Storage signed URL with a **60-second TTL** for the nurse's selfie.
+- **Never returns or logs the raw storage path.** Only the signed URL is returned.
+- Audit event records token_id and timestamp only — no URL, no storage path.
+- Response: `{ selfie_available: true, url }` or `{ selfie_available: false, reason: "not_provided" }`.
+- Codex security review required before production deployment.
+
+This pattern is production-safe and also used by the demo environment.
 
 ---
 

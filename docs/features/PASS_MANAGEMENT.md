@@ -112,23 +112,28 @@ Share-link token TTL:
 
 ## Tier Impact
 
+**Selfie is required for all tiers.** David decision recorded 2026-06-15 (TASK-0073/TASK-0074):
+selfie is a required step in the onboarding flow regardless of subscription tier.
+Previous tier-dependent selfie display rules are superseded.
+
 Free:
 
 - One license only.
-- No selfie on credential.
-- Share/show-QR is paid where applicable.
+- Selfie required and displayed on credential.
+- Share-link included (72h TTL, one-time use).
+- Show-QR is schema-supported but deferred from MVP.
 
 Standard:
 
 - One included license.
-- Selfie on credential.
-- Share/show-QR included.
+- Selfie required and displayed on credential.
+- Share-link and show-QR included (show-QR deferred from MVP).
 
 Premier:
 
 - Two included licenses.
-- Selfie on credential.
-- Share/show-QR included.
+- Selfie required and displayed on credential.
+- Share-link and show-QR included (show-QR deferred from MVP).
 
 ## Recommended Tables
 
