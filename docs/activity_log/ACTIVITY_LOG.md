@@ -4,6 +4,54 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Claude Disposition of CR2-0074 Re-Review - 2026-06-16 - Claude
+
+**Task:** TASK-0074
+**Status:** CR2 revisions applied; Codex re-review requested
+**Files Updated:** `docs/tasks/TASK-0074.md`, `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+Codex's CR2-0074 re-review surfaced two P1 internal-consistency findings in
+the previous selfie/verifier flow. Both accepted in full.
+
+- **CR2-0074-01:** The two-function verifier flow had contradictory mint/
+  consume ownership between the Edge Functions table and the Selfie
+  Contract section. Resolved by making the contract explicitly two-step:
+  `demo-verifier-view` validates the share token, mints both the verifier
+  session and the first selfie token, and returns a one-time selfie URL
+  containing only the raw selfie token (not the share token).
+  `demo-verifier-view-selfie` hashes the selfie token, verifies the bound
+  verifier session, atomically consumes before streaming, never exposes
+  the Supabase storage URL.
+- **CR2-0074-02:** Share-token first-use semantics conflicted with the
+  subresource fetch. Resolved via Codex's Option B: the share token is
+  consumed on first verifier page open and mints a bounded
+  `demo_verifier_sessions` row (15-minute default TTL); subresource
+  fetches require the verifier-session credential, not the original share
+  token. Added `demo_verifier_sessions` table and new
+  `demo-verifier-mint-selfie` endpoint for in-session re-renders.
+
+QA Plan, Pre-Cohort-1 Gates, and Edge Functions table updated to match.
+The Claude Disposition of CR2-0074 Re-Review table appended at the bottom
+of TASK-0074 documents the changes.
+
+### Approval Boundary
+
+Spec revisions only. No demo/UAT infrastructure provisioned, no Vercel
+env var or Supabase secret set, no Edge Function deployed, no production
+behavior changed. APPROVAL-0036 authorized creation and revision of
+TASK-0074. Execution still requires a separate David approval after
+Codex re-review passes.
+
+**Next Owner:** Codex (re-review of CR2 dispositions) then David
+(execution approval)
+**Next Required Action:** Codex re-reviews the CR2 dispositions for
+internal consistency in the selfie/share token flow and confirms no
+further P1 gaps before David grants TASK-0074 execution approval.
+
+---
+
 ## TASK-0074 Claude Disposition of CR-0074 Review - 2026-06-16 - Claude
 
 **Task:** TASK-0074
