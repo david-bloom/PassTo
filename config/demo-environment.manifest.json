@@ -1,0 +1,128 @@
+{
+  "$schema": "./demo-environment.manifest.schema.json",
+  "task": "TASK-0074",
+  "approval": "APPROVAL-0037",
+  "purpose": "Single source of truth for fail-closed isolation between the PassTo demo/UAT environment and production. Read at Edge Function boot and at frontend runtime configuration validation. Any allowed value missing, any disallowed value present in the resolved configuration, or any provider credential resolving to a disallowed identifier must cause boot-time refuse-to-start or request-time refuse-to-serve with a structured log event.",
+  "last_updated": "2026-06-16",
+
+  "allowed": {
+    "supabase_project_ref": "atnmcjkjshyqcttnmzkq",
+    "demo_domain": "demo.passtodigital.com",
+    "demo_domain_origin": "https://demo.passtodigital.com",
+    "lovable_preview_origin": "https://id-preview--95a347a5-9773-4543-a44f-fa135f4d851a.lovable.app",
+    "verifier_endpoint_origin": "https://demo.passtodigital.com",
+    "verifier_endpoint_routing_pattern": "lovable_rewrite",
+    "verifier_endpoint_routing_pattern_choices": [
+      "lovable_rewrite",
+      "supabase_custom_domain"
+    ],
+    "verifier_endpoint_path_prefix": "/functions/v1/demo-verifier-",
+    "verifier_session_cookie_name": "demo_vs",
+    "verifier_session_cookie_domain": "demo.passtodigital.com",
+    "verifier_session_cookie_path": "/functions/v1/demo-verifier-",
+    "verifier_session_ttl_seconds": 900,
+    "selfie_access_token_ttl_seconds": 60,
+    "selfie_caller_contexts": ["nurse_app", "verifier"],
+    "session_modes": ["demo", "uat"],
+    "environment_tag": "demo_uat",
+
+    "apple_team_id": "76J36374T7",
+    "apple_pass_type_id": "pass.com.passtodigital.demo.nurselicense",
+
+    "gcp_project_id": "passto-demo",
+    "google_service_account_email": "passto-demo-wallet-signer@passto-demo.iam.gserviceaccount.com",
+    "google_wallet_business_profile_id": "BCR2DN5TR7QJJULW",
+    "google_wallet_issuer_id": null,
+    "google_wallet_class_id_suffix": "passto_demo_nurse_license_v1",
+
+    "required_secrets": [
+      "WALLET_INTERNAL_SECRET",
+      "VERCEL_SIGN_APPLE_URL",
+      "VERCEL_SIGN_GOOGLE_URL",
+      "APPLE_PASS_TYPE_ID",
+      "APPLE_TEAM_ID",
+      "APPLE_CERT_PEM_BASE64",
+      "APPLE_KEY_PEM_BASE64",
+      "APPLE_WWDR_PEM_BASE64",
+      "APPLE_CERT_PASSWORD",
+      "GOOGLE_SERVICE_ACCOUNT_JSON",
+      "GOOGLE_WALLET_ISSUER_ID",
+      "GOOGLE_WALLET_CLASS_ID",
+      "PASSTO_LOGO_URL",
+      "DEMO_VERIFIER_SESSION_HMAC_SECRET"
+    ]
+  },
+
+  "disallowed": {
+    "production_supabase_project_ref": "wvzjfxacykgsaffskgtr",
+    "production_domains": [
+      "enroll.passtodigital.com",
+      "pass-to.vercel.app",
+      "app.passtodigital.com"
+    ],
+    "production_origins": [
+      "https://enroll.passtodigital.com",
+      "https://pass-to.vercel.app",
+      "https://app.passtodigital.com"
+    ],
+    "production_apple_pass_type_id_prefix": "pass.com.passtodigital",
+    "production_apple_pass_type_id_demo_exception": "pass.com.passtodigital.demo.nurselicense",
+    "production_google_wallet_business_profile_id": "BCR2DN5TU2JJXDSK",
+    "production_google_wallet_issuer_id": "3388000000023110660",
+    "production_google_wallet_class_id": "3388000000023110660.passto_nurse_license_v1",
+    "verifier_endpoint_origin_substrings": [
+      ".functions.supabase.co",
+      ".supabase.co",
+      ".supabase.in"
+    ],
+    "production_tables_for_demo_writes": [
+      "profiles.subscription_tier",
+      "subscriptions",
+      "payments",
+      "stripe_events"
+    ],
+    "production_edge_functions_for_demo_calls": [
+      "stripe-checkout-create",
+      "stripe-webhook",
+      "subscription-portal-session",
+      "idme-exchange-v2",
+      "idme-verification-start",
+      "license-lookup",
+      "license-lookup-select",
+      "license-lookup-start",
+      "license-lookup-status",
+      "wallet-issue"
+    ]
+  },
+
+  "validators": {
+    "boot": [
+      "required.allowed.supabase_project_ref",
+      "required.allowed.demo_domain_origin",
+      "required.allowed.verifier_endpoint_origin",
+      "required.allowed.verifier_endpoint_routing_pattern",
+      "required.allowed.apple_team_id",
+      "required.allowed.apple_pass_type_id",
+      "required.allowed.gcp_project_id",
+      "required.allowed.google_wallet_business_profile_id",
+      "required.allowed.google_service_account_email",
+      "required.secrets.all_present",
+      "forbid.disallowed.production_supabase_project_ref.present",
+      "forbid.disallowed.production_domains.present",
+      "forbid.disallowed.verifier_endpoint_origin_substrings.in_verifier_urls"
+    ],
+    "request": [
+      "session.environment_tag.equals.demo_uat",
+      "session.mode.in.session_modes",
+      "verifier_url.origin.equals.verifier_endpoint_origin",
+      "verifier_url.path.starts_with.verifier_endpoint_path_prefix"
+    ]
+  },
+
+  "notes": [
+    "google_wallet_issuer_id is null until Google approves Wallet API access on the PassTo Demo business profile. Boot validation must treat null as 'not yet ready for wallet issuance' rather than as a missing-allowed-value failure, but every wallet-signing path must refuse to operate while it is null.",
+    "PASSTO_LOGO_URL may initially point to the production logo asset URL or to a demo-stamped variant; either is acceptable for engineering validation. A demo-stamped logo must replace the production URL before Stage A.",
+    "verifier_endpoint_routing_pattern starts as lovable_rewrite per the preferred Pattern A. If David elects Pattern B at execution time, switch to supabase_custom_domain and update verifier_session_cookie_domain accordingly (e.g., .demo.passtodigital.com).",
+    "production_apple_pass_type_id_prefix is enforced with the demo exception listed; any other pass.com.passtodigital.* identifier fails boot."
+  ]
+}

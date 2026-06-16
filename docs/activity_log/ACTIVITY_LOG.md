@@ -4,6 +4,137 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Stage 1 Artifacts Drafted - 2026-06-16 - Claude
+
+**Task:** TASK-0074
+**Status:** Stage 1 engineering artifacts drafted in repo; Codex QA requested; no Supabase migration applied, no Edge Function deployed, no Vercel/Supabase secret set
+**Approval Record:** APPROVAL-0037
+**Files Added:**
+- `config/demo-environment.manifest.json`
+- `supabase/migrations/migration_demo_001_baseline.sql`
+- `supabase/functions/_shared/demo-isolation.ts`
+- `supabase/functions/_shared/demo-auth.ts`
+- `supabase/functions/_shared/demo-verifier-cookie.ts`
+- `supabase/functions/demo-session-prepare/index.ts`
+- `supabase/functions/demo-session-reset/index.ts`
+- `supabase/functions/demo-presenter-grant/index.ts`
+- `supabase/functions/simulator-identity/index.ts`
+- `supabase/functions/simulator-license/index.ts`
+- `supabase/functions/demo-selfie-upload/index.ts`
+- `supabase/functions/demo-selfie-fetch/index.ts`
+- `supabase/functions/demo-wallet-issue/index.ts`
+- `supabase/functions/demo-share-create/index.ts`
+- `supabase/functions/demo-cleanup-phone/index.ts`
+- `supabase/functions/demo-verifier-view/index.ts`
+- `supabase/functions/demo-verifier-view-selfie/index.ts`
+- `supabase/functions/demo-verifier-mint-selfie/index.ts`
+- `supabase/functions/demo-verifier-close/index.ts`
+- `supabase/functions/demo-retention-report/index.ts`
+- `docs/tasks/TASK-0074-LOVABLE-REWRITE-SPEC.md`
+
+### Summary
+
+First wave of Stage 1 engineering-validation artifacts landed in the
+repo for Codex QA. Nothing has been applied to the demo Supabase project
+(`atnmcjkjshyqcttnmzkq`) or deployed; this commit is repository code only.
+
+**Environment Isolation Manifest** (`config/demo-environment.manifest.json`)
+captures the allowed/disallowed identifiers, secret names, validator
+rules, and routing pattern. It is the single source of truth referenced
+by every demo Edge Function at boot.
+
+**Baseline schema migration** (`migration_demo_001_baseline.sql`) creates
+the `demo` Postgres schema and all tables from TASK-0074: `sessions`,
+`session_participants`, `presenters`, `verifier_sessions`, `share_tokens`,
+`selfie_access_tokens` (with the `verifier_session_id` binding and CHECK
+constraint per CR3-0074-01), `entitlements`, `recordings`, and the audit
+tables. RLS is enabled on every table; participant and presenter access
+derive from the `demo.is_active_participant` and
+`demo.is_active_presenter_for` SECURITY DEFINER helpers, never from a
+client-supplied `session_id`. Token ledgers and verifier sessions are
+service-role-only (no `authenticated` policies). The
+`tg_sessions_immutable` trigger enforces immutability of `mode`,
+`environment`, and `session_id`.
+
+**Shared modules:**
+- `demo-isolation.ts` loads the manifest, runs boot validation (throws
+  on disallowed identifier resolution), and provides manifest-derived
+  CORS headers.
+- `demo-auth.ts` provides authenticated-caller resolution, session
+  binding helpers (`requireBinding`), SHA-256 token hashing, opaque
+  token generation, and HMAC-SHA256 with constant-time comparison.
+- `demo-verifier-cookie.ts` implements the `demo_vs` cookie issuance,
+  validation, and clear per CR3-0074-02 + CR4-0074-01.
+
+**Edge Function skeletons** for the three authorization models:
+- Authenticated (10): `demo-session-prepare`, `demo-session-reset`,
+  `demo-presenter-grant`, `simulator-identity`, `simulator-license`,
+  `demo-selfie-upload`, `demo-selfie-fetch` (nurse-app streaming proxy),
+  `demo-wallet-issue`, `demo-share-create`, `demo-cleanup-phone`.
+- Public-token (4): `demo-verifier-view` (share-token consume + verifier
+  session + first selfie token + Set-Cookie),
+  `demo-verifier-view-selfie` (selfie token consume + streaming proxy),
+  `demo-verifier-mint-selfie` (cookie-validated re-mint),
+  `demo-verifier-close` (cookie clear + session close).
+- Scheduled (1): `demo-retention-report`.
+
+Stage A TODOs are clearly marked in each function (storage streaming,
+safe-display projection, rate limiting, atomic SECURITY DEFINER stored
+procedure for the consume-and-mint flows). `demo-share-create` and
+`demo-verifier-view` have fully-implemented happy-path logic against
+the schema as a reference for the remaining functions.
+
+**Lovable rewrite spec** (`TASK-0074-LOVABLE-REWRITE-SPEC.md`) defines
+Pattern A configuration for same-origin verifier endpoint routing,
+required pass-through headers, a `_redirects`-style fallback format, a
+manual browser QA gate, and the Pattern B fallback if Lovable's rewrite
+cannot pass `Set-Cookie` cleanly.
+
+### Known Open Items for Stage A
+
+- **Atomic stored procedures.** The consume-and-mint flow in
+  `demo-verifier-view` and the atomic consume in
+  `demo-verifier-view-selfie` are staged as inline SQL for review and
+  must be migrated to single SECURITY DEFINER stored procedures before
+  Stage A. Migration file `migration_demo_002_verifier_atomics.sql` is
+  planned.
+- **Storage bucket.** The `demo-selfies` bucket and its policy are not
+  yet in the repo; they will be added in
+  `migration_demo_003_storage.sql` plus a Supabase storage policy
+  configuration.
+- **Manifest import attribute.** `demo-isolation.ts` uses the modern
+  `import ... with { type: "json" }` syntax. If the Supabase Edge
+  Function Deno version does not support import attributes, switch to
+  a generator that produces a TS constant from the manifest before
+  deployment.
+- **Wallet pass tables.** Demo wallet pass identifiers do not yet have
+  dedicated demo tables; they will be added when the wallet flow lands
+  in Stage A (depends on Google Wallet API access approval).
+- **Audit isolation failure ingestion.** `demo-isolation.makeIsolationLogger`
+  is provided but not yet wired into every function's request-time
+  validators. Stage A will route all per-request isolation violations
+  through it.
+
+### Approval Boundary
+
+No demo/UAT Supabase migration applied, no Edge Function deployed, no
+Vercel env var or Supabase secret set, no Lovable rewrite configured,
+no production behavior changed. APPROVAL-0037 authorizes Claude to
+proceed; this commit lands artifacts for Codex QA before any provider
+touch.
+
+**Next Owner:** Codex (Stage 1 architecture/security QA of the landed
+artifacts) and David (Lovable custom-domain binding for
+`demo.passtodigital.com`; rewrite configuration per the spec; Supabase
+secret `DEMO_VERIFIER_SESSION_HMAC_SECRET`)
+**Next Required Action:** Codex QA review of the Stage 1 artifacts as
+the first concrete-code QA pass under TASK-0074. David performs the
+Lovable + Supabase console actions in parallel. Once Codex QA clears,
+Claude will apply the demo migration via the Supabase MCP and deploy
+the Edge Function skeletons to the demo project (the `:rest*` of Stage 1).
+
+---
+
 ## TASK-0074 Approved for Execution - 2026-06-16 - David / Claude
 
 **Task:** TASK-0074
