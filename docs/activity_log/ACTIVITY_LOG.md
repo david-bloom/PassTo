@@ -4,6 +4,71 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Spec Drafted - Implementation Task for TASK-0073 - 2026-06-16 - Claude
+
+**Task:** TASK-0074 - Implement Isolated Demo/UAT Platform for TASK-0073
+**GitHub Checked:** Yes
+**Status:** Spec Drafted - Awaiting David Execution Approval
+**Parent Task:** TASK-0073
+**Authorization to Scaffold:** APPROVAL-0036
+**Target Date:** Stage B first moderated nurse cohort by 2026-07-01
+**Files Updated:** `docs/tasks/TASK-0074.md` (new),
+`docs/tasks/TASK-0073.md`,
+`docs/tasks/PRD_SECTION_07_MASTER_TASK_LIST.md`,
+`docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+Claude scaffolded TASK-0074 as the implementation task authorized under
+APPROVAL-0036. The spec defines architecture, schema, RLS, storage, Edge
+Functions, identity/license simulators, the selfie short-TTL delivery
+contract, demo Apple/Google wallet configuration, the Lovable frontend scope,
+automatic participant-phone cleanup, source reconciliation across the five
+named docs, the pre-cohort-1 gates inherited from TASK-0073, a staged
+deployment plan (engineering validation -> Stage A internal UAT -> Stage B
+nurse cohort 1), and acceptance criteria.
+
+The owner model is per David's direction:
+
+- Claude leads isolated demo/UAT backend, Supabase schema/RLS/storage, Edge
+  Functions, simulators, cleanup mechanics, wallet/provider configuration, and
+  QA evidence.
+- Lovable owns demo/UAT frontend screens and presenter/nurse flows from
+  Claude/Codex-approved specs.
+- Codex owns architecture/security review and acceptance gates.
+- David owns provider accounts, certificates, approvals, and product
+  decisions, and recruits nurses for Stage B.
+
+Environment refs already recorded in TASK-0073 are inherited: demo/UAT
+Supabase project `atnmcjkjshyqcttnmzkq`; initial Lovable preview URL
+`https://id-preview--95a347a5-9773-4543-a44f-fa135f4d851a.lovable.app/?__lovable_sha=2e520487`
+is a build reference, with the stable demo domain, redirect URLs, and CORS
+origins still to be defined under TASK-0074.
+
+### TASK-0073 Acceptance Criterion Update
+
+The acceptance-criteria checkbox for "A separate implementation task defines
+architecture, schema, RLS, storage, simulator, wallet, frontend, and
+deployment changes" is now marked complete, with a reference to TASK-0074
+and a reminder that execution remains gated on a separate David approval.
+
+### Approval Boundary
+
+This entry records spec drafting only. No demo/UAT Supabase project, domain,
+secret, storage bucket, wallet identifier, certificate, simulator, frontend,
+deployment, or production behavior was changed. APPROVAL-0036 authorized
+creation of TASK-0074; execution requires a separate David approval record.
+
+**Next Owner:** Codex (architecture/security review of the TASK-0074 spec)
+then David (execution approval)
+**Next Required Action:** Codex reviews the TASK-0074 spec for completeness,
+correctness, and security boundary; David grants execution approval before any
+provisioning, wallet configuration, simulator deployment, or frontend work.
+TASK-0072 route-gate fix and TASK-0067 through TASK-0071 reviews remain
+parallel David To-Dos.
+
+---
+
 ## TASK-0073 Lovable Demo Preview URL Provided - 2026-06-16 - David / Codex
 
 **Task:** TASK-0073 - Define Isolated UAT and Live Nurse Demo Program
