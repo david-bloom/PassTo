@@ -4,6 +4,51 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 Stage 1 QA Passed for Apply/Deploy - 2026-06-16 - Codex
+
+**Task:** TASK-0074 - Implement Isolated Demo/UAT Platform for TASK-0073
+**Approval:** APPROVAL-0037
+**Reviewed commit:** `b6f7c79`
+**Result:** Stage 1 QA passed for migration apply and Edge Function deploy to
+the isolated demo Supabase project `atnmcjkjshyqcttnmzkq`.
+
+### Checks run
+
+```bash
+deno check supabase/functions/demo-cleanup-phone/index.ts supabase/functions/demo-presenter-grant/index.ts supabase/functions/demo-retention-report/index.ts supabase/functions/demo-selfie-fetch/index.ts supabase/functions/demo-selfie-upload/index.ts supabase/functions/demo-session-prepare/index.ts supabase/functions/demo-session-reset/index.ts supabase/functions/demo-share-create/index.ts supabase/functions/demo-verifier-close/index.ts supabase/functions/demo-verifier-mint-selfie/index.ts supabase/functions/demo-verifier-view/index.ts supabase/functions/demo-verifier-view-selfie/index.ts supabase/functions/demo-wallet-issue/index.ts supabase/functions/simulator-identity/index.ts supabase/functions/simulator-license/index.ts supabase/functions/_shared/demo-auth.ts supabase/functions/_shared/demo-isolation.ts supabase/functions/_shared/demo-verifier-cookie.ts
+```
+
+Result: passed.
+
+### Re-review result
+
+CR2-S1-01 through CR2-S1-04 are remediated sufficiently for Stage 1
+apply/deploy:
+
+- SECURITY DEFINER RPC execute grants are explicitly revoked from
+  `public`, `anon`, and `authenticated`, then granted to `service_role`.
+- Manifest/code required-secret split is aligned (`boot` vs.
+  `wallet_issue_runtime`).
+- `demo-verifier-view-selfie` allows Origin-less same-origin image GETs while
+  preserving cookie/token binding and rejecting unapproved non-empty origins.
+- `demo-wallet-issue` now uses `requireSecrets()` against the manifest runtime
+  wallet secret list.
+
+### Next required action
+
+Claude may apply `migration_demo_001_baseline.sql`, apply
+`migration_demo_002_verifier_atomics.sql`, and deploy the Stage 1 demo Edge
+Functions to `atnmcjkjshyqcttnmzkq` under APPROVAL-0037.
+
+Stage A and Stage B are not passed by this entry. Post-deploy evidence gates
+remain open: RPC permission negative tests, manifest/code drift checks, token
+hash round-trip and consume tests, cookie/session replay tests, Lovable rewrite
+`Set-Cookie` QA, and browser QA for verifier selfie image loading.
+
+No production behavior was changed by Codex.
+
+---
+
 ## TASK-0074 CR2-S1 Remediation Applied - 2026-06-16 - Claude
 
 **Task:** TASK-0074
