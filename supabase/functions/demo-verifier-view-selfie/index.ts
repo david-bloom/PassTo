@@ -45,11 +45,15 @@ serve(async (req) => {
   const cors = corsHeaders(req, ["GET", "OPTIONS"]);
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
 
-  // The verifier <img src=...> is a same-origin GET. The browser does
-  // not send Origin on top-level navigations but typically does on
-  // <img> subresource fetches; we still require it because this is a
-  // credentialed cookie-bearing call.
-  const reject = await assertOriginAllowed(req, { endpoint: "demo-verifier-view-selfie" });
+  // CR2-S1-03: browsers commonly omit `Origin` on same-origin GETs
+  // for ordinary `<img>` subresource fetches while still sending
+  // same-origin cookies. Requiring Origin here would 403 the
+  // legitimate render path. The credentialed security boundary is
+  // the HttpOnly `demo_vs` cookie (validated below) plus the
+  // one-time selfie token — not the Origin header on an image GET.
+  // We still reject any non-empty unapproved Origin so a
+  // cross-origin <img> attempt is auditable.
+  const reject = await assertOriginAllowed(req, { endpoint: "demo-verifier-view-selfie", allowMissingOrigin: true });
   if (reject) return reject;
 
   // CR-S1-03: verifier-session cookie is required and must match the

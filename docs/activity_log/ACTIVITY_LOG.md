@@ -4,6 +4,73 @@ This log records meaningful PassTo operating activity, approvals, closeouts, blo
 
 ---
 
+## TASK-0074 CR2-S1 Remediation Applied - 2026-06-16 - Claude
+
+**Task:** TASK-0074
+**Status:** Stage 1 CR2-S1 remediation applied in repo; Codex Stage 1 second re-review requested before apply/deploy
+**Approval Record:** APPROVAL-0037
+**Files Updated:**
+- `config/demo-environment.manifest.json`
+- `supabase/functions/_shared/demo-isolation.ts`
+- `supabase/functions/demo-verifier-view-selfie/index.ts`
+- `supabase/functions/demo-wallet-issue/index.ts`
+- `supabase/migrations/migration_demo_001_baseline.sql`
+- `supabase/migrations/migration_demo_002_verifier_atomics.sql`
+- `docs/tasks/TASK-0074.md`
+- `docs/tasks/PRD_SECTION_07_MASTER_TASK_LIST.md`
+- `docs/activity_log/ACTIVITY_LOG.md`
+
+### Summary
+
+All four findings from Codex's CR-S1 remediation re-review (commit
+`c91b8b1`) are dispositioned in repo. `deno check` re-verified clean
+across all 18 demo-* entry files. No migration applied; no Edge
+Function deployed.
+
+- **CR2-S1-01:** Migration 002 explicitly revokes execute on
+  `demo.consume_share_and_mint_verifier` from public/anon/authenticated
+  before granting service_role. Migration 001 applies the same
+  hardening to the SECURITY DEFINER helpers
+  (`is_active_participant`, `is_active_presenter_for`,
+  `is_active_presenter`): revoke from public/anon, grant to
+  authenticated (required for RLS evaluation) and service_role.
+- **CR2-S1-02:** Manifest `allowed.required_secrets` restructured from
+  a flat array to `{ boot: [...], wallet_issue_runtime: [...] }`.
+  Boot validator reads `manifest.allowed.required_secrets.boot`;
+  `demo-wallet-issue` reads
+  `manifest.allowed.required_secrets.wallet_issue_runtime`. Manifest
+  and code now agree.
+- **CR2-S1-03:** `demo-verifier-view-selfie` opts in to
+  `allowMissingOrigin: true`. Ordinary same-origin `<img>` GETs no
+  longer 403; non-empty unapproved Origin still returns 403 and
+  audits.
+- **CR2-S1-04:** `demo-wallet-issue` now actually calls
+  `requireSecrets` against the manifest's `wallet_issue_runtime`
+  list, replacing the ad-hoc `GOOGLE_WALLET_ISSUER_ID` check.
+  Disposition matches code.
+
+The Claude Disposition of CR2-S1 Review table appended at the bottom
+of TASK-0074, with three new Pre-Cohort-1 Gate items: permission
+negative test for the SECURITY DEFINER RPC; manifest/code drift
+check; browser QA for the same-origin selfie image load.
+
+### Approval Boundary
+
+Repository remediation only. No demo Supabase migration applied, no
+Edge Function deployed, no production behavior changed. APPROVAL-0037
+remains the execution authority.
+
+**Next Owner:** Codex (second re-review of CR2-S1 dispositions) then
+Claude (apply migration + deploy Edge Functions)
+**Next Required Action:** Codex re-reviews against the Claude
+Disposition of CR2-S1 Review table. If clean, Claude applies
+migrations 001 and 002 to the demo Supabase project via the Supabase
+MCP, then deploys the 15 demo Edge Functions to
+`atnmcjkjshyqcttnmzkq`. Lovable rewrite QA gate and Google Wallet API
+access approval continue as parallel David tracks.
+
+---
+
 ## TASK-0074 CR-S1 Remediation Re-Review - 2026-06-16 - Codex
 
 **Task:** TASK-0074 - Implement Isolated Demo/UAT Platform for TASK-0073

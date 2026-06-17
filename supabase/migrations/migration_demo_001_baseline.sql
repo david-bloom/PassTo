@@ -377,6 +377,25 @@ returns boolean language sql stable security definer as $$
   );
 $$;
 
+-- CR2-S1-01: tighten execute grants on the SECURITY DEFINER helpers.
+-- These helpers are evaluated inside RLS policies for authenticated
+-- callers and must NOT be invokable by anon. The audit-trigger
+-- functions are AFTER triggers and never invoked directly by clients.
+revoke all on function demo.is_active_participant(uuid) from public;
+revoke all on function demo.is_active_participant(uuid) from anon;
+grant execute on function demo.is_active_participant(uuid) to authenticated;
+grant execute on function demo.is_active_participant(uuid) to service_role;
+
+revoke all on function demo.is_active_presenter_for(uuid) from public;
+revoke all on function demo.is_active_presenter_for(uuid) from anon;
+grant execute on function demo.is_active_presenter_for(uuid) to authenticated;
+grant execute on function demo.is_active_presenter_for(uuid) to service_role;
+
+revoke all on function demo.is_active_presenter() from public;
+revoke all on function demo.is_active_presenter() from anon;
+grant execute on function demo.is_active_presenter() to authenticated;
+grant execute on function demo.is_active_presenter() to service_role;
+
 -- =============================================================================
 -- Row-level security
 -- =============================================================================

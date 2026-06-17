@@ -35,22 +35,29 @@
     "google_wallet_issuer_id": null,
     "google_wallet_class_id_suffix": "passto_demo_nurse_license_v1",
 
-    "required_secrets": [
-      "WALLET_INTERNAL_SECRET",
-      "VERCEL_SIGN_APPLE_URL",
-      "VERCEL_SIGN_GOOGLE_URL",
-      "APPLE_PASS_TYPE_ID",
-      "APPLE_TEAM_ID",
-      "APPLE_CERT_PEM_BASE64",
-      "APPLE_KEY_PEM_BASE64",
-      "APPLE_WWDR_PEM_BASE64",
-      "APPLE_CERT_PASSWORD",
-      "GOOGLE_SERVICE_ACCOUNT_JSON",
-      "GOOGLE_WALLET_ISSUER_ID",
-      "GOOGLE_WALLET_CLASS_ID",
-      "PASSTO_LOGO_URL",
-      "DEMO_VERIFIER_SESSION_HMAC_SECRET"
-    ]
+    "required_secrets": {
+      "boot": [
+        "SUPABASE_URL",
+        "SUPABASE_ANON_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "DEMO_VERIFIER_SESSION_HMAC_SECRET"
+      ],
+      "wallet_issue_runtime": [
+        "WALLET_INTERNAL_SECRET",
+        "VERCEL_SIGN_APPLE_URL",
+        "VERCEL_SIGN_GOOGLE_URL",
+        "APPLE_PASS_TYPE_ID",
+        "APPLE_TEAM_ID",
+        "APPLE_CERT_PEM_BASE64",
+        "APPLE_KEY_PEM_BASE64",
+        "APPLE_WWDR_PEM_BASE64",
+        "APPLE_CERT_PASSWORD",
+        "GOOGLE_SERVICE_ACCOUNT_JSON",
+        "GOOGLE_WALLET_ISSUER_ID",
+        "GOOGLE_WALLET_CLASS_ID",
+        "PASSTO_LOGO_URL"
+      ]
+    }
   },
 
   "disallowed": {
@@ -106,10 +113,13 @@
       "required.allowed.gcp_project_id",
       "required.allowed.google_wallet_business_profile_id",
       "required.allowed.google_service_account_email",
-      "required.secrets.all_present",
+      "required.secrets.boot.all_present",
       "forbid.disallowed.production_supabase_project_ref.present",
       "forbid.disallowed.production_domains.present",
       "forbid.disallowed.verifier_endpoint_origin_substrings.in_verifier_urls"
+    ],
+    "runtime": [
+      "required.secrets.wallet_issue_runtime.all_present (gates demo-wallet-issue only; not a boot failure)"
     ],
     "request": [
       "session.environment_tag.equals.demo_uat",
@@ -120,6 +130,7 @@
   },
 
   "notes": [
+    "required_secrets is split into `boot` (always required for any demo Edge Function to start) and `wallet_issue_runtime` (required at the moment a wallet-signing endpoint actually handles a request). This lets Stage 1 deploy and exercise everything except wallet issuance before Google Wallet API access lands. The wallet-issue function fails closed with a 503 if any wallet_issue_runtime secret is missing.",
     "google_wallet_issuer_id is null until Google approves Wallet API access on the PassTo Demo business profile. Boot validation must treat null as 'not yet ready for wallet issuance' rather than as a missing-allowed-value failure, but every wallet-signing path must refuse to operate while it is null.",
     "PASSTO_LOGO_URL may initially point to the production logo asset URL or to a demo-stamped variant; either is acceptable for engineering validation. A demo-stamped logo must replace the production URL before Stage A.",
     "verifier_endpoint_routing_pattern starts as lovable_rewrite per the preferred Pattern A. If David elects Pattern B at execution time, switch to supabase_custom_domain and update verifier_session_cookie_domain accordingly (e.g., .demo.passtodigital.com).",

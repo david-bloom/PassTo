@@ -21,7 +21,7 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { validateBoot, corsHeaders, assertOriginAllowed } from "../_shared/demo-isolation.ts";
+import { validateBoot, corsHeaders, assertOriginAllowed, requireSecrets, manifest } from "../_shared/demo-isolation.ts";
 import { resolveAuthenticatedCaller, requireBinding } from "../_shared/demo-auth.ts";
 
 validateBoot("demo-wallet-issue");
@@ -33,6 +33,18 @@ serve(async (req) => {
   const reject = await assertOriginAllowed(req, { endpoint: "demo-wallet-issue" });
   if (reject) return reject;
 
+  // CR2-S1-04: actually enforce the manifest's
+  // wallet_issue_runtime secret list at request time. Missing any
+  // returns 503 so the endpoint fails closed until the wallet stack
+  // is fully provisioned. This is the canonical handling of the
+  // Stage 1 -> Stage A transition window during which Google Wallet
+  // API access is still being approved.
+  const secretMissing = requireSecrets(
+    "demo-wallet-issue",
+    manifest.allowed.required_secrets.wallet_issue_runtime,
+  );
+  if (secretMissing) return secretMissing;
+
   const caller = await resolveAuthenticatedCaller(req);
   if (!caller) return json({ error: "unauthorized" }, 401, cors);
 
@@ -41,11 +53,6 @@ serve(async (req) => {
 
   const bound = await requireBinding(caller, session_id, "participant");
   if (!bound) return json({ error: "forbidden" }, 403, cors);
-
-  const googleIssuer = Deno.env.get("GOOGLE_WALLET_ISSUER_ID");
-  if (!googleIssuer) {
-    return json({ error: "google_wallet_pending_approval" }, 503, cors);
-  }
 
   return json({ error: "not_implemented_stage_a" }, 501, cors);
 });

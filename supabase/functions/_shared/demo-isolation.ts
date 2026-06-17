@@ -30,22 +30,14 @@ export interface IsolationFailure {
 }
 
 /**
- * Secrets that must always be present for a demo Edge Function to boot,
- * regardless of whether the wallet provisioning is complete.
- *
- * Wallet-related secrets (APPLE_*, GOOGLE_*, VERCEL_SIGN_*,
- * WALLET_INTERNAL_SECRET) are validated only when set; they remain
- * optional during the window between Stage 1 Edge Function deploy and
- * Google Wallet API access approval. The `demo-wallet-issue` function
- * itself refuses to operate at request time if its required secrets are
- * missing.
+ * Boot-required secrets are read from the manifest's
+ * `allowed.required_secrets.boot` array; every demo Edge Function must
+ * have these set before it can start. The `wallet_issue_runtime` group
+ * is checked at request time by `demo-wallet-issue` via the
+ * `requireSecrets` helper. See manifest notes for the split rationale.
  */
-const ALWAYS_REQUIRED_SECRETS = [
-  "SUPABASE_URL",
-  "SUPABASE_ANON_KEY",
-  "SUPABASE_SERVICE_ROLE_KEY",
-  "DEMO_VERIFIER_SESSION_HMAC_SECRET",
-];
+const BOOT_REQUIRED_SECRETS: readonly string[] =
+  manifest.allowed.required_secrets.boot;
 
 /**
  * Boot-time validation. Call once at module top-level in every demo
@@ -65,14 +57,14 @@ const ALWAYS_REQUIRED_SECRETS = [
 export function validateBoot(endpoint: string): void {
   const failures: IsolationFailure[] = [];
 
-  // ── Required secrets present ───────────────────────────────────────
-  for (const name of ALWAYS_REQUIRED_SECRETS) {
+  // ── Required boot secrets present (per manifest) ───────────────────
+  for (const name of BOOT_REQUIRED_SECRETS) {
     const v = Deno.env.get(name);
     if (!v || v.length === 0) {
       failures.push({
         context: "boot",
         endpoint,
-        violation: `required secret ${name} is missing`,
+        violation: `required boot secret ${name} is missing`,
       });
     }
   }

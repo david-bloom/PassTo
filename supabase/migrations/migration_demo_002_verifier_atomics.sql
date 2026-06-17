@@ -118,7 +118,21 @@ exception
     );
 end $$;
 
--- Allow callers via service_role (Edge Functions) to invoke the function.
+-- CR2-S1-01: revoke default PUBLIC execute before granting service_role.
+-- Postgres grants EXECUTE on functions to PUBLIC by default. For a
+-- SECURITY DEFINER ledger-mutating RPC, that default is unsafe: anon
+-- and authenticated callers must not be able to invoke this function
+-- directly through PostgREST and bypass the Edge Function's origin,
+-- cookie, and audit path.
+revoke all on function demo.consume_share_and_mint_verifier(
+  bytea, int, bytea, int, bytea, text
+) from public;
+revoke all on function demo.consume_share_and_mint_verifier(
+  bytea, int, bytea, int, bytea, text
+) from anon;
+revoke all on function demo.consume_share_and_mint_verifier(
+  bytea, int, bytea, int, bytea, text
+) from authenticated;
 grant execute on function demo.consume_share_and_mint_verifier(
   bytea, int, bytea, int, bytea, text
 ) to service_role;
