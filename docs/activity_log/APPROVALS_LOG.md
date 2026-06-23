@@ -30,7 +30,474 @@ What was approved or rejected?
 
 ---
 
-## APPROVAL-0020 — TASK-0056 Approved for Execution
+## APPROVAL-0037 — TASK-0074 Execution Approval
+
+**Date:** 2026-06-16
+**Approved By:** David
+**Related Task:** TASK-0074
+**Decision:** Approved for Execution
+
+### Summary
+
+David granted TASK-0074 execution approval via chat:
+
+```text
+approved for execution
+approved for execution
+```
+
+The instruction approves Claude to begin implementation of the isolated
+demo/UAT platform per the spec as revised through CR4-0074 disposition
+(commit `be5a22d`). Codex CR5-0074 verdict was not yet posted at the time
+of approval; David elected to proceed without waiting. Codex re-review of
+the CR4 disposition remains welcome and may surface follow-up findings
+that Claude will disposition as they arrive without blocking Stage 1.
+
+### Approval Checklist
+
+- [x] I approve TASK-0074 execution for Stage 1 engineering validation as
+  defined in the Deployment Plan: schema, RLS, storage, Edge Functions,
+  simulators, wallet configuration, presenter console, frontend stubs,
+  isolation manifest, fail-closed boot tests, demo entitlement contract
+  isolation, and replay tests for the selfie token ledger, all without
+  exposing nurse-visible or verifier-visible selfie or org/purpose
+  surfaces.
+- [x] I approve Claude to apply demo/UAT Supabase migrations, configure
+  Supabase secrets, deploy demo Edge Functions, configure Vercel
+  environment variables for the demo Apple/Google wallet routes, and
+  bind the demo domain in Lovable, all scoped to the demo/UAT
+  environment only.
+- [x] I approve Claude to coordinate with Lovable on demo/UAT frontend
+  implementation per Claude/Codex specs.
+- [x] I understand this approval does NOT authorize:
+      - Stage A internal UAT or Stage B nurse cohort 1 execution.
+      - Recruiting or contacting nurses for cohort 1.
+      - Any change to production Supabase project `wvzjfxacykgsaffskgtr`,
+        production domains, production wallet identifiers, production
+        provider credentials, production Stripe configuration, or any
+        production behavior.
+      - Closing the source-reconciliation gate before David's final
+        approval of the reconciled IDME_FIRST_ONBOARDING, PASS_MANAGEMENT,
+        WALLET_PASS_DISPLAY_SPEC, VERIFIER_CREDENTIAL_VIEW, and
+        SECURITY_MODEL doc wording.
+      - Marking TASK-0074 Done or marking any pre-cohort-1 gate satisfied
+        without the documented Codex QA evidence.
+- [x] I acknowledge that production launch, Stripe live mode,
+      provider live-mode changes, migrations against production, and
+      cross-environment promotion of demo/UAT records remain explicitly
+      unapproved.
+
+### Notes
+
+- Target: Stage B first moderated nurse cohort by 2026-07-01. Stage A
+  internal UAT and Stage B cohort still require their own pre-flight
+  Codex QA passes per the Deployment Plan.
+- David's chat directive `approved for execution` is the authoritative
+  source for this approval. This entry is recorded by Claude on David's
+  behalf.
+
+---
+
+## APPROVAL-0036 — TASK-0073 Implementation Approval and Implementation Task Authorization
+
+**Date:** 2026-06-16
+**Approved By:** David
+**Related Task:** TASK-0073
+**Decision:** Approved for Execution
+
+### Summary
+
+David approved the three open A1 items on TASK-0073:
+
+```text
+A1 all tasks approved
+```
+
+The approval covers:
+
+1. Final implementation approval for TASK-0073 (previously `Implementation Pending`).
+2. The reconciled product/privacy direction: selfie required at issuance,
+   latest selfie shown in the nurse app credential experience and in verifier
+   views, delivered through a backend-authorized short-TTL contract without
+   exposing private storage paths.
+3. Authorization to create a separate implementation task defining
+   architecture, schema, RLS, storage, simulator, wallet, frontend, and
+   deployment changes for the isolated demo/UAT program.
+
+### Approval Checklist
+
+- [x] I approve TASK-0073 implementation per the protocol and runbook as
+  dispositioned by Codex (`CR-0073`, `CR-UAT`, `CR-DEMO`, and Session 2
+  reviews).
+- [x] I approve the reconciled selfie + verifier direction, including
+  backend-authorized short-TTL delivery and the obligation to update
+  `IDME_FIRST_ONBOARDING.md`, `PASS_MANAGEMENT.md`,
+  `WALLET_PASS_DISPLAY_SPEC.md`, `VERIFIER_CREDENTIAL_VIEW.md`, and
+  `SECURITY_MODEL.md` before cohort 1.
+- [x] I authorize creation of a separate implementation task; that task must
+  itself receive execution approval before infrastructure, simulator,
+  schema, RLS, storage, wallet identifier, frontend, or deployment changes
+  are applied.
+- [x] I understand this approval does not authorize provisioning the
+  demo/UAT Supabase project, separate Apple/Google wallet identifiers,
+  provider simulator deployment, recruiting nurse cohort 1, collecting
+  cohort recordings, exposing selfies in the verifier experience in
+  production, Stripe live-mode changes, or production launch.
+
+### Notes
+
+- Target dates remain July 1, 2026 for Stage A internal UAT and Stage B
+  first moderated nurse cohort, per the earlier David decision recorded in
+  `TASK-0073.md`.
+- The implementation task, once scaffolded, must list the pre-cohort-1 gates
+  already recorded in TASK-0073 (separate Apple demo pass type ID and
+  certificate, separate Google issuer/class ID, separate Supabase project
+  and domains, completed spec reconciliation, implemented and Codex-QA'd
+  selfie short-TTL delivery contract, automatic participant-phone cleanup,
+  and pre-cohort sync verification).
+- This entry is recorded by Claude on David's behalf. David's `A1 all tasks
+  approved` confirmation in chat is the authoritative source.
+
+---
+
+## APPROVAL-0035 — TASK-0064 Approval and TASK-0067 through TASK-0069 Execution Approval
+
+**Date:** 2026-06-15
+**Approved By:** David
+**Related Task:** TASK-0064, TASK-0067, TASK-0068, TASK-0069
+**Decision:** Approved for Execution
+
+### Summary
+
+David approved TASK-0064 and directed Codex to execute TASK-0067, TASK-0068, and TASK-0069:
+
+```text
+David approves 0064. Codex execute 0067, 0068, and 0069
+```
+
+### Approval Checklist
+
+- [x] I approve TASK-0064 Phase 6 Stripe, entitlement, and lapse behavior QA for execution within its documented approval boundaries.
+- [x] I approve Codex executing TASK-0067 to create the MVP launch readiness checklist.
+- [x] I approve Codex executing TASK-0068 to create the MVP QA test plan.
+- [x] I approve Codex executing TASK-0069 to create the production configuration checklist.
+- [x] I understand this approval does not approve production launch, Stripe live-mode cutover, provider live-mode changes, migrations, secrets/config changes, task Done decisions, issue closure, or risk acceptance.
+
+### Notes
+
+TASK-0067 through TASK-0069 are documentation/planning artifacts. They may identify production-impacting next actions, but they do not authorize those actions. TASK-0064 execution remains a QA task and does not mark Phase 6 Done until Codex completes QA and David approves the result.
+
+---
+
+## APPROVAL-0034 — TASK-0072 Wallet Provider Configuration and Display Spec Approval
+
+**Date:** 2026-06-05
+**Approved By:** David
+**Related Task:** TASK-0072
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0072 execution and the wallet pass display specification after Codex implemented the actual Apple PassKit layout and mirrored Google Wallet display payload:
+
+```text
+approved
+```
+
+### Approval Checklist
+
+- [x] I approve configuring Apple Wallet / PassKit credentials for PassTo.
+- [x] I approve configuring Google Wallet issuer/service-account credentials for PassTo.
+- [x] I approve setting required Vercel environment variables without exposing values in GitHub.
+- [x] I approve setting required Supabase Edge Function secrets without exposing values in GitHub.
+- [x] I approve deploying/redeploying wallet signing routes and `wallet-issue` if needed.
+- [x] I approve test-mode or launch-readiness wallet issuance against an approved disposable credential.
+- [x] I approve `docs/design_system/WALLET_PASS_DISPLAY_SPEC.md` as implementation truth for TASK-0072.
+- [x] I understand this does not approve production launch or broader risk acceptance.
+
+### Notes
+
+Approval covers provider configuration and live wallet QA for TASK-0072. It does not approve production launch, permanent QR/barcode embedding, committed secrets, raw wallet provider credentials in GitHub, Stripe live-mode changes, or unrelated task/issue closure.
+
+---
+
+## APPROVAL-0033 — TASK-0061, TASK-0062, and TASK-0063 Done Approval
+
+**Date:** 2026-06-05
+**Approved By:** David
+**Related Task:** TASK-0061, TASK-0062, TASK-0063
+**Decision:** Done / Passed
+
+### Summary
+
+David approved TASK-0061, TASK-0062, and TASK-0063 after Codex re-QA/final review:
+
+```text
+David approves Tasks-0061, 0062, 0063
+```
+
+### Approval Checklist
+
+- [x] I approve TASK-0061 as Done for its documented subscription management and cancellation-flow scope.
+- [x] I approve TASK-0062 as Done for its documented MVP-vs-GA tier reconciliation scope.
+- [x] I approve TASK-0063 as Done for its documented entitlement/lapse ops visibility scope.
+- [x] I understand this does not approve TASK-0064 Done, production launch, Stripe live-mode cutover, live Stripe product/price changes, issue closure outside the named tasks, or risk acceptance outside the named task scopes.
+
+### Notes
+
+Approval follows Codex re-QA for TASK-0061 and TASK-0062 and Codex final review for TASK-0063. Residual limitations remain as documented in each task file.
+
+---
+
+## APPROVAL-0032 — TASK-0060 Pass / Done Approval
+
+**Date:** 2026-06-04
+**Approved By:** David
+**Related Task:** TASK-0060
+**Decision:** Done / Passed
+
+### Summary
+
+David approved TASK-0060 after Codex re-QA verified the real Stripe test checkout, webhook persistence, and duplicate webhook idempotency evidence.
+
+### Approval Checklist
+
+- [x] I approve TASK-0060 as Passed / Done for its documented scope.
+- [x] I approve the recorded real Stripe test-mode checkout evidence.
+- [x] I approve the recorded duplicate webhook resend/idempotency evidence.
+- [x] I understand this does not approve Stripe live-mode cutover, production launch, issue closure outside this task, or risk acceptance beyond the documented TASK-0060 scope.
+
+### Notes
+
+Approval source: David stated "David approved" after Codex reported TASK-0060 re-QA evidence and duplicate event verification for `evt_1TeiXlAxxYwftEABuYocF2ge`.
+
+---
+
+## APPROVAL-0031 — Phase 5 Closeout and Phase 6 Execution Approvals
+
+**Date:** 2026-06-04
+**Approved By:** David
+**Related Task:** TASK-0055, TASK-0057, TASK-0058, TASK-0059, TASK-0060, TASK-0061, TASK-0062, TASK-0063
+**Decision:** Approved / Done
+
+### Summary
+
+David provided the following approvals:
+
+```text
+TASK-0055 David Approves
+TASK-0057 David Approves
+TASK-0058 David Approves
+TASK-0059 David approves Pass/Done
+TASK-0060 David Approves
+TASK-0061 David Approves
+TASK-0062 David Approves
+TASK-0063 David Approves
+```
+
+### Interpretation
+
+- TASK-0055, TASK-0057, and TASK-0058 are complete for their documented scope.
+- TASK-0059 is approved as Pass/Done for the recorded Phase 5 QA evidence task.
+- TASK-0060, TASK-0061, TASK-0062, and TASK-0063 are approved for execution within their documented scopes.
+- TASK-0056 was not included in this approval and remains `Live E2E Exercised - Awaiting David Review`.
+- TASK-0064 was not included in this approval and remains `Spec Drafted - Awaiting David Approval`.
+
+### Approval Checklist
+
+- [x] I approve TASK-0055 after review.
+- [x] I approve TASK-0057 after review.
+- [x] I approve TASK-0058 after review.
+- [x] I approve TASK-0059 Pass/Done.
+- [x] I approve TASK-0060 for execution.
+- [x] I approve TASK-0061 for execution.
+- [x] I approve TASK-0062 for reconciliation execution.
+- [x] I approve TASK-0063 for execution.
+- [x] I understand this does not approve production launch or risk acceptance.
+
+### Notes
+
+Approved: documented task-scope closeout for TASK-0055, TASK-0057, TASK-0058, TASK-0059; documented task-scope execution for TASK-0060 through TASK-0063.
+
+Not approved: TASK-0056 Done/closeout, TASK-0064 execution/Done, production launch, task/issue closure outside the named task docs, Stripe live-mode changes, live Stripe products/prices, migrations outside approved task scope, secret changes outside approved task scope, deferred Show QR/PDF/additional-license/employer-dashboard scope, or launch risk acceptance.
+
+---
+
+## APPROVAL-0030 — MVP Scope Follows PRD; Tier Features Are GA Reference
+
+**Date:** 2026-06-04
+**Approved By:** David
+**Related Task:** TASK-0062
+**Decision:** Approved Scope Clarification
+
+### Summary
+
+David clarified that MVP scope should follow the PRD, and that `docs/features/TIER_FEATURES.md` describes the complete product / General Availability tier model rather than MVP launch scope:
+
+```text
+My decision is to stick with the PRD. The TIER_FEATURES.md is for complete products, General Availability, not MVP.
+```
+
+### Interpretation
+
+- The PRD is the controlling source for MVP launch-critical and deferred scope.
+- `TIER_FEATURES.md` is a GA / complete-product tier reference.
+- APPROVAL-0029 is superseded for MVP implementation purposes.
+- Free-tier paid actions in `TIER_FEATURES.md` do not authorize MVP implementation of Show QR, on-demand refresh, PDF export, scheduled refresh, or other PRD-deferred capabilities.
+- TASK-0062 should reconcile GA tier documentation against MVP PRD scope, not implement GA paid actions.
+
+### Approval Checklist
+
+- [x] I approve using the PRD as the controlling MVP scope source.
+- [x] I approve treating `TIER_FEATURES.md` as complete-product / GA reference.
+- [x] I approve superseding APPROVAL-0029 for MVP implementation purposes.
+- [x] I understand this does not approve implementation, launch, or risk acceptance.
+
+### Notes
+
+Approved: documentation clarification and reconciliation direction only.
+
+Not approved: implementation, migrations, Edge Function deployments, Stripe live-mode changes, live Stripe products/prices, secret changes, Lovable UI changes, production launch, task Done, issue closure, or risk acceptance.
+
+---
+
+## APPROVAL-0029 — Free-Tier Paid Action Policy Decision
+
+**Date:** 2026-06-04
+**Approved By:** David
+**Related Task:** TASK-0062
+**Decision:** Approved Policy Decision
+
+### Summary
+
+David confirmed the Free-tier paid action policy:
+
+```text
+Free tier can share, generate QR code, refresh and pdf export for $1.99
+```
+
+Interpretation:
+
+- Free-tier share link is available as a $1.99 paid action.
+- Free-tier Show QR verifier access is available as a $1.99 paid action.
+- Free-tier on-demand refresh is available as a $1.99 paid action.
+- Free-tier PDF export is available as a $1.99 paid action.
+- Payment-gated action execution must be backend-controlled and must wait for server-confirmed Stripe payment.
+
+### Approval Checklist
+
+- [x] I approve the Free-tier paid action policy for share link, Show QR, on-demand refresh, and PDF export.
+- [x] I approve updating TASK-0062 and Phase 6 docs to record the policy decision.
+- [x] I understand current TASK-0056 behavior allows Free-tier share-link creation without payment and must be reconciled before production launch.
+- [x] I understand this does not approve implementation or production launch.
+
+### Notes
+
+Superseded for MVP implementation purposes by APPROVAL-0030. `TIER_FEATURES.md` remains a complete-product / GA reference, while the PRD controls MVP launch scope.
+
+Approved: product/pricing decision and documentation update only.
+
+Not approved: implementation, migrations, Edge Function deployments, Stripe live-mode changes, live Stripe products/prices, secret changes, Lovable UI changes, production launch, task Done, issue closure, or risk acceptance.
+
+---
+
+## APPROVAL-0025 — TASK-0065 Supabase Auth Password Reset Redirect Fix Approved
+
+**Date:** 2026-06-02  
+**Approved By:** David  
+**Related Task:** TASK-0065  
+**Decision:** Approved  
+
+### Summary
+
+David approved creating and assigning a Claude task to fix the password reset email redirect, after reporting that a received password reset email linked to `http://localhost:3000/`.
+
+```text
+David approved. Codex Make a task for Claude
+```
+
+TASK-0065 covers Supabase Auth URL configuration and, if needed, Lovable password-reset redirect behavior so reset links point to `https://enroll.passtodigital.com`.
+
+### Approval Checklist
+
+- [x] I approve TASK-0065 for execution.
+- [x] I approve changing Supabase Auth URL configuration for password-reset redirect correctness.
+- [x] I approve a Lovable password-reset redirect adjustment if needed.
+- [x] I understand this is a production-impacting auth configuration change and must be documented with before/after values and test evidence.
+
+### Notes
+
+- Approved scope: fix password reset redirect host/path, test with a reset email, document values changed and rollback/recovery note.
+- Not approved: production launch, task Done decision, issue closure, database migrations, Edge Function deployments, unrelated secret changes, or broad redirect allowlists outside trusted PassTo domains without separate approval.
+
+---
+
+## APPROVAL-0024 — TASK-0058 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0058
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0058 for execution:
+
+```text
+execute 0058
+```
+
+TASK-0058 — Implement `/v/{token}` Verifier Flow. Lovable prompt for the public verifier credential view page. No new backend functions — `token-verify` (TASK-0057) is the backend. Also includes a minor `token-verify` v2 update to accept `marketing_consent`.
+
+### Approval Checklist
+
+- [x] I approve TASK-0058 for execution.
+- [x] I approve the Lovable prompt for `/v/:token` as the verifier UI implementation spec.
+- [x] I approve the `token-verify` v2 update adding `marketing_consent` field.
+- [x] I understand this does not approve Show QR, PDF export, employer dashboard, verifier account creation, or production launch.
+
+### Notes
+
+- Approved scope: Lovable prompt + `token-verify` marketing_consent patch only.
+- Not approved: Show QR, PDF export, employer dashboard, verifier account creation, production launch, risk acceptance, Done decision.
+- TASK-0056 (issue #11) and TASK-0057 (issue #12) Codex QA still pending.
+
+---
+
+## APPROVAL-0023 — TASK-0057 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0057
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0057 for execution:
+
+```text
+execute task 0057
+```
+
+TASK-0057 — Implement Verifier Token Validation Function. New `token-verify` Edge Function: anonymous POST accepting raw token + verifier form, hashes server-side, validates token, creates verifiers row, writes verification_events, marks token used, returns safe credential display data.
+
+### Approval Checklist
+
+- [x] I approve TASK-0057 for execution.
+- [x] I approve `token-verify` writing to `verifiers`, `verification_events`, and `audit_events`, and marking `verification_tokens.status = 'used'`.
+- [x] I understand this is an anonymous endpoint — auth is via token hash, not Supabase JWT.
+- [x] I understand TASK-0056 Codex QA (issue #11) is still open — TASK-0057 proceeds with that as a noted dependency gap.
+- [x] I understand this does not approve TASK-0058, Show QR, PDF export, or production launch.
+
+### Notes
+
+- Approved scope: `token-verify` Edge Function only.
+- Not approved: TASK-0058, verifier UI, Show QR, PDF export, employer dashboard, production launch, risk acceptance, Done decision.
+- TASK-0056 Codex QA (issue #11) still pending — end-to-end token creation → validation chain testable only after #11 resolves.
+
+---
+
+## APPROVAL-0022 — TASK-0056 Approved for Execution
 
 **Date:** 2026-06-02
 **Approved By:** David
@@ -39,28 +506,84 @@ What was approved or rejected?
 
 ### Summary
 
-David approved TASK-0056 for execution:
+David approved TASK-0056 for execution via "execute task 0057" followed by selecting "Do 0056 first" — confirming TASK-0056 should execute before TASK-0057.
 
-```text
-execute 0056
-```
-
-TASK-0056 — Implement Share-Link Token Creation Function. Backend `share-link-create` Edge Function that creates a 72-hour one-time share link for an eligible nurse's active credential.
+TASK-0056 — Implement Share-Link Token Creation Function. New `share-link-create` Edge Function + `dashboard-status` real eligibility update.
 
 ### Approval Checklist
 
 - [x] I approve TASK-0056 for execution.
-- [x] I approve the stated acceptance criteria.
-- [x] I understand this is a trust-boundary task — verification token creation is backend-controlled only.
-- [x] I understand no migration is required (verification_tokens table already exists).
-- [x] I understand Lovable must not directly insert verification_tokens rows.
+- [x] I approve `share-link-create` writing to `verification_tokens` and `audit_events`.
+- [x] I approve `dashboard-status` being updated to return real share-link eligibility state.
+- [x] I understand raw tokens are never stored — only SHA-256 hash persisted.
+- [x] I understand this does not approve TASK-0057, Show QR, PDF export, or production launch.
 
 ### Notes
 
-- Not approved: Show QR token type, PDF token type, verifier UI, employer dashboard, production launch, risk acceptance, Done decision.
-- TASK-0055 (dashboard UI) is not yet approved for execution; share-link-create backend is independent and can be deployed separately.
-- Deployment requires David to run: `npx supabase functions deploy share-link-create --project-ref wvzjfxacykgsaffskgtr`
-- `SHARE_LINK_BASE_URL` env var should be set to the production verifier base URL before live use.
+- Approved scope: `share-link-create` Edge Function + `dashboard-status` eligibility update only.
+- Not approved: TASK-0057, verifier token validation, Show QR, PDF export, employer dashboard, production launch, risk acceptance, Done decision.
+- Source pushed to GitHub before deployment per corrected workflow.
+
+---
+
+## APPROVAL-0021 — Delete Unapproved share-link-create Supabase Function
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0056 cleanup only
+**Decision:** Approved with Notes
+
+### Summary
+
+David approved deletion of the unapproved `share-link-create` Edge Function from Supabase project `wvzjfxacykgsaffskgtr`:
+
+> I approve deleting the unapproved live Supabase Edge Function share-link-create from project wvzjfxacykgsaffskgtr. This applies to TASK-0056 cleanup only. It does not approve TASK-0056 execution, redeployment, production launch, risk acceptance, or task Done.
+
+Context: a prior Claude session deployed `share-link-create` to Supabase without David approval and without pushing source to GitHub. The function had two P1 bugs and was non-functional. Codex flagged it during TASK-0055 QA.
+
+### Approval Checklist
+
+- [x] I approve deleting `share-link-create` from Supabase project `wvzjfxacykgsaffskgtr`.
+- [x] I understand this does not approve TASK-0056 execution or redeployment.
+- [x] I understand this does not approve production launch, risk acceptance, or task Done.
+
+### Notes
+
+- Not approved: TASK-0056 execution, share-link-create redeployment, production launch, risk acceptance, Done decision.
+- When TASK-0056 is formally approved, Claude will rewrite the function from scratch with all Codex-identified bugs fixed.
+
+---
+
+## APPROVAL-0020 — TASK-0055 Approved for Execution
+
+**Date:** 2026-06-02
+**Approved By:** David
+**Related Task:** TASK-0055
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0055 for execution:
+
+```text
+execute 0055
+```
+
+TASK-0055 — Implement Nurse Dashboard Launch-Critical Status View. New `dashboard-status` Edge Function (read-only GET, returns credential/license/wallet/subscription state) and Lovable prompt for the `/dashboard` page.
+
+### Approval Checklist
+
+- [x] I approve TASK-0055 for execution.
+- [x] I approve the `dashboard-status` Edge Function reading `profiles`, `licenses`, `credentials`, `wallet_passes`, and `subscriptions` tables in read-only mode.
+- [x] I approve the Lovable prompt for `/dashboard` as the dashboard UI implementation spec.
+- [x] I understand share-link token creation is not approved here — `share_link_eligible` will return `false` until TASK-0056 is separately approved.
+- [x] I understand deferred features (QR, PDF export, add-license, employer dashboard) must not appear as launch blockers.
+
+### Notes
+
+- Approved scope: `dashboard-status` Edge Function + Lovable prompt only. No schema migrations.
+- Not approved: share-link token creation, QR code, PDF export, add-license flow, employer dashboard, production launch, Done decision, risk acceptance.
+- Codex QA required before Lovable prompt is sent to Lovable — issue [#10](https://github.com/david-bloom/PassTo/issues/10).
 
 ---
 
@@ -604,3 +1127,139 @@ David approved TASK-0004 — Create Lovable/Supabase/Vercel Responsibility Map a
 ### Notes
 
 Approval captured from David’s confirmation: “TASK-0004 — Create Lovable/Supabase/Vercel Responsibility Map Approved” and follow-up instruction: “restart creating TASK-0004 as a documentation/architecture task, then add the responsibility map that defines what Lovable, Supabase, and Vercel each own for MVP.”
+
+---
+
+## APPROVAL-0026 — TASK-0065 Remediation Approve-With-Modifications (Codex)
+
+**Date:** 2026-06-02
+**Approved By:** Codex (technical), David (relayed)
+**Related Task:** TASK-0065 remediation; spawns TASK-0066
+**Decision:** Approve With Modifications
+
+### Summary
+
+Codex reviewed Claude's proposed correction of TASK-0065 after an in-session misdiagnosis left the Supabase Auth URL Configuration in a half-state. Codex approved the App-domain Site URL target with modifications: replace `app.passtodigital.com/**` wildcard with exact production paths, add enrollment-domain redirects so the Enrollment Lovable project's auth callbacks land on their own domain, and route Edge Function CORS changes to a separate approved task because they are outside TASK-0065's approval boundary.
+
+### Approval Checklist
+
+- [x] Approve Supabase Site URL `https://app.passtodigital.com` (post-onboarding nurse app).
+- [x] Approve redirect allow-list of exact production paths only (no broad wildcards):
+  - `https://app.passtodigital.com/update-password`
+  - `https://app.passtodigital.com/reset-password`
+  - `https://app.passtodigital.com/dashboard`
+  - `https://enroll.passtodigital.com/post-login`
+  - `https://enroll.passtodigital.com/id-verification`
+- [x] Approve Lovable enrollment project (`d279ccd3-…`) `emailRedirectTo` correction targeting `enroll.passtodigital.com/post-login` (or `/id-verification` fallback) at every Supabase Auth call site.
+- [x] Approve Lovable app project (`9a223cc4-…`) `resetPasswordForEmail` `redirectTo` set to `https://app.passtodigital.com/update-password`.
+- [x] Approve client-side post-`signInWithPassword` routing based on profile/onboarding state, not Site URL fallback.
+- [x] Route Edge Function CORS allow-list changes to a separate task (TASK-0066) requiring its own David approval.
+
+### Notes
+
+Codex verdict text was relayed by David in the Claude session. Codex referenced Supabase Redirect URLs documentation, Supabase `redirectTo` troubleshooting, and Supabase password reset docs as sources for the wildcard guidance.
+
+This approval covers:
+
+- Supabase Auth URL Configuration change for project `wvzjfxacykgsaffskgtr` (applied 2026-06-02 — verified Total URLs: 5).
+- Lovable instruction prompts produced for both the enrollment and app projects.
+- Documentation updates to TASK-0065, ACTIVITY_LOG, and this APPROVALS_LOG.
+
+This approval explicitly does NOT cover:
+
+- Edge Function source changes, redeployments, or CORS allow-list updates (route to TASK-0066).
+- Database migrations, RLS, secrets.
+- Production launch, task Done decisions, or issue closure.
+- Broad wildcard redirect allow-list entries beyond trusted PassTo domains.
+
+---
+
+## APPROVAL-0027 — TASK-0066 Execution Approved (CORS Update + Redeploy)
+
+**Date:** 2026-06-02
+**Approved By:** David (relayed in Claude session)
+**Related Task:** TASK-0066
+**Decision:** Approved — Option A for token-verify
+
+### Summary
+
+David approved TASK-0066 execution after a live `/dashboard` load on `app.passtodigital.com` failed with "Something went wrong" and Claude diagnosed the root cause as `dashboard-status` Edge Function CORS still returning `access-control-allow-origin: https://enroll.passtodigital.com`. APPROVAL-0026 explicitly excluded Edge Function changes, requiring this separate approval.
+
+For the `token-verify` CORS sub-decision flagged in the TASK-0066 spec (Option A lock to app.passtodigital.com vs Option B keep `*`), David chose **Option A** per Claude's recommendation.
+
+### Approval Checklist
+
+- [x] Approve `dashboard-status` CORS allow-origin change to `https://app.passtodigital.com`.
+- [x] Approve `share-link-create` CORS allow-origin change to `https://app.passtodigital.com`.
+- [x] Approve `token-verify` CORS allow-origin change to `https://app.passtodigital.com` (Option A — locked to App domain, NOT keep `*`).
+- [x] Approve push to GitHub `main` before deployment.
+- [x] Approve redeploy of all 3 functions to Supabase project `wvzjfxacykgsaffskgtr` (verify_jwt preserved per function).
+- [x] Approve live CORS preflight verification.
+
+### Execution Trail
+
+Initial deploy was applied 2026-06-02 (commits `b7c760cb`, `e828de23`, `e0835dca`; deploys: dashboard-status v4, share-link-create v2, token-verify v4). David subsequently directed a rollback (deploy versions v5/v3/v5) based on an initial misattribution of the dashboard fix to a Lovable publish event. Edge Function logs evidence then demonstrated the CORS fix was the actual unblocker, and David authorized re-apply of the same TASK-0066 policy. Final live state matches Option A as originally approved: dashboard-status v6, share-link-create v4, token-verify v6.
+
+The re-apply did not require a new approval — it restored the originally-approved final state, just via a longer path.
+
+### Notes
+
+Live CORS preflight verified post-deploy for all 3 functions: `access-control-allow-origin: https://app.passtodigital.com` returned for `Origin: https://app.passtodigital.com` requests. `token-verify` POST without auth returned `400 missing_token` confirming `verify_jwt` remained `false` throughout.
+
+This approval explicitly does NOT cover:
+
+- Database migrations, RLS, secrets.
+- Other Edge Function changes (beyond the 3 named).
+- Production launch, task Done decisions, or issue closure.
+- Broadening any allow-list beyond the App domain.
+- Frontend launch-readiness items surfaced during QA (see `LOVABLE_PROMPT_2026-06-02_APP_LAUNCH_READINESS.md`).
+
+Codex QA on the implementation remains required before TASK-0066 can be marked Done. End-to-end share-link → verifier exercise blocked on Lovable applying the Share Credential button wiring (see launch-readiness prompt).
+
+---
+
+## APPROVAL-0028 — QA-003 Remediation: SHARE_LINK_BASE_URL Supabase Secret Set
+
+**Date:** 2026-06-03
+**Approved By:** David (applied directly during QA run)
+**Related Task:** QA-003 (share-link-create returning wrong host in share_url)
+**Decision:** Applied — Supabase secret configured
+
+### Summary
+
+During the 2026-06-03 manual E2E QA run, QA finding QA-003 identified that the
+`share-link-create` Edge Function was returning `share_url` values pointing to
+`https://passtodigital.com/v/…` (the marketing domain) rather than
+`https://app.passtodigital.com/v/…` (the App domain where `/v/:token` is
+deployed). The root cause was the Supabase secret `SHARE_LINK_BASE_URL` not
+being set, causing the function to fall through to its hardcoded default
+(`https://passtodigital.com/v`).
+
+David set the secret directly in the Supabase dashboard during the QA run.
+No Edge Function code change or redeployment was required — the function
+reads the env var fresh on each invocation.
+
+### Approval Checklist
+
+- [x] Confirmed root cause: `SHARE_LINK_BASE_URL` secret absent from project
+  `wvzjfxacykgsaffskgtr`.
+- [x] Set `SHARE_LINK_BASE_URL = https://app.passtodigital.com/v` in Supabase
+  project secrets.
+- [x] Verified: new share link generated after secret set shows
+  `https://app.passtodigital.com/v/…` host (QA Agent confirmed via URL pattern).
+- [x] Verified: prior token exercised end-to-end by rewriting host; verifier
+  flow confirmed working (QA-A7, QA-A8, QA-A9 all passed).
+
+### Notes
+
+This approval covers the secret configuration change only. It does not cover:
+
+- Any Edge Function source changes (none were made).
+- Production launch or task Done decisions.
+- Changes to the hardcoded default in function source (recommend updating
+  source default to `https://app.passtodigital.com/v` as a belt-and-suspenders
+  fix in a future Lovable/Edge Function cycle — not required given secret is
+  now set).
+
+Codex should verify the secret is present and correct in the Supabase project
+secrets list as part of QA-003 codex_verification_requested review.

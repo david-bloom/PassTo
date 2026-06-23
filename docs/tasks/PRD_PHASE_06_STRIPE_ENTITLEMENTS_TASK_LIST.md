@@ -1,0 +1,73 @@
+# PRD Phase 6 Task List - Stripe, Entitlements, and Lapse Behavior
+
+**Phase:** Phase 6 - Stripe, Entitlements, and Lapse Behavior  
+**Status:** TASK-0060 through TASK-0063 Complete / Passed; TASK-0064 pending
+**Created:** 2026-06-02  
+**Owner:** David Bloom  
+**Execution Support:** Codex and Claude  
+**Source:** `/docs/tasks/MVP_LAUNCH_CRITICAL_BUILD_SEQUENCE.md`, `TASK-0040`, PRD Sections 5-7, `/docs/flows/PAYMENTS.md`, `/docs/features/SUBSCRIPTIONS.md`
+
+## Purpose
+
+This task list converts Phase 6 of the MVP launch-critical build sequence into approval-ready task records.
+
+Core Stripe checkout, webhook idempotency, subscription persistence, entitlement counts, and lapse behavior were pulled forward and completed in `TASK-0040`. Phase 6 therefore focuses on reconciling the remaining launch-readiness gaps: real Lovable checkout testing, subscription management/cancellation behavior, GA tier / MVP PRD scope reconciliation, entitlement/lapse ops visibility, and QA closure.
+
+This document does not authorize implementation, migration execution, Stripe live-mode changes, live product/price changes, secret changes, deployments, production launch, task Done decisions, issue closure, or risk acceptance.
+
+## Phase 6 Sequence
+
+| Phase Item | Task ID | Task | Owner | Status | Depends On |
+|---|---|---|---|---|---|
+| 6.1 | TASK-0060 | Reconcile Stripe Checkout End-to-End Readiness | Claude / Codex | Complete / Passed - David Approved | TASK-0040, Lovable payment route |
+| 6.2 | TASK-0061 | Define Subscription Management and Cancellation Flow | Claude / Lovable | Done - David Approved | TASK-0040, TASK-0060 |
+| 6.3 | TASK-0062 | Reconcile GA Tier Features Against MVP PRD | Claude / Codex | Done - David Approved | TASK-0056, TASK-0040 |
+| 6.4 | TASK-0063 | Harden Entitlement and Lapse Ops Visibility | Claude / Codex | Done - David Approved | TASK-0040, TASK-0055, TASK-0061 |
+| 6.5 | TASK-0064 | Codex QA Phase 6 Stripe, Entitlements, and Lapse Behavior | Codex | Spec Drafted - Awaiting David Approval | TASK-0060 through TASK-0063 |
+
+## Relationship to TASK-0040
+
+`TASK-0040` remains the completed implementation task for Stripe subscription state and entitlement gating. It already covered Stripe checkout/session creation, Stripe webhook signature verification, `stripe_events` idempotency, `subscriptions` and `payments` persistence, entitlement counts, subscription lapse downgrade behavior, and Stripe test-mode replay.
+
+Phase 6 must not duplicate or overwrite that work. It should close the documented pre-production gap and resolve the remaining product/ops decisions around paid actions and subscription management.
+
+## Phase 6 Entry Criteria
+
+- `TASK-0040` is Complete / Passed - David Approved.
+- Stripe test-mode secrets and webhook setup exist in the approved Supabase project for test-mode QA.
+- Lovable can route a nurse to the payment step or a test path can safely create the payment-step state.
+- Phase 5 share-link behavior is clear enough to reconcile against MVP PRD entitlement rules.
+
+## Phase 6 Exit Criteria
+
+- A real Lovable test checkout verifies subscription persistence, payment persistence, webhook metadata, and payment-step advancement.
+- Subscription management and cancellation behavior are documented for MVP, including customer portal or approved alternative.
+- `TIER_FEATURES.md` is clearly treated as GA / complete-product reference, and MVP tasks follow PRD launch-critical/deferred scope.
+- Entitlement and lapse states are inspectable by ops and visible enough to prevent unsafe paid-action access.
+- Codex QA records pass/block/deferral findings across Phase 6.
+
+## Approval Boundary
+
+David approval is required before Claude executes any Phase 6 task that changes live backend behavior, deploys functions/routes, applies migrations, changes Stripe configuration, changes secrets, changes production posture, marks tasks Done, closes tasks/issues, accepts risk, or moves deferred paid actions into launch scope.
+
+## MVP Scope Clarification - 2026-06-04
+
+David confirmed the MVP tier/scope policy for TASK-0062:
+
+```text
+Stick with the PRD. TIER_FEATURES.md is for complete products, General Availability, not MVP.
+```
+
+This records the MVP scope clarification only. It supersedes APPROVAL-0029 for MVP implementation purposes. It does not approve implementation, migrations, deployments, Stripe live-mode changes, live Stripe products/prices, Lovable UI changes, production launch, task Done, issue closure, or risk acceptance.
+
+## Execution Approval - 2026-06-04
+
+David approved TASK-0060, TASK-0061, TASK-0062, and TASK-0063 for execution.
+
+This approval authorizes work within each task's documented scope. It does not mark any Phase 6 task Done, approve TASK-0064 final QA execution beyond its documented standing/read-only lane, approve Stripe live-mode changes, approve live Stripe product/price changes, change secrets, deploy production changes outside task scope, approve production launch, close issues, or accept risk.
+
+## Done Approval - 2026-06-05
+
+David approved TASK-0061, TASK-0062, and TASK-0063 as Done after Codex re-QA/final review.
+
+This approval closes the documented scopes for Phase Items 6.2, 6.3, and 6.4. It does not approve TASK-0064 Done, Stripe live-mode cutover, live Stripe product/price changes, production launch, issue closure outside the named tasks, or risk acceptance beyond the named task scopes.

@@ -148,6 +148,7 @@ audit_events
 /docs/features/SHARING.md
 /docs/features/REFRESH.md
 /docs/features/TIER_FEATURES.md
+/docs/design_system/WALLET_PASS_DISPLAY_SPEC.md
 /docs/architecture/NAMING_CONVENTIONS.md
 /docs/architecture/PRODUCT_ATTRIBUTES_ARCHITECTURE.md
 ```
@@ -156,4 +157,4 @@ audit_events
 
 - Exact PassKit update payloads.
 - Whether Apple and Google wallet records are separate rows or provider variants.
-- Final wallet pass visual mapping in the design system.
+- David approval of the final wallet pass display spec.

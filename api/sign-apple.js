@@ -31,6 +31,93 @@ const path       = require("path");
 const fs         = require("fs");
 const { createClient } = require("@supabase/supabase-js");
 
+function titleizeLicenseType(value) {
+  return String(value || "Nursing License")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function displayState(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(date).toUpperCase();
+}
+
+function formatDateTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(date);
+}
+
+function deriveTreatment(d) {
+  const treatment = String(d.wallet_pass_treatment || "").toLowerCase();
+  const normalized = String(d.normalized_status || "").toLowerCase();
+  if (treatment === "do_not_issue") return "do_not_issue";
+  if (treatment === "caution") return "caution";
+  if (treatment === "invalid" || ["revoked", "expired", "suspended", "inactive"].includes(normalized)) return "invalid";
+  if (treatment === "valid") return "valid";
+  return "valid";
+}
+
+function missingRequiredFields(d) {
+  const missing = [];
+  if (!d || typeof d !== "object")              return ["pass_template_data"];
+  if (!d.nurse_name)                            missing.push("nurse_name");
+  if (!d.license_type)                          missing.push("license_type");
+  if (!d.license_number)                        missing.push("license_number");
+  if (!d.license_state)                         missing.push("license_state");
+  return missing;
+}
+
+function passColors(treatment) {
+  if (treatment === "caution") {
+    return {
+      foregroundColor: "rgb(11, 18, 32)",
+      backgroundColor: "rgb(251, 239, 210)",
+      labelColor: "rgb(200, 131, 12)",
+    };
+  }
+  if (treatment === "invalid") {
+    return {
+      foregroundColor: "rgb(255, 255, 255)",
+      backgroundColor: "rgb(180, 35, 24)",
+      labelColor: "rgb(252, 233, 230)",
+    };
+  }
+  return {
+    foregroundColor: "rgb(255, 255, 255)",
+    backgroundColor: "rgb(11, 18, 32)",
+    labelColor: "rgb(47, 176, 105)",
+  };
+}
+
+function statusLabel(d, treatment) {
+  if (treatment === "caution") return "EXPIRING SOON";
+  if (treatment === "invalid") return "NOT VALID";
+  if (String(d.normalized_status || "").toLowerCase() === "active") return "VERIFIED";
+  return String(d.normalized_status || "VERIFIED").toUpperCase();
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "method_not_allowed" });
@@ -69,13 +156,29 @@ module.exports = async function handler(req, res) {
   }
 
   const d = credential.pass_template_data ?? {};
-  const nurseName      = d.nurse_name      ?? "Verified Nurse";
-  const licenseType    = d.license_type    ?? "";
-  const licenseState   = d.license_state   ?? "";
-  const licenseNumber  = d.license_number  ?? "";
-  const status         = d.normalized_status ?? "Active";
-  const expirationDate = d.expiration_date ?? "";
-  const issuedDate     = d.credential_created ? d.credential_created.slice(0, 10) : "";
+
+  // Fail-closed: do not issue when treatment is do_not_issue, or when canonical
+  // identity/license fields are missing. These signals must be honored before
+  // any pass is signed.
+  const treatment      = deriveTreatment(d);
+  if (treatment === "do_not_issue") {
+    return res.status(422).json({ success: false, error: "pass_treatment_do_not_issue" });
+  }
+  const missing = missingRequiredFields(d);
+  if (missing.length > 0) {
+    return res.status(422).json({ success: false, error: "missing_required_fields", missing });
+  }
+
+  const colors         = passColors(treatment);
+  const nurseName      = d.nurse_name ?? "Verified Nurse";
+  const licenseType    = titleizeLicenseType(d.license_type);
+  const licenseState   = displayState(d.license_state);
+  const licenseNumber  = d.license_number ?? "";
+  const status         = statusLabel(d, treatment);
+  const expirationDate = formatDate(d.expiration_date);
+  const issuedDate     = formatDate(d.issue_date || d.credential_created);
+  const lastVerified   = formatDateTime(d.status_checked_at);
+  const sourceDisplay  = d.verification_source_display ?? "Primary license source";
 
   // ── Required Apple env vars ────────────────────────────────────────────────
   const wwdrB64   = process.env.APPLE_WWDR_PEM_BASE64   ?? "";
@@ -112,25 +215,33 @@ module.exports = async function handler(req, res) {
       description:          "PassTo Verified Nursing License",
       organizationName:     "PassTo",
       logoText:             "PassTo",
-      foregroundColor:      "rgb(255, 255, 255)",
-      backgroundColor:      "rgb(11, 18, 32)",    // Ink-900 #0B1220
-      labelColor:           "rgb(47, 176, 105)",  // Verified-400 #2FB069
+      foregroundColor:      colors.foregroundColor,
+      backgroundColor:      colors.backgroundColor,
+      labelColor:           colors.labelColor,
+      sharingProhibited:    false,
+      userInfo:             { credential_id },
       generic: {
+        headerFields: [
+          { key: "status_badge", label: "STATUS", value: status },
+        ],
         primaryFields: [
-          { key: "name",    label: "NURSE",    value: nurseName },
+          { key: "name", label: licenseType.toUpperCase(), value: nurseName },
         ],
         secondaryFields: [
           { key: "license", label: "LICENSE #", value: licenseNumber },
-          { key: "type",    label: "TYPE",      value: licenseType },
+          { key: "state",   label: "STATE",     value: licenseState },
         ],
         auxiliaryFields: [
-          { key: "status",  label: "STATUS",       value: status },
-          { key: "expires", label: "VALID THROUGH", value: expirationDate },
+          { key: "issued",  label: "ISSUED",  value: issuedDate },
+          { key: "expires", label: "EXPIRES", value: expirationDate },
         ],
         backFields: [
-          { key: "state",   label: "STATE",              value: licenseState },
-          { key: "issued",  label: "CREDENTIAL ISSUED",  value: issuedDate },
-          { key: "issuer",  label: "CREDENTIAL ISSUED BY", value: "PassTo — passtodigital.com" },
+          { key: "type",          label: "LICENSE TYPE",         value: licenseType },
+          { key: "license",       label: "LICENSE #",            value: licenseNumber },
+          { key: "state",         label: "STATE",                value: licenseState },
+          { key: "last_verified", label: "LAST VERIFIED",        value: lastVerified },
+          { key: "source",        label: "VERIFICATION SOURCE",  value: sourceDisplay },
+          { key: "issuer",        label: "CREDENTIAL ISSUED BY", value: "PassTo - passtodigital.com" },
         ],
       },
     };

@@ -1,15 +1,17 @@
 # PassTo Tier Features
 
-**Status:** Ready for Tasking  
+**Status:** Complete Product / General Availability Reference - Not MVP Launch Scope
 **Source:** Product Attributes Blueprint v1.6 + David decisions  
 **Owner:** Codex  
-**Last Updated:** 2026-05-25  
+**Last Updated:** 2026-06-04
 
 ## Purpose
 
-This document defines PassTo MVP tier behavior and pricing rules for Free, Standard, and Premier accounts.
+This document defines PassTo complete-product / General Availability tier behavior and pricing rules for Free, Standard, and Premier accounts.
 
-## MVP Tier Summary
+The approved PRD remains the source of truth for MVP launch scope. Where this document includes capabilities that the PRD marks deferred, those capabilities are GA/product-complete targets and must not be treated as MVP implementation approval.
+
+## GA Tier Summary
 
 | Capability | Free | Standard | Premier |
 |---|---:|---:|---:|
@@ -24,7 +26,7 @@ This document defines PassTo MVP tier behavior and pricing rules for Free, Stand
 | PDF export | $1.99 | Included | Included |
 | Selfie on credential | No | Yes | Yes |
 
-## Confirmed MVP Pricing
+## Confirmed GA Pricing
 
 ```text
 Free: $0/month
@@ -37,7 +39,7 @@ PDF export: $1.99 for Free tier
 Additional license: $4.99 for paid tiers where allowed
 ```
 
-## License Entitlement
+## GA License Entitlement
 
 Confirmed MVP rule:
 

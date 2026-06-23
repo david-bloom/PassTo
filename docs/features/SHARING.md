@@ -1,13 +1,15 @@
 # PassTo Sharing
 
-**Status:** Draft  
+**Status:** Complete Product / GA Reference with PRD-Controlled MVP Scope
 **Source:** Product Attributes Blueprint v1.6 + David decisions  
 **Owner:** Codex  
-**Last Updated:** 2026-05-24  
+**Last Updated:** 2026-06-04
 
 ## Purpose
 
 This document defines nurse-initiated sharing behavior for PassTo credentials.
+
+The approved PRD remains the source of truth for MVP launch scope. Share-link verifier access is launch-critical in the PRD; Show QR and PDF QR behavior are complete-product / GA references unless separately reopened for MVP.
 
 ## Core Rule
 
@@ -80,6 +82,8 @@ A token becomes:
 - `payment_failed` if a paid token request fails payment.
 
 ## Payment Rules
+
+These payment rules describe complete-product / GA tier behavior. MVP implementation must follow the PRD unless David separately reopens GA paid-action scope.
 
 Free tier:
 

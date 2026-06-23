@@ -28,6 +28,71 @@
 const jwt = require("jsonwebtoken");
 const { createClient } = require("@supabase/supabase-js");
 
+function titleizeLicenseType(value) {
+  return String(value || "Nursing License")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function displayState(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(date).toUpperCase();
+}
+
+function formatDateTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(date);
+}
+
+function deriveTreatment(d) {
+  const treatment = String(d.wallet_pass_treatment || "").toLowerCase();
+  const normalized = String(d.normalized_status || "").toLowerCase();
+  if (treatment === "do_not_issue") return "do_not_issue";
+  if (treatment === "caution") return "caution";
+  if (treatment === "invalid" || ["revoked", "expired", "suspended", "inactive"].includes(normalized)) return "invalid";
+  if (treatment === "valid") return "valid";
+  return "valid";
+}
+
+function statusLabel(d, treatment) {
+  if (treatment === "caution") return "EXPIRING SOON";
+  if (treatment === "invalid") return "NOT VALID";
+  if (String(d.normalized_status || "").toLowerCase() === "active") return "VERIFIED";
+  return String(d.normalized_status || "VERIFIED").toUpperCase();
+}
+
+function missingRequiredFields(d) {
+  const missing = [];
+  if (!d || typeof d !== "object")              return ["pass_template_data"];
+  if (!d.nurse_name)                            missing.push("nurse_name");
+  if (!d.license_type)                          missing.push("license_type");
+  if (!d.license_number)                        missing.push("license_number");
+  if (!d.license_state)                         missing.push("license_state");
+  return missing;
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "method_not_allowed" });
@@ -66,23 +131,46 @@ module.exports = async function handler(req, res) {
   }
 
   const d = credential.pass_template_data ?? {};
-  const nurseName      = d.nurse_name       ?? "Verified Nurse";
-  const licenseType    = d.license_type     ?? "";
-  const licenseState   = d.license_state    ?? "";
-  const licenseNumber  = d.license_number   ?? "";
-  const status         = d.normalized_status ?? "Active";
-  const expirationDate = d.expiration_date  ?? "";
+
+  // Fail-closed: do not issue when treatment is do_not_issue, or when canonical
+  // identity/license fields are missing. These signals must be honored before
+  // any pass is signed.
+  const treatment      = deriveTreatment(d);
+  if (treatment === "do_not_issue") {
+    return res.status(422).json({ success: false, error: "pass_treatment_do_not_issue" });
+  }
+  const missing = missingRequiredFields(d);
+  if (missing.length > 0) {
+    return res.status(422).json({ success: false, error: "missing_required_fields", missing });
+  }
+
+  const nurseName      = d.nurse_name ?? "Verified Nurse";
+  const licenseType    = titleizeLicenseType(d.license_type);
+  const licenseState   = displayState(d.license_state);
+  const licenseNumber  = d.license_number ?? "";
+  const status         = statusLabel(d, treatment);
+  const expirationDate = formatDate(d.expiration_date);
+  const issuedDate     = formatDate(d.issue_date || d.credential_created);
+  const lastVerified   = formatDateTime(d.status_checked_at);
+  const sourceDisplay  = d.verification_source_display ?? "Primary license source";
 
   // ── Required Google env vars ───────────────────────────────────────────────
   const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON ?? "";
   const issuerId           = process.env.GOOGLE_WALLET_ISSUER_ID     ?? "";
-  const classId            = process.env.GOOGLE_WALLET_CLASS_ID      ?? "";
+  const classIdEnv         = process.env.GOOGLE_WALLET_CLASS_ID      ?? "";
   const logoUrl            = process.env.PASSTO_LOGO_URL             ?? "";
 
-  if (!serviceAccountJson || !issuerId || !classId) {
+  if (!serviceAccountJson || !issuerId || !classIdEnv) {
     console.error("sign-google: Google Wallet credentials not configured");
     return res.status(503).json({ success: false, error: "google_wallet_not_configured" });
   }
+
+  // Google requires class IDs in the single-prefix form "issuerID.identifier".
+  // Accept either a full class ID (already prefixed with issuerId) or a bare
+  // identifier suffix. Normalize to the full form exactly once.
+  const fullClassId = classIdEnv.startsWith(`${issuerId}.`)
+    ? classIdEnv
+    : `${issuerId}.${classIdEnv}`;
 
   try {
     const serviceAccount = JSON.parse(serviceAccountJson);
@@ -94,7 +182,7 @@ module.exports = async function handler(req, res) {
 
     const genericObject = {
       id:      `${issuerId}.${objectId}`,
-      classId: `${issuerId}.${classId}`,
+      classId: fullClassId,
       state:   "ACTIVE",
       hexBackgroundColor: "#0B1220",  // Ink-900
       ...(logoUrl ? {
@@ -117,7 +205,10 @@ module.exports = async function handler(req, res) {
         { id: "license_state", header: "STATE",        body: licenseState },
         { id: "license_number",header: "LICENSE #",    body: licenseNumber },
         { id: "status",        header: "STATUS",       body: status },
+        { id: "issued",        header: "ISSUED",       body: issuedDate },
         { id: "valid_through", header: "VALID THROUGH",body: expirationDate },
+        { id: "last_verified", header: "LAST VERIFIED",body: lastVerified },
+        { id: "source",        header: "SOURCE",       body: sourceDisplay },
       ],
       // No barcode/QR — pass does not carry a permanent verification QR.
       // Verifier access is via share-link tokens (separate feature).

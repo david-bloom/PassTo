@@ -1,16 +1,18 @@
 # PassTo Payments Flow
 
-**Status:** Baseline  
+**Status:** Complete Product / GA Reference with PRD-Controlled MVP Scope
 **Owner:** Codex  
-**Last Updated:** 2026-05-25  
+**Last Updated:** 2026-06-04
 
 ---
 
 ## Purpose
 
-This document defines the MVP payments flow for PassTo subscriptions and paid actions.
+This document defines the complete-product / General Availability payments flow for PassTo subscriptions and paid actions.
 
 This flow is a baseline and does not approve Stripe live setup or production payment execution.
+
+The approved PRD remains the source of truth for MVP launch scope. Paid-action flows in this document are GA/product-complete references unless the PRD or a task approval explicitly includes the capability in MVP.
 
 ---
 
@@ -28,7 +30,7 @@ PassTo MVP uses Stripe for:
 
 ---
 
-## Confirmed MVP Prices
+## Confirmed GA Prices
 
 ```text
 Standard subscription: $9.99/month

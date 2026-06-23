@@ -215,17 +215,8 @@ async function handleCheckoutCompleted(
 
   if (subErr) throw new Error(`subscriptions upsert failed: ${subErr.message}`);
 
-  // Write payment row
-  const { error: payErr } = await admin.from("payments").insert({
-    profile_id:               profileId,
-    action_type:              "subscription_start",
-    stripe_payment_intent_id: paymentIntentId ?? stripeSubId,
-    amount_cents:             amountTotal,
-    status:                   "succeeded",
-    related_entity_type:      "subscription",
-    metadata:                 { plan_name: planName, stripe_subscription_id: stripeSubId },
-  });
-  if (payErr) console.error("payments insert failed (non-fatal):", payErr.message);
+  // Subscription payments are tracked in subscriptions table, not payments table
+  // (payments table is for a-la-carte actions only: share_token, refresh, pdf_export, additional_license)
 
   // Store stripe_customer_id on profile if not set
   await admin
@@ -346,7 +337,7 @@ async function handleSubscriptionDeleted(
 
   await admin.from("audit_events").insert({
     actor_id:      subRow.profile_id,
-    action:        "subscription.canceled",
+    action:        "subscription.lapsed",
     resource_type: "profile",
     resource_id:   subRow.profile_id,
     change_after:  { subscription_tier: "free", stripe_subscription_id: stripeSubId },
@@ -363,7 +354,6 @@ async function handlePaymentFailed(
   const stripeSubId  = invoice.subscription as string | null;
   const customerId   = invoice.customer as string;
   const amountDue    = (invoice.amount_due as number) ?? 0;
-  const now          = new Date().toISOString();
 
   // Find the profile by stripe_customer_id
   const { data: profile } = await admin
@@ -374,22 +364,15 @@ async function handlePaymentFailed(
 
   if (!profile) return;
 
-  await admin.from("payments").insert({
-    profile_id:               profile.id,
-    action_type:              "subscription_renewal",
-    stripe_payment_intent_id: invoice.payment_intent as string ?? customerId,
-    amount_cents:             amountDue,
-    status:                   "failed",
-    related_entity_type:      "subscription",
-    metadata:                 { stripe_subscription_id: stripeSubId, reason: "invoice_payment_failed" },
-  });
-
+  // Subscription payment failures are tracked via subscriptions.status and stripe_events
+  // (payments table is for a-la-carte actions only)
+  // Audit for visibility
   await admin.from("audit_events").insert({
     actor_id:      profile.id,
     action:        "payment.failed",
     resource_type: "profile",
     resource_id:   profile.id,
-    change_after:  { stripe_subscription_id: stripeSubId, amount_cents: amountDue },
+    change_after:  { stripe_subscription_id: stripeSubId, amount_cents: amountDue, reason: "invoice_payment_failed" },
   });
 }
 

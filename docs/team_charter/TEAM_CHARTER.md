@@ -17,6 +17,7 @@
 | v1.1 | 2026-05-23 | David | Clarified QA ownership, Class B boundaries, startup prompts, false-assumption escalation, task granularity, and blocked-approval protocol |
 | v1.2 | 2026-05-23 | David | Added `/docs/design_system/` as a canonical folder and established design-system review rules for brand and user-facing work |
 | v1.3 | 2026-05-23 | David | Added close-of-session trigger, closeout requirements, role-specific closeout responsibilities, task status values, and GitHub handoff rules |
+| v1.10 | 2026-06-03 | David | Added contract integration gate QA requirements for decoupled backend/frontend work and backend-driven frontend routing/handoff behavior |
 
 ---
 
