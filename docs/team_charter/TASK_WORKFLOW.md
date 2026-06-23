@@ -145,7 +145,7 @@ Do Not Do
 
 Class A includes product, architecture, security, data, integration, deployment, design-system-impacting, customer-facing, or acceptance-criteria-impacting work.
 
-Default rule: if classification is unclear, it is Class A.
+Default rule (revised per `TEAM_CHARTER_V1_11_AMENDMENT.md`): if classification is ambiguous, reversible, and low blast radius, ask one clarifying question and proceed under Class B or C as appropriate — do not automatically escalate to Class A. If classification is ambiguous *and* irreversible or high blast radius (touches product, architecture, security, data, integrations, deployment, design standards, brand standards, customer-facing assets, or acceptance criteria), it is Class A. This narrows when uncertainty itself triggers David's review — it does not narrow what Class A covers when the risk is actually present.
 
 ### Class B — Codex Approval Sufficient
 

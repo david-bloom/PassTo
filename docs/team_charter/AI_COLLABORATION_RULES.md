@@ -217,13 +217,13 @@ The GitHub issue, PR, or task file must include a clear decision or approval req
 
 ---
 
-## C Handshake
+## SYNC Handshake
 
-David may type `C` or `c` alone in a Codex or Claude session to trigger the GitHub review loop.
+David may type `SYNC` alone in a Codex or Claude session to trigger the GitHub review loop. (Superseded from the single-character `C`/`c` trigger per v1.8 — see `TEAM_CHARTER_V1_11_AMENDMENT.md`: a one-character trigger is too easy to fire by accident in normal chat, code, or a typo, and a missed deliberate trigger costs more than a rare false one. Behavior below is otherwise unchanged from v1.8.)
 
-### C in Codex
+### SYNC in Codex
 
-`C` means:
+`SYNC` means:
 
 ```text
 Codex, re-scan GitHub now for Claude's latest work, review anything assigned to Codex, and respond in the repo-visible thread.
@@ -240,9 +240,9 @@ status: blocked
 
 Codex must not answer from memory.
 
-### C in Claude
+### SYNC in Claude
 
-`C` means:
+`SYNC` means:
 
 ```text
 Claude, Codex has likely replied. Pull or inspect the repo-visible review, act on every item, update GitHub, and report status.
@@ -259,9 +259,9 @@ status: blocked
 
 Claude must not answer from memory.
 
-### C Limits
+### SYNC Limits
 
-`C` does not authorize:
+`SYNC` does not authorize:
 
 - New Class A work
 - Merge
