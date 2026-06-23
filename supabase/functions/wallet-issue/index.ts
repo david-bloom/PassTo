@@ -27,13 +27,29 @@
  */
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://enroll.passtodigital.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
+
+// Non-fatal audit insert. PostgrestFilterBuilder is then-able but does not
+// expose .catch() in its type contract, so we await the result explicitly and
+// log on error. Audit failures must never abort wallet issuance.
+async function safeAudit(
+  admin: SupabaseClient,
+  label: string,
+  row: Record<string, unknown>,
+): Promise<void> {
+  try {
+    const { error } = await admin.from("audit_events").insert(row);
+    if (error) console.error(`audit ${label} failed (non-fatal):`, error.message);
+  } catch (e) {
+    console.error(`audit ${label} threw (non-fatal):`, (e as Error).message);
+  }
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -103,11 +119,11 @@ serve(async (req) => {
   }
 
   // ── 5. Audit: wallet issuance started ─────────────────────────────────────
-  await supabaseAdmin.from("audit_events").insert({
+  await safeAudit(supabaseAdmin, "wallet.issue_started", {
     actor_id: profile.id, action: "wallet.issue_started",
     resource_type: "credential", resource_id: credential.id,
     change_after: { credential_id: credential.id },
-  }).catch(e => console.error("wallet.issue_started audit failed (non-fatal):", e.message));
+  });
 
   const now = new Date().toISOString();
 
@@ -164,32 +180,32 @@ serve(async (req) => {
         provider_response: { error: "persistence_failed", provider_succeeded: true },
         updated_at: now,
       }).eq("credential_id", credential.id).eq("provider", "apple_wallet");
-      await supabaseAdmin.from("audit_events").insert({
+      await safeAudit(supabaseAdmin, "wallet.apple_failed", {
         actor_id: profile.id, action: "wallet.apple_failed",
         resource_type: "credential", resource_id: credential.id,
         change_after: { error: "persistence_failed" },
-      }).catch(() => {});
+      });
     } else {
       applePersisted = true;
       applePassUrl   = String(r.pass_url);
-      await supabaseAdmin.from("audit_events").insert({
+      await safeAudit(supabaseAdmin, "wallet.apple_issued", {
         actor_id: profile.id, action: "wallet.apple_issued",
         resource_type: "credential", resource_id: credential.id,
         change_after: { serial_number: r.serial_number },
-      }).catch(e => console.error("wallet.apple_issued audit failed:", e.message));
+      });
     }
   } else {
     const errMsg = appleResult.status === "fulfilled"
       ? (appleResult.value?.error ?? "provider_error")
-      : (appleResult.reason?.message ?? "network_error");
+      : ((appleResult.reason as Error)?.message ?? "network_error");
     await supabaseAdmin.from("wallet_passes").update({
       status: "error", provider_response: { error: errMsg }, updated_at: now,
     }).eq("credential_id", credential.id).eq("provider", "apple_wallet");
-    await supabaseAdmin.from("audit_events").insert({
+    await safeAudit(supabaseAdmin, "wallet.apple_failed", {
       actor_id: profile.id, action: "wallet.apple_failed",
       resource_type: "credential", resource_id: credential.id,
       change_after: { error: errMsg },
-    }).catch(() => {});
+    });
     console.error("Apple wallet issuance failed:", errMsg);
   }
 
@@ -210,32 +226,32 @@ serve(async (req) => {
         provider_response: { error: "persistence_failed", provider_succeeded: true },
         updated_at: now,
       }).eq("credential_id", credential.id).eq("provider", "google_wallet");
-      await supabaseAdmin.from("audit_events").insert({
+      await safeAudit(supabaseAdmin, "wallet.google_failed", {
         actor_id: profile.id, action: "wallet.google_failed",
         resource_type: "credential", resource_id: credential.id,
         change_after: { error: "persistence_failed" },
-      }).catch(() => {});
+      });
     } else {
       googlePersisted = true;
       googleSaveUrl   = String(r.save_url);
-      await supabaseAdmin.from("audit_events").insert({
+      await safeAudit(supabaseAdmin, "wallet.google_issued", {
         actor_id: profile.id, action: "wallet.google_issued",
         resource_type: "credential", resource_id: credential.id,
         change_after: { object_id: r.object_id },
-      }).catch(e => console.error("wallet.google_issued audit failed:", e.message));
+      });
     }
   } else {
     const errMsg = googleResult.status === "fulfilled"
       ? (googleResult.value?.error ?? "provider_error")
-      : (googleResult.reason?.message ?? "network_error");
+      : ((googleResult.reason as Error)?.message ?? "network_error");
     await supabaseAdmin.from("wallet_passes").update({
       status: "error", provider_response: { error: errMsg }, updated_at: now,
     }).eq("credential_id", credential.id).eq("provider", "google_wallet");
-    await supabaseAdmin.from("audit_events").insert({
+    await safeAudit(supabaseAdmin, "wallet.google_failed", {
       actor_id: profile.id, action: "wallet.google_failed",
       resource_type: "credential", resource_id: credential.id,
       change_after: { error: errMsg },
-    }).catch(() => {});
+    });
     console.error("Google wallet issuance failed:", errMsg);
   }
 
@@ -257,11 +273,11 @@ serve(async (req) => {
       // credential pending" rather than overstating full activation.
       // Ops must manually run: UPDATE credentials SET status='active' WHERE id=...
       console.error("wallet-issue: credential activation failed:", activateErr.message);
-      await supabaseAdmin.from("audit_events").insert({
+      await safeAudit(supabaseAdmin, "credential.activation_failed", {
         actor_id: profile.id, action: "credential.activation_failed",
         resource_type: "credential", resource_id: credential.id,
         change_after: { error: activateErr.message },
-      }).catch(() => {});
+      });
       return json({
         credential_id:     credential.id,
         credential_status: "pending",          // DB not yet updated — honest state
@@ -271,11 +287,11 @@ serve(async (req) => {
         google: googlePersisted ? { status: "issued", save_url: googleSaveUrl } : { status: "error", error: "provider_error" },
       }, 200);
     } else {
-      await supabaseAdmin.from("audit_events").insert({
+      await safeAudit(supabaseAdmin, "credential.activated", {
         actor_id: profile.id, action: "credential.activated",
         resource_type: "credential", resource_id: credential.id,
         change_after: { status: "active", issued_at: now },
-      }).catch(() => {});
+      });
     }
   }
 

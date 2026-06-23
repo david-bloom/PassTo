@@ -73,6 +73,7 @@ The sequence is designed to keep implementation moving while preserving the appr
 | 4.3 | TASK-0051 — Wallet pass provider state writes to Supabase | Claude | TASK-0050 |
 | 4.4 | TASK-0052 — Success / PassReady status flow | Claude/Lovable | TASK-0049, TASK-0051 |
 | 4.5 | TASK-0053 — Credential/wallet QA | Codex | TASK-0049 through TASK-0052 |
+| 4.6 | TASK-0072 — Configure and verify Apple and Google wallet pass issuance | Claude/Codex/David | Fresh Google + Apple evidence captured post-deploy (credential 1cc0f67e), success-status backend verified, /success live render pending David |
 
 ### Phase 5 — Dashboard and Share-Link Verification
 
@@ -89,9 +90,9 @@ The sequence is designed to keep implementation moving while preserving the appr
 | Order | Work | Owner | Depends On |
 |---|---|---|---|
 | 6.1 | TASK-0060 — Reconcile Stripe checkout end-to-end readiness | Claude/Codex | Approved 2026-06-04 |
-| 6.2 | TASK-0061 — Define subscription management and cancellation flow | Claude/Lovable | Approved 2026-06-04 |
-| 6.3 | TASK-0062 — Reconcile GA tier features against MVP PRD | Claude/Codex | Approved 2026-06-04 |
-| 6.4 | TASK-0063 — Harden entitlement and lapse ops visibility | Claude/Codex | Approved 2026-06-04 |
+| 6.2 | TASK-0061 — Define subscription management and cancellation flow | Claude/Lovable | Done - David Approved 2026-06-05 |
+| 6.3 | TASK-0062 — Reconcile GA tier features against MVP PRD | Claude/Codex | Done - David Approved 2026-06-05 |
+| 6.4 | TASK-0063 — Harden entitlement and lapse ops visibility | Claude/Codex | Done - David Approved 2026-06-05 |
 | 6.5 | TASK-0064 — Codex QA Phase 6 Stripe, entitlements, and lapse behavior | Codex | TASK-0060 through TASK-0063 |
 
 ### Phase 7 — Ops, Alerts, QA, and Launch Readiness
@@ -119,5 +120,5 @@ The sequence is designed to keep implementation moving while preserving the appr
 ## Current Next Action
 
 ```text
-Execute approved Phase 6 tasks in dependency order, starting with TASK-0060 and TASK-0062 reconciliation prep.
+TASK-0072 frontend remediation: fix /post-login and /success route guards so the backend-complete pass-ready nurse reaches /success, then verify both issued Add to Wallet actions render and open their providers before final Codex re-QA.
 ```

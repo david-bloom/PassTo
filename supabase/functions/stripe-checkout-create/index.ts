@@ -49,7 +49,7 @@ serve(async (req) => {
 
   if (!stripeKey) {
     console.error("STRIPE_CLIENT_SECRET not configured");
-    return json({ error: "payment_unavailable" }, 503);
+    return json({ error: "payment_unavailable", details: "STRIPE_CLIENT_SECRET missing" }, 503);
   }
 
   const authHeader = req.headers.get("Authorization");
@@ -96,7 +96,7 @@ serve(async (req) => {
 
   if (!priceId) {
     console.error(`${priceEnvKey} not configured`);
-    return json({ error: "payment_unavailable" }, 503);
+    return json({ error: "payment_unavailable", details: `${priceEnvKey} missing` }, 503);
   }
 
   // ── 4. Create Stripe Checkout Session ─────────────────────────────────────
@@ -140,7 +140,7 @@ serve(async (req) => {
     if (!res.ok) {
       const errBody = await res.text().catch(() => "(unreadable)");
       console.error("Stripe checkout session creation failed:", res.status, errBody);
-      return json({ error: "payment_unavailable" }, 503);
+      return json({ error: "payment_unavailable", details: `Stripe API error: ${res.status}` }, 503);
     }
 
     const session = await res.json();
@@ -148,11 +148,11 @@ serve(async (req) => {
 
     if (!sessionUrl) {
       console.error("Stripe session missing url:", JSON.stringify(session));
-      return json({ error: "payment_unavailable" }, 503);
+      return json({ error: "payment_unavailable", details: "Stripe session missing url" }, 503);
     }
   } catch (e) {
     console.error("Stripe API call threw:", (e as Error).message);
-    return json({ error: "payment_unavailable" }, 503);
+    return json({ error: "payment_unavailable", details: `Exception: ${(e as Error).message}` }, 503);
   }
 
   // ── 5. Audit ───────────────────────────────────────────────────────────────

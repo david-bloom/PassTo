@@ -34,6 +34,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const DEV_PROJECT_REF = "wvzjfxacykgsaffskgtr";
 const SEED_EMAIL_DOMAIN = "@passtodigital.test";
 const SEED_METADATA_KEY = "passto_seed_persona";
+const AUTH_REDIRECT_URL = "https://enroll.passtodigital.com/post-login";
 
 // ── Persona definitions (ID.me-first flow order) ──────────────────────────────
 
@@ -149,6 +150,25 @@ const PERSONAS: PersonaDef[] = [
     licenseNormalizedStatus: "Active",
     licenseMatchPassed: true,
     note: "Login → should route to /account-select",
+  },
+  {
+    key: "payment-pending",
+    email: `payment-pending${SEED_EMAIL_DOMAIN}`,
+    firstName: "Casey",
+    lastName: "Seed",
+    description: "Plan selected (Standard) — payment pending",
+    onboardingStep: "payment",
+    accountStatus: "active",
+    idVerificationStatus: "verified",
+    idVerificationLevel: "IAL2",
+    idMeSubject: "seed-idme-subject-payment-pending",
+    phoneVerificationStatus: "verified",
+    seedLicense: true,
+    licenseNormalizedStatus: "Active",
+    licenseMatchPassed: true,
+    seedSubscription: false,
+    subscriptionPlan: "standard",
+    note: "Login → should route to /payment for Stripe checkout test (TASK-0060)",
   },
   {
     key: "selfie-pending",
@@ -311,6 +331,20 @@ function printPersonaTable(personas: PersonaDef[]): void {
   console.log();
 }
 
+function seedPhoneForPersona(persona: PersonaDef): string {
+  let n = 0;
+  for (const ch of persona.key) {
+    n = (n + ch.charCodeAt(0)) % 10000;
+  }
+  return `+1555${String(n).padStart(4, "0")}`;
+}
+
+function statusIntentFor(normalizedStatus: string | undefined): string {
+  if (normalizedStatus === "Active") return "credential_valid";
+  if (normalizedStatus === "Unknown") return "verification_failure";
+  return "credential_invalid";
+}
+
 // ── Safety guards ─────────────────────────────────────────────────────────────
 
 function assertDevEnvironment(): void {
@@ -455,7 +489,10 @@ async function seedPersona(
     profileUpdate.id_me_subject = persona.idMeSubject;
   }
   if (persona.phoneVerificationStatus) {
-    profileUpdate.phone_verification_status = persona.phoneVerificationStatus;
+    profileUpdate.phone = seedPhoneForPersona(persona);
+  }
+  if (persona.subscriptionPlan) {
+    profileUpdate.subscription_tier = persona.subscriptionPlan;
   }
 
   const { error: profileErr } = await supabase
@@ -482,18 +519,23 @@ async function seedPersona(
       const licenseRow: Record<string, unknown> = {
         profile_id: profileId,
         license_number: seedLicenseNumber,
-        license_state: "NY",
+        state: "NY",
         license_type: "RN",
+        first_name: persona.firstName,
+        last_name: persona.lastName,
         source_status_raw: `FAKE-SEED-${persona.licenseNormalizedStatus?.toUpperCase()}`,
         source_status_display: persona.licenseNormalizedStatus,
         normalized_status: persona.licenseNormalizedStatus ?? "Active",
-        status_intent: persona.licenseNormalizedStatus === "Active" ? "valid" : "invalid",
+        status_intent: statusIntentFor(persona.licenseNormalizedStatus),
         wallet_pass_treatment:
           persona.licenseNormalizedStatus === "Active" ? "valid"
           : persona.licenseNormalizedStatus === "Expired" ? "invalid"
           : "do_not_issue",
+        is_primary: true,
+        lookup_source: "seed",
+        lookup_response: { source: "seed-dev-test-personas", persona: persona.key },
         status_checked_at: new Date().toISOString(),
-        license_data_match_passed: persona.licenseMatchPassed ?? false,
+        data_match_passed: persona.licenseMatchPassed ?? false,
       };
 
       const { error: licErr } = await supabase.from("licenses").insert(licenseRow);
@@ -519,7 +561,6 @@ async function seedPersona(
       const { error: credErr } = await supabase.from("credentials").insert({
         profile_id: profileId,
         status: persona.credentialStatus ?? "active",
-        credential_type: "nurse_license",
         issued_at: new Date().toISOString(),
       });
       if (credErr) {
@@ -545,6 +586,7 @@ async function seedPersona(
         profile_id: profileId,
         plan_name: persona.subscriptionPlan,
         status: persona.subscriptionStatus ?? "active",
+        license_entitlement_count: persona.subscriptionPlan === "premier" ? 2 : 1,
         current_period_start: new Date().toISOString(),
         current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
       });
@@ -558,12 +600,18 @@ async function seedPersona(
     }
   }
 
-  // Generate a magic-link for David to log in (displayed once, never stored)
-  if (!result.skipped) {
-    const { data: linkData } = await supabase.auth.admin.generateLink({
-      type: "magiclink",
-      email: persona.email,
-    });
+  // Generate a fresh magic-link for David to log in (displayed once, never stored).
+  // Existing seed users still need new links for repeat QA runs.
+  const { data: linkData, error: linkErr } = await supabase.auth.admin.generateLink({
+    type: "magiclink",
+    email: persona.email,
+    options: {
+      redirectTo: AUTH_REDIRECT_URL,
+    },
+  });
+  if (linkErr) {
+    result.errors.push(`magic link generation failed: ${linkErr.message}`);
+  } else {
     result.magicLink = linkData?.properties?.action_link ?? null;
   }
 

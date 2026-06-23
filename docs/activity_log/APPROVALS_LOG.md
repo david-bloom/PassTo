@@ -30,6 +30,249 @@ What was approved or rejected?
 
 ---
 
+## APPROVAL-0037 — TASK-0074 Execution Approval
+
+**Date:** 2026-06-16
+**Approved By:** David
+**Related Task:** TASK-0074
+**Decision:** Approved for Execution
+
+### Summary
+
+David granted TASK-0074 execution approval via chat:
+
+```text
+approved for execution
+approved for execution
+```
+
+The instruction approves Claude to begin implementation of the isolated
+demo/UAT platform per the spec as revised through CR4-0074 disposition
+(commit `be5a22d`). Codex CR5-0074 verdict was not yet posted at the time
+of approval; David elected to proceed without waiting. Codex re-review of
+the CR4 disposition remains welcome and may surface follow-up findings
+that Claude will disposition as they arrive without blocking Stage 1.
+
+### Approval Checklist
+
+- [x] I approve TASK-0074 execution for Stage 1 engineering validation as
+  defined in the Deployment Plan: schema, RLS, storage, Edge Functions,
+  simulators, wallet configuration, presenter console, frontend stubs,
+  isolation manifest, fail-closed boot tests, demo entitlement contract
+  isolation, and replay tests for the selfie token ledger, all without
+  exposing nurse-visible or verifier-visible selfie or org/purpose
+  surfaces.
+- [x] I approve Claude to apply demo/UAT Supabase migrations, configure
+  Supabase secrets, deploy demo Edge Functions, configure Vercel
+  environment variables for the demo Apple/Google wallet routes, and
+  bind the demo domain in Lovable, all scoped to the demo/UAT
+  environment only.
+- [x] I approve Claude to coordinate with Lovable on demo/UAT frontend
+  implementation per Claude/Codex specs.
+- [x] I understand this approval does NOT authorize:
+      - Stage A internal UAT or Stage B nurse cohort 1 execution.
+      - Recruiting or contacting nurses for cohort 1.
+      - Any change to production Supabase project `wvzjfxacykgsaffskgtr`,
+        production domains, production wallet identifiers, production
+        provider credentials, production Stripe configuration, or any
+        production behavior.
+      - Closing the source-reconciliation gate before David's final
+        approval of the reconciled IDME_FIRST_ONBOARDING, PASS_MANAGEMENT,
+        WALLET_PASS_DISPLAY_SPEC, VERIFIER_CREDENTIAL_VIEW, and
+        SECURITY_MODEL doc wording.
+      - Marking TASK-0074 Done or marking any pre-cohort-1 gate satisfied
+        without the documented Codex QA evidence.
+- [x] I acknowledge that production launch, Stripe live mode,
+      provider live-mode changes, migrations against production, and
+      cross-environment promotion of demo/UAT records remain explicitly
+      unapproved.
+
+### Notes
+
+- Target: Stage B first moderated nurse cohort by 2026-07-01. Stage A
+  internal UAT and Stage B cohort still require their own pre-flight
+  Codex QA passes per the Deployment Plan.
+- David's chat directive `approved for execution` is the authoritative
+  source for this approval. This entry is recorded by Claude on David's
+  behalf.
+
+---
+
+## APPROVAL-0036 — TASK-0073 Implementation Approval and Implementation Task Authorization
+
+**Date:** 2026-06-16
+**Approved By:** David
+**Related Task:** TASK-0073
+**Decision:** Approved for Execution
+
+### Summary
+
+David approved the three open A1 items on TASK-0073:
+
+```text
+A1 all tasks approved
+```
+
+The approval covers:
+
+1. Final implementation approval for TASK-0073 (previously `Implementation Pending`).
+2. The reconciled product/privacy direction: selfie required at issuance,
+   latest selfie shown in the nurse app credential experience and in verifier
+   views, delivered through a backend-authorized short-TTL contract without
+   exposing private storage paths.
+3. Authorization to create a separate implementation task defining
+   architecture, schema, RLS, storage, simulator, wallet, frontend, and
+   deployment changes for the isolated demo/UAT program.
+
+### Approval Checklist
+
+- [x] I approve TASK-0073 implementation per the protocol and runbook as
+  dispositioned by Codex (`CR-0073`, `CR-UAT`, `CR-DEMO`, and Session 2
+  reviews).
+- [x] I approve the reconciled selfie + verifier direction, including
+  backend-authorized short-TTL delivery and the obligation to update
+  `IDME_FIRST_ONBOARDING.md`, `PASS_MANAGEMENT.md`,
+  `WALLET_PASS_DISPLAY_SPEC.md`, `VERIFIER_CREDENTIAL_VIEW.md`, and
+  `SECURITY_MODEL.md` before cohort 1.
+- [x] I authorize creation of a separate implementation task; that task must
+  itself receive execution approval before infrastructure, simulator,
+  schema, RLS, storage, wallet identifier, frontend, or deployment changes
+  are applied.
+- [x] I understand this approval does not authorize provisioning the
+  demo/UAT Supabase project, separate Apple/Google wallet identifiers,
+  provider simulator deployment, recruiting nurse cohort 1, collecting
+  cohort recordings, exposing selfies in the verifier experience in
+  production, Stripe live-mode changes, or production launch.
+
+### Notes
+
+- Target dates remain July 1, 2026 for Stage A internal UAT and Stage B
+  first moderated nurse cohort, per the earlier David decision recorded in
+  `TASK-0073.md`.
+- The implementation task, once scaffolded, must list the pre-cohort-1 gates
+  already recorded in TASK-0073 (separate Apple demo pass type ID and
+  certificate, separate Google issuer/class ID, separate Supabase project
+  and domains, completed spec reconciliation, implemented and Codex-QA'd
+  selfie short-TTL delivery contract, automatic participant-phone cleanup,
+  and pre-cohort sync verification).
+- This entry is recorded by Claude on David's behalf. David's `A1 all tasks
+  approved` confirmation in chat is the authoritative source.
+
+---
+
+## APPROVAL-0035 — TASK-0064 Approval and TASK-0067 through TASK-0069 Execution Approval
+
+**Date:** 2026-06-15
+**Approved By:** David
+**Related Task:** TASK-0064, TASK-0067, TASK-0068, TASK-0069
+**Decision:** Approved for Execution
+
+### Summary
+
+David approved TASK-0064 and directed Codex to execute TASK-0067, TASK-0068, and TASK-0069:
+
+```text
+David approves 0064. Codex execute 0067, 0068, and 0069
+```
+
+### Approval Checklist
+
+- [x] I approve TASK-0064 Phase 6 Stripe, entitlement, and lapse behavior QA for execution within its documented approval boundaries.
+- [x] I approve Codex executing TASK-0067 to create the MVP launch readiness checklist.
+- [x] I approve Codex executing TASK-0068 to create the MVP QA test plan.
+- [x] I approve Codex executing TASK-0069 to create the production configuration checklist.
+- [x] I understand this approval does not approve production launch, Stripe live-mode cutover, provider live-mode changes, migrations, secrets/config changes, task Done decisions, issue closure, or risk acceptance.
+
+### Notes
+
+TASK-0067 through TASK-0069 are documentation/planning artifacts. They may identify production-impacting next actions, but they do not authorize those actions. TASK-0064 execution remains a QA task and does not mark Phase 6 Done until Codex completes QA and David approves the result.
+
+---
+
+## APPROVAL-0034 — TASK-0072 Wallet Provider Configuration and Display Spec Approval
+
+**Date:** 2026-06-05
+**Approved By:** David
+**Related Task:** TASK-0072
+**Decision:** Approved
+
+### Summary
+
+David approved TASK-0072 execution and the wallet pass display specification after Codex implemented the actual Apple PassKit layout and mirrored Google Wallet display payload:
+
+```text
+approved
+```
+
+### Approval Checklist
+
+- [x] I approve configuring Apple Wallet / PassKit credentials for PassTo.
+- [x] I approve configuring Google Wallet issuer/service-account credentials for PassTo.
+- [x] I approve setting required Vercel environment variables without exposing values in GitHub.
+- [x] I approve setting required Supabase Edge Function secrets without exposing values in GitHub.
+- [x] I approve deploying/redeploying wallet signing routes and `wallet-issue` if needed.
+- [x] I approve test-mode or launch-readiness wallet issuance against an approved disposable credential.
+- [x] I approve `docs/design_system/WALLET_PASS_DISPLAY_SPEC.md` as implementation truth for TASK-0072.
+- [x] I understand this does not approve production launch or broader risk acceptance.
+
+### Notes
+
+Approval covers provider configuration and live wallet QA for TASK-0072. It does not approve production launch, permanent QR/barcode embedding, committed secrets, raw wallet provider credentials in GitHub, Stripe live-mode changes, or unrelated task/issue closure.
+
+---
+
+## APPROVAL-0033 — TASK-0061, TASK-0062, and TASK-0063 Done Approval
+
+**Date:** 2026-06-05
+**Approved By:** David
+**Related Task:** TASK-0061, TASK-0062, TASK-0063
+**Decision:** Done / Passed
+
+### Summary
+
+David approved TASK-0061, TASK-0062, and TASK-0063 after Codex re-QA/final review:
+
+```text
+David approves Tasks-0061, 0062, 0063
+```
+
+### Approval Checklist
+
+- [x] I approve TASK-0061 as Done for its documented subscription management and cancellation-flow scope.
+- [x] I approve TASK-0062 as Done for its documented MVP-vs-GA tier reconciliation scope.
+- [x] I approve TASK-0063 as Done for its documented entitlement/lapse ops visibility scope.
+- [x] I understand this does not approve TASK-0064 Done, production launch, Stripe live-mode cutover, live Stripe product/price changes, issue closure outside the named tasks, or risk acceptance outside the named task scopes.
+
+### Notes
+
+Approval follows Codex re-QA for TASK-0061 and TASK-0062 and Codex final review for TASK-0063. Residual limitations remain as documented in each task file.
+
+---
+
+## APPROVAL-0032 — TASK-0060 Pass / Done Approval
+
+**Date:** 2026-06-04
+**Approved By:** David
+**Related Task:** TASK-0060
+**Decision:** Done / Passed
+
+### Summary
+
+David approved TASK-0060 after Codex re-QA verified the real Stripe test checkout, webhook persistence, and duplicate webhook idempotency evidence.
+
+### Approval Checklist
+
+- [x] I approve TASK-0060 as Passed / Done for its documented scope.
+- [x] I approve the recorded real Stripe test-mode checkout evidence.
+- [x] I approve the recorded duplicate webhook resend/idempotency evidence.
+- [x] I understand this does not approve Stripe live-mode cutover, production launch, issue closure outside this task, or risk acceptance beyond the documented TASK-0060 scope.
+
+### Notes
+
+Approval source: David stated "David approved" after Codex reported TASK-0060 re-QA evidence and duplicate event verification for `evt_1TeiXlAxxYwftEABuYocF2ge`.
+
+---
+
 ## APPROVAL-0031 — Phase 5 Closeout and Phase 6 Execution Approvals
 
 **Date:** 2026-06-04

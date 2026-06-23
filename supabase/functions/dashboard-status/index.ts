@@ -56,7 +56,7 @@ serve(async (req) => {
   // ── 2. Load profile + gate ─────────────────────────────────────────────────
   const { data: profile, error: profileErr } = await supabaseAdmin
     .from("profiles")
-    .select("id, onboarding_step, account_status, subscription_tier")
+    .select("id, onboarding_step, account_status, subscription_tier, stripe_customer_id")
     .eq("auth_user_id", user.id)
     .maybeSingle();
 
@@ -69,12 +69,11 @@ serve(async (req) => {
     }, 403);
   }
 
-  // ── 3. Load subscription state — fail closed on read error ────────────────
-  const { data: activeSub, error: subReadErr } = await supabaseAdmin
+  // ── 3. Load subscription state (including canceled/pending-lapse) ──────────
+  const { data: allSubs, error: subReadErr } = await supabaseAdmin
     .from("subscriptions")
-    .select("plan_name, status, license_entitlement_count")
+    .select("plan_name, status, license_entitlement_count, current_period_end")
     .eq("profile_id", profile.id)
-    .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -84,7 +83,15 @@ serve(async (req) => {
     return json({ error: "backend_read_error" }, 503);
   }
 
-  // ── 4. Load primary license — fail closed on read error ───────────────────
+  // Only treat as "active" if status is "active"; otherwise it's cancelled/pending
+  const activeSub = allSubs?.status === "active" ? allSubs : null;
+  const currentSub = allSubs; // May be active, past_due, canceled, unpaid, incomplete, etc.
+
+  // ── 4. Check subscription management availability ─────────────────────────
+  // stripe_customer_id is stored directly on profile (v4 migration)
+  const canManageSubscription = profile.stripe_customer_id !== null && profile.stripe_customer_id !== undefined;
+
+  // ── 5. Load primary license — fail closed on read error ───────────────────
   const { data: license, error: licReadErr } = await supabaseAdmin
     .from("licenses")
     .select("license_type, state, normalized_status, status_intent, expiration_date, status_checked_at, data_match_passed")
@@ -99,7 +106,7 @@ serve(async (req) => {
     return json({ error: "backend_read_error" }, 503);
   }
 
-  // ── 5. Load credential — fail closed on read error ────────────────────────
+  // ── 6. Load credential — fail closed on read error ────────────────────────
   const { data: credential, error: credReadErr } = await supabaseAdmin
     .from("credentials")
     .select("id, status, issued_at, expires_at")
@@ -113,7 +120,7 @@ serve(async (req) => {
     return json({ error: "backend_read_error" }, 503);
   }
 
-  // ── 6. Load per-provider wallet state — fail closed on read error ──────────
+  // ── 7. Load per-provider wallet state — fail closed on read error ──────────
   type WalletPassRow = {
     provider: string;
     status: string;
@@ -156,11 +163,11 @@ serve(async (req) => {
 
   const anyIssued = applePass?.status === "issued" || googlePass?.status === "issued";
 
-  // ── 7. Derive add-license entitlement ─────────────────────────────────────
+  // ── 8. Derive add-license entitlement ─────────────────────────────────────
   const canAddLicense =
     activeSub !== null && (activeSub.license_entitlement_count ?? 0) > 1;
 
-  // ── 8. Derive share-link eligibility (TASK-0056) ───────────────────────────
+  // ── 9. Derive share-link eligibility (TASK-0056) ───────────────────────────
   const shareLinkEligibility = deriveShareLinkEligibility(
     profile.subscription_tier,
     credential,
@@ -168,15 +175,17 @@ serve(async (req) => {
     activeSub,
   );
 
-  // ── 9. Return status payload ───────────────────────────────────────────────
+  // ── 10. Return status payload ──────────────────────────────────────────────
   return json({
     onboarding_step: profile.onboarding_step,
     account_status:  profile.account_status,
 
     // Subscription
     subscription_tier:      profile.subscription_tier,
-    subscription_status:    activeSub?.status    ?? null,
-    subscription_plan_name: activeSub?.plan_name ?? null,
+    subscription_status:    currentSub?.status    ?? null,
+    subscription_plan_name: currentSub?.plan_name ?? null,
+    current_period_end:     currentSub?.current_period_end ?? null,
+    can_manage_subscription: canManageSubscription,
 
     // License (primary)
     license_type:              license?.license_type      ?? null,
